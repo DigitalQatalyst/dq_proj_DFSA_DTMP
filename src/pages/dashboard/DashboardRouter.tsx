@@ -55,14 +55,14 @@ const DashboardRouter = () => {
         navigate('/dashboard/overview', { replace: true });
     };
 
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            setIsLoggedIn(true);
-        } else {
-            navigate('/', { replace: true });
-        }
-    }, [navigate]);
+    // useEffect(() => {
+    //     const token = localStorage.getItem('token');
+    //     if (token) {
+    //         setIsLoggedIn(true);
+    //     } else {
+    //         navigate('/', { replace: true });
+    //     }
+    // }, [navigate]);
 
     return (
         <DashboardLayout
