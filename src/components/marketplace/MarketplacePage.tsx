@@ -14,6 +14,7 @@ import { getFallbackItems } from '../../utils/fallbackData';
 import { useQuery } from '@apollo/client/react';
 import { GET_PRODUCTS, GET_FACETS } from '../../services/marketplaceQueries.ts';
 
+
 // Type for comparison items
 interface ComparisonItem {
   id: string;
