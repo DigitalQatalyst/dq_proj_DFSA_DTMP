@@ -81,7 +81,6 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   // Apollo useQuery is already initialized above via useQuery(GETPRODUCT,...)
   const {
     data: gqlData,
-    loading: gqlLoading,
     error: gqlError,
     refetch,
   } = useQuery(GETPRODUCT, {
@@ -101,6 +100,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       businessStage: cf.BusinessStage,
       serviceType: cf.CustomerType,
       price: cf.Cost,
+      processingTime: cf.ProcessingTime,
       amount: cf.Cost, // fallback for financial CTA amount
       details: Array.isArray(cf.Steps)
         ? cf.Steps
@@ -111,15 +111,15 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
         ? cf.RequiredDocuments
         : [],
       keyTerms: Array.isArray(cf.TermsOfService)
-        ? cf.TermsOfService.join(', ')
+        ? cf.TermsOfService.join(", ")
         : cf.TermsOfService,
       tags: [cf.Industry, cf.CustomerType, cf.BusinessStage].filter(Boolean),
       // Defaults to keep UI stable
       provider: {
-        name: 'Service Provider',
-        logoUrl: '/image.png',
+        name: "Service Provider",
+        logoUrl: "/image.png",
       },
-      providerLocation: 'UAE',
+      providerLocation: "UAE",
       // Optional UI fields not in the query yet
       startDate: undefined,
       duration: undefined,
@@ -146,8 +146,36 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
 
     const mapped = mapProductToItem(product);
     if (mapped) {
-      setItem(mapped);
-      setIsBookmarked(bookmarkedItems.includes(mapped.id));
+      // Merge with existing fallback so missing fields (details/highlights/attributes) are filled
+      const fallbackForItem = getFallbackItemDetails(
+        marketplaceType,
+        itemId || "fallback-1"
+      );
+      const merged = {
+        ...(fallbackForItem || {}),
+        ...mapped,
+      } as any;
+      // Do not overwrite fallback values with undefined/null/empty arrays
+      if (fallbackForItem) {
+        for (const key of Object.keys(fallbackForItem)) {
+          const val = (merged as any)[key];
+          const shouldUseFallback =
+            val === undefined ||
+            val === null ||
+            (Array.isArray(val) && val.length === 0) ||
+            (typeof val === "string" && val.trim() === "");
+          if (shouldUseFallback) {
+            (merged as any)[key] = (fallbackForItem as any)[key];
+          }
+        }
+        // Merge provider subfields
+        (merged as any).provider = {
+          ...(fallbackForItem as any).provider,
+          ...(mapped as any).provider,
+        };
+      }
+      setItem(merged);
+      setIsBookmarked(bookmarkedItems.includes(merged.id));
 
       const rs = product?.customFields?.RelatedServices;
       const relatedFromGql = Array.isArray(rs)
@@ -155,22 +183,38 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             id: x.id,
             title: x.name,
             description: "",
-            provider: { name: mapped.provider.name, logoUrl: mapped.provider.logoUrl },
+            provider: {
+              name: merged.provider.name,
+              logoUrl: merged.provider.logoUrl,
+            },
             tags: [],
           }))
         : [];
       setRelatedItems((prev) =>
-        relatedFromGql.length > 0 ? relatedFromGql : prev?.length ? prev : getFallbackItems(marketplaceType)
+        relatedFromGql.length > 0
+          ? relatedFromGql
+          : prev?.length
+          ? prev
+          : getFallbackItems(marketplaceType)
       );
 
       if (shouldTakeAction) {
         setTimeout(() => {
-          document.getElementById("action-section")?.scrollIntoView({ behavior: "smooth" });
+          document
+            .getElementById("action-section")
+            ?.scrollIntoView({ behavior: "smooth" });
         }, 100);
       }
       setError(null);
     }
-  }, [gqlData, gqlError, itemId, marketplaceType, bookmarkedItems, shouldTakeAction]);
+  }, [
+    gqlData,
+    gqlError,
+    itemId,
+    marketplaceType,
+    bookmarkedItems,
+    shouldTakeAction,
+  ]);
   // Check if tabs overflow and need navigation controls
   const checkOverflow = () => {
     if (tabsRef.current && containerRef.current) {
