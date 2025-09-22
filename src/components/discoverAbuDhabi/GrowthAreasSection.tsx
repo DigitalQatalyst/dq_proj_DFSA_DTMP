@@ -387,7 +387,7 @@ const GrowthAreasSection = () => {
                                     }}
                                 />
                                 <Tooltip
-                                    content={<CustomTooltip />}
+                                    content={<CustomTooltip active={activeChartIndex !== null} payload={sectorData[activeChartIndex]} label="" />}
                                     cursor={{
                                         fill: 'rgba(0, 48, 227, 0.05)',
                                     }}

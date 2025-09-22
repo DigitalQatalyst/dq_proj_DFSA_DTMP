@@ -17,6 +17,7 @@ import {
     Plus,
     Check,
     Menu,
+    MessageCircleIcon,
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -204,6 +205,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 label: 'Support',
                 icon: <HelpCircle size={20} />,
                 href: '/dashboard/support',
+            },
+            {
+                id: 'chat-support',
+                label: 'Chat Support',
+                icon: <MessageCircleIcon size={20} />,
+                href: '/dashboard/chat-support',
             },
             {
                 id: 'help-center',

@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { App } from './App';
-import { mockCourses, CourseType } from './utils/mockData';
+import { CourseType } from './utils/mockData';
 import { AuthProvider } from './components/Header';
 import { MarketplaceRouter } from './pages/marketplace/MarketplaceRouter';
 import MarketplaceDetailsPage from './pages/marketplace/MarketplaceDetailsPage';
 import DashboardRouter from './pages/dashboard/DashboardRouter';
 import { DiscoverAbuDhabi } from './pages/discoverAbuDhabi';
+import NotFound from './pages/NotFound';
 export function AppRouter() {
   const [bookmarkedCourses, setBookmarkedCourses] = useState<string[]>([]);
   const [compareCourses, setCompareCourses] = useState<CourseType[]>([]);
@@ -33,6 +34,8 @@ export function AppRouter() {
         <Route path="/marketplace/*" element={<MarketplaceRouter />} />
         <Route path="/dashboard/*" element={<DashboardRouter />} />
         <Route path="/discover-abudhabi" element={<DiscoverAbuDhabi />} />
+        <Route path="/404" element={<NotFound />} />
+        <Route path="*" element={<Navigate to="/404" replace />} />
       </Routes>
     </AuthProvider>
   </BrowserRouter>;
