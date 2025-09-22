@@ -11,7 +11,7 @@ import { Link } from 'react-router-dom';
 interface HeaderProps {
   toggleSidebar?: () => void;
   sidebarOpen?: boolean;
-  'data-id'?: string;
+  "data-id"?: string;
 }
 
 export function Header({
@@ -36,9 +36,10 @@ export function Header({
       const scrollTop = window.scrollY;
       setIsSticky(scrollTop > 50);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
 
   // Toggle notifications menu
   const toggleNotificationsMenu = () => {
@@ -46,20 +47,27 @@ export function Header({
     if (showNotificationCenter) setShowNotificationCenter(false);
   };
 
+
   // Open notification center
   const openNotificationCenter = () => {
     setShowNotificationCenter(true);
     setShowNotificationsMenu(false);
   };
 
+
   // Close notification center
   const closeNotificationCenter = () => {
     setShowNotificationCenter(false);
   };
 
+
   // Handle sign in
   const handleSignIn = () => {
     login();
+  };
+
+  const handleSignUp = () => {
+    console.log('Sign up clicked');
   };
 
   // Reset notification states when user logs out
@@ -112,7 +120,12 @@ export function Header({
             </div>
           </>}
           {/* Mobile and Tablet Drawer - Show for screens <1024px */}
-          <MobileDrawer isCompact={isSticky} onSignIn={handleSignIn} isSignedIn={!!user} />
+          <MobileDrawer 
+            isCompact={isSticky} 
+            onSignIn={handleSignIn} 
+            onSignUp={handleSignUp}
+            isSignedIn={!!user} 
+          />
         </div>
       </div>
     </header>

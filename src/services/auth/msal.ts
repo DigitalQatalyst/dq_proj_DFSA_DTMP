@@ -9,8 +9,7 @@ import {
 const env = (import.meta as any).env as Record<string, string | undefined>;
 console.log(env);
 
-const SUB = env.NEXT_PUBLIC_CIAM_SUBDOMAIN;
-const CLIENT_ID = env.NEXT_PUBLIC_AAD_CLIENT_ID || env.VITE_AZURE_CLIENT_ID;
+const CLIENT_ID = env.NEXT_PUBLIC_AAD_CLIENT_ID || env.VITE_AZURE_CLIENT_ID || "f996140d-d79b-419d-a64c-f211d23a38ad";
 const REDIRECT_URI =
   env.NEXT_PUBLIC_REDIRECT_URI ||
   env.VITE_AZURE_REDIRECT_URI ||
@@ -24,39 +23,84 @@ const API_SCOPES = (env.NEXT_PUBLIC_API_SCOPES || env.VITE_AZURE_SCOPES || "")
   .map((s) => s.trim())
   .filter(Boolean);
 
-const CUSTOM_DOMAIN =
-  env.NEXT_PUBLIC_CIAM_CUSTOM_DOMAIN || env.VITE_AZURE_CUSTOM_DOMAIN; // e.g., login.example.com
-const TENANT_ID = env.NEXT_PUBLIC_TENANT_ID || env.VITE_AZURE_TENANT_ID; // GUID tenant id for custom domain
+// Always request standard OIDC scopes; include email to avoid UPN-only claims and offline_access for refresh tokens
+const DEFAULT_OIDC_SCOPES = ["openid", "profile", "email", "offline_access"] as const;
 
+// Vite exposes only VITE_* via import.meta.env (not process.env)
+const TENANT_NAME = env.NEXT_PUBLIC_B2C_TENANT_NAME || env.VITE_B2C_TENANT_NAME || "dqproj";
+const POLICY_SIGNUP_SIGNIN =
+  env.NEXT_PUBLIC_B2C_POLICY_SIGNUP_SIGNIN || env.VITE_B2C_POLICY_SIGNUP_SIGNIN || "F1_CustomerSUSILocal_KF";
+// Optional dedicated Sign-Up policy/user flow
+const POLICY_SIGNUP = env.NEXT_PUBLIC_B2C_POLICY_SIGNUP || env.VITE_B2C_POLICY_SIGNUP;
+
+// Select correct login host. Prefer explicit host; default to B2C (b2clogin.com).
+// If you are using Entra External Identities (CIAM), set NEXT_PUBLIC_IDENTITY_HOST or VITE_IDENTITY_HOST
+// to e.g. "yourtenant.ciamlogin.com".
+
+
+
+
+// For external Entra ID (Azure AD), prefer tenant ID or domain
+// const TENANT_ID = env.NEXT_PUBLIC_TENANT_ID || env.VITE_AZURE_TENANT_ID;
+// const CUSTOM_DOMAIN = env.NEXT_PUBLIC_CIAM_CUSTOM_DOMAIN || env.VITE_AZURE_CUSTOM_DOMAIN;
+const SUB = env.NEXT_PUBLIC_CIAM_SUBDOMAIN || env.VITE_AZURE_SUBDOMAIN;
+
+const LOGIN_HOST =
+  env.NEXT_PUBLIC_IDENTITY_HOST ||
+  env.VITE_IDENTITY_HOST ||
+  (SUB ? `${SUB}.ciamlogin.com` : `${TENANT_NAME}.b2clogin.com`);
+const AUTHORITY_SIGNUP_SIGNIN = `https://${LOGIN_HOST}/${TENANT_NAME}.onmicrosoft.com/`;
+const AUTHORITY_SIGNUP = POLICY_SIGNUP
+  ? `https://${LOGIN_HOST}/${TENANT_NAME}.onmicrosoft.com/${POLICY_SIGNUP}`
+  : AUTHORITY_SIGNUP_SIGNIN;
+
+// Compute authority URL:
+// Priority:
+// 1. Custom domain + tenant ID (e.g. https://login.example.com/{tenantId})
+// 2. Azure AD tenant (https://login.microsoftonline.com/{tenantId})
+// 3. CIAM subdomain (https://{sub}.ciamlogin.com/)
+// 4. Fallback to common
 let computedAuthority: string;
-if (CUSTOM_DOMAIN && TENANT_ID) {
-  computedAuthority = `https://${CUSTOM_DOMAIN}/${TENANT_ID}`;
-} else if (SUB) {
+// if (CUSTOM_DOMAIN && TENANT_ID) {
+//   computedAuthority = `https://${CUSTOM_DOMAIN}/${TENANT_ID}`;
+// } else if (TENANT_ID) {
+//   computedAuthority = `https://login.microsoftonline.com/${TENANT_ID}`;
+// } else if (SUB) {
   computedAuthority = `https://${SUB}.ciamlogin.com/`;
-} else {
-  computedAuthority =
-    env.VITE_AZURE_AUTHORITY || "https://login.microsoftonline.com/common";
-}
+// } else {
+//   computedAuthority = env.VITE_AZURE_AUTHORITY || "https://login.microsoftonline.com/common";
+// }
 
-const knownAuthorities: string[] = (() => {
-  if (CUSTOM_DOMAIN) return [CUSTOM_DOMAIN];
-  if (SUB) return [`${SUB}.ciamlogin.com`];
-  try {
-    const url = new URL(computedAuthority);
-    return [url.host];
-  } catch {
-    return [];
-  }
-})();
+// Known authorities for MSAL (hostnames only)
+// const knownAuthorities: string[] = (() => {
+//   if (CUSTOM_DOMAIN) return [CUSTOM_DOMAIN];
+//   if (TENANT_ID) {
+//     try {
+//       const url = new URL(computedAuthority);
+//       return [url.host];
+//     } catch {
+//       return [];
+//     }
+//   }
+//   if (SUB) return [`${SUB}.ciamlogin.com`];
+//   try {
+//     const url = new URL(computedAuthority);
+//     return [url.host];
+//   } catch {
+//     return [];
+//   }
+// })();
 
 export const msalConfig: Configuration = {
   auth: {
-    clientId: CLIENT_ID || "YOUR_AZURE_AD_CLIENT_ID",
-    authority: computedAuthority,
-    knownAuthorities,
+    clientId: CLIENT_ID,
+    authority: AUTHORITY_SIGNUP_SIGNIN,
+    knownAuthorities: [LOGIN_HOST],
     redirectUri: REDIRECT_URI,
     postLogoutRedirectUri: POST_LOGOUT_REDIRECT_URI,
-    navigateToLoginRequestUrl: true,
+    // Stay on the redirectUri after login instead of bouncing back
+    // to the page where login was initiated.
+    navigateToLoginRequestUrl: false,
   },
   cache: {
     cacheLocation: BrowserCacheLocation.LocalStorage,
@@ -74,6 +118,16 @@ export const msalConfig: Configuration = {
 
 export const msalInstance = new PublicClientApplication(msalConfig);
 
+// Optionally include Graph User.Read for email resolution fallback (see AuthContext)
+const ENABLE_GRAPH_USER_READ = (env.VITE_MSAL_ENABLE_GRAPH_FALLBACK || env.NEXT_PUBLIC_MSAL_ENABLE_GRAPH_FALLBACK) === 'true';
+const GRAPH_SCOPES: string[] = ENABLE_GRAPH_USER_READ ? ["User.Read"] : [];
+
 export const defaultLoginRequest = {
-  scopes: API_SCOPES.length ? API_SCOPES : [],
+  scopes: Array.from(new Set([...(API_SCOPES.length ? API_SCOPES : []), ...DEFAULT_OIDC_SCOPES, ...GRAPH_SCOPES])),
+  authority: AUTHORITY_SIGNUP_SIGNIN,
+};
+
+export const signupRequest = {
+  scopes: Array.from(new Set([...(API_SCOPES.length ? API_SCOPES : []), ...DEFAULT_OIDC_SCOPES, ...GRAPH_SCOPES])),
+  authority: AUTHORITY_SIGNUP,
 };

@@ -4,6 +4,7 @@ import { BuildingIcon, CreditCardIcon, NewspaperIcon, UsersIcon, GraduationCapIc
 interface MobileDrawerProps {
   isCompact?: boolean;
   onSignIn: () => void;
+  onSignUp: () => void;
   isSignedIn: boolean;
 }
 const marketplaces = [{
@@ -58,6 +59,7 @@ const marketplaces = [{
 export function MobileDrawer({
   isCompact = false,
   onSignIn,
+  onSignUp,
   isSignedIn
 }: MobileDrawerProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -81,6 +83,7 @@ export function MobileDrawer({
     onSignIn();
     setIsDrawerOpen(false);
   };
+  // Sign out is handled via profile dropdown in desktop; mobile can add later if needed
   const handleCTAClick = (action: string) => {
     console.log(`${action} clicked`);
     setIsDrawerOpen(false);
@@ -184,23 +187,17 @@ export function MobileDrawer({
               </div>
             </div>
           </div>
-          {/* Sticky Sign In CTA at bottom - Only for non-signed-in users */}
-          {!isSignedIn && <div className="sticky bottom-0 left-0 right-0 px-4 py-4 border-t border-gray-200 bg-white shadow-lg">
-            <button className="w-full px-4 py-3 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-lg transition-all duration-200 hover:from-teal-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-teal-500 font-bold text-base tracking-tight shadow-md md:text-[15px] sm:text-sm" onClick={handleSignIn}>
-              Sign In to Get Started
-            </button>
-            <p className="text-xs text-gray-500 text-center mt-2 md:text-[11px] sm:text-[10px]">
-              Access your personalized dashboard
-            </p>
-          </div>}
-          {/* Drawer footer - Only for signed-in users */}
-          {isSignedIn && <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
-            <div className="flex items-center">
-              <div className="text-[11px] text-gray-500 md:text-[10px] sm:text-[9px]">
-                Enterprise Journey
-              </div>
+          {/* Sticky CTA at bottom for non-signed-in users */}
+          {!isSignedIn && (
+            <div className="sticky bottom-0 left-0 right-0 px-4 py-4 border-t border-gray-200 bg-white shadow-lg">
+              <button className="w-full px-4 py-3 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-lg transition-all duration-200 hover:from-teal-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-teal-500 font-bold text-base tracking-tight shadow-md md:text-[15px] sm:text-sm" onClick={handleSignIn}>
+                Sign In to Get Started
+              </button>
+              <p className="text-xs text-gray-500 text-center mt-2 md:text-[11px] sm:text-[10px]">
+                Access your personalized dashboard
+              </p>
             </div>
-          </div>}
+          )}
         </div>
       </div>
     </>}
