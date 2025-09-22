@@ -123,7 +123,7 @@ export const HomePage: React.FC = () => {
         title: 'Business Funding',
         description: 'Access loans, grants, and investment opportunities tailored for Abu Dhabi businesses',
         icon: <DollarSign />,
-        path: '/marketplace/financial',
+        path: '/marketplace/non-financial',
         gradientFrom: 'from-blue-600',
         gradientTo: 'to-blue-400',
         isActive: true

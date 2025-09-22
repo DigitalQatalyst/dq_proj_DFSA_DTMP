@@ -93,25 +93,25 @@ const partnerCategories = [{
   metric: '5000+',
   color: 'orange-500'
 }];
-const partnerLogos = [{
-  name: 'Abu Dhabi Global Market',
-  logo: 'https://images.squarespace-cdn.com/content/v1/5cc0e1e9a0cd27177a2dd7ec/1556171141973-2BKLJ7QWZM0RN9Y1DKBY/ADGM+Academy.png'
-}, {
-  name: 'Khalifa Fund',
-  logo: "/image.png"
-}, {
-  name: 'Hub71',
-  logo: 'https://hub71.com/wp-content/uploads/2023/05/hub71-logo-1.png'
-}, {
-  name: 'NYU Abu Dhabi',
-  logo: 'https://nyuad.nyu.edu/content/dam/nyuad/departments/public-affairs/logos/NYUAD-logo-color.png'
-}, {
-  name: 'ADNOC',
-  logo: 'https://www.adnoc.ae/-/media/adnoc-logo-white-bg.png'
-}, {
-  name: 'Mubadala',
-  logo: 'https://mubadala.com/wp-content/themes/mubadala_theme/assets/images/mubadala-logo.svg'
-}];
+const partnerLogos = [
+  { name: 'Abu Dhabi Ports', logo: '/logo/ad-ports-logo.webp' },
+  { name: 'Abu Dhabi SME Hub', logo: '/logo/ad-sme-hub-logo.webp' },
+  { name: 'ADCB', logo: '/logo/adcb-logo.webp' },
+  { name: 'ADIB', logo: '/logo/adib-logo.webp' },
+  { name: 'ADQ', logo: '/logo/adq-logo.webp' },
+  { name: 'ALDAR', logo: '/logo/aldar-logo.webp' },
+  { name: 'ASPIRE', logo: '/logo/aspire-logo.webp' },
+  { name: 'ATRC', logo: '/logo/atrc-logo.webp' },
+  { name: 'Emirates Development Bank', logo: '/logo/edb-logo.webp' },
+  { name: 'Etihad Airways', logo: '/logo/etihad-logo.webp' },
+  { name: 'Etisalat', logo: '/logo/etisalat-logo.webp' },
+  { name: 'First Abu Dhabi Bank', logo: '/logo/fab-logo.webp' },
+  { name: 'Masdar', logo: '/logo/masdar-logo.webp' },
+  { name: 'Mohammed Bin Zayed Innovation Fund', logo: '/logo/mbzif-logo.webp' },
+  { name: 'Mubadala', logo: '/logo/mubadala-logo.webp' },
+  { name: 'TII', logo: '/logo/tii-logo.webp' },
+  { name: 'Venture One', logo: '/logo/venture-one-logo.webp' }
+];
 const strategicPartners = [{
   name: 'Abu Dhabi Department of Economic Development',
   logo: 'https://added.gov.ae/-/media/Project/TAMM/DED/DED-Website/Header/DED-logo.png'
@@ -385,24 +385,16 @@ const PartnerCategoryCard = ({
   const [hasAnimated, setHasAnimated] = useState(false);
   const [ref, isInView] = useInView({
     threshold: 0.1
-  }) as [React.RefObject<HTMLDivElement>, boolean];
+  });
   // Trigger animation once when card comes into view
   useEffect(() => {
     if (isInView && !hasAnimated) {
       setHasAnimated(true);
     }
   }, [isInView, hasAnimated]);
-  return <div 
-    ref={ref} 
-    className={`relative overflow-hidden rounded-xl p-6 transition-all duration-500 ease-out transform ${
-      isHovered ? 'shadow-md scale-[1.02]' : 'shadow-sm'
-    }`} 
-    style={{
-      background: isHovered ? 'linear-gradient(to bottom right, #f9fafb, #ffffff)' : '#ffffff'
-    }} 
-    onMouseEnter={() => setIsHovered(true)} 
-    onMouseLeave={() => setIsHovered(false)}
-  >
+  return <div ref={ref} className={`relative overflow-hidden rounded-xl p-6 transition-all duration-500 ease-out transform ${isHovered ? 'shadow-md scale-[1.02]' : 'shadow-sm'}`} style={{
+    background: isHovered ? `linear-gradient(to bottom right, #f9fafb, #ffffff)` : '#ffffff'
+  }} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
       {/* Icon with animated container */}
       <div className={`w-14 h-14 rounded-lg flex items-center justify-center mb-4 transition-all duration-300 ${isHovered ? 'scale-110' : ''}`} style={{
       backgroundColor: `rgba(var(--color-${category.color}-rgb), 0.1)`,

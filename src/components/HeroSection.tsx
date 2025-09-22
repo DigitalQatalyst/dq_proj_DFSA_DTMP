@@ -43,7 +43,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   }, [isSearchFocused]);
   const suggestionPills = ['How do I get funding for my business?', 'What services help with business expansion?', 'How to connect with business mentors?', 'Steps to register a company in Abu Dhabi'];
   return <div className="relative w-full bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 overflow-hidden" style={{
-    backgroundImage: "linear-gradient(rgba(17, 24, 39, 0.7), rgba(17, 24, 39, 0.7)), url('https://images.unsplash.com/photo-1577493340887-b7bfff550145?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80')",
+    backgroundImage: "linear-gradient(rgba(17, 24, 39, 0.7), rgba(17, 24, 39, 0.7)), url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=1470&auto=format&fit=crop')",
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     height: '100vh'

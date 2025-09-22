@@ -7,11 +7,13 @@ import { NotificationCenter } from './notifications/NotificationCenter';
 import { mockNotifications } from './utils/mockNotifications';
 import { useAuth } from './context/AuthContext';
 import { Link } from 'react-router-dom';
+
 interface HeaderProps {
   toggleSidebar?: () => void;
   sidebarOpen?: boolean;
   'data-id'?: string;
 }
+
 export function Header({
   toggleSidebar,
   sidebarOpen,
@@ -24,8 +26,10 @@ export function Header({
     user,
     login
   } = useAuth();
+
   // Count unread notifications
   const unreadCount = mockNotifications.filter(notif => !notif.read).length;
+
   // Sticky header behavior
   useEffect(() => {
     const handleScroll = () => {
@@ -35,24 +39,29 @@ export function Header({
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
   // Toggle notifications menu
   const toggleNotificationsMenu = () => {
     setShowNotificationsMenu(!showNotificationsMenu);
     if (showNotificationCenter) setShowNotificationCenter(false);
   };
+
   // Open notification center
   const openNotificationCenter = () => {
     setShowNotificationCenter(true);
     setShowNotificationsMenu(false);
   };
+
   // Close notification center
   const closeNotificationCenter = () => {
     setShowNotificationCenter(false);
   };
+
   // Handle sign in
   const handleSignIn = () => {
     login();
   };
+
   // Reset notification states when user logs out
   useEffect(() => {
     if (!user) {
@@ -60,14 +69,16 @@ export function Header({
       setShowNotificationCenter(false);
     }
   }, [user]);
+
   return <>
     <header className={`flex items-center w-full transition-all duration-300 ${isSticky ? 'fixed top-0 left-0 right-0 z-40 shadow-lg backdrop-blur-sm bg-gradient-to-r from-teal-500/95 via-blue-500/95 to-purple-600/95' : 'relative bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600'}`} data-id={dataId}>
       {/* Logo Section */}
       <div className={`bg-gradient-to-r from-teal-600 to-teal-500 text-white py-2 px-4 flex items-center transition-all duration-300 ${isSticky ? 'h-12' : 'h-16'}`}>
-        <div className={`font-bold leading-tight transition-all duration-300 ${isSticky ? 'text-sm' : ''}`}>
-          <div>ENTERPRISE</div>
-          <div>JOURNEY</div>
-        </div>
+        <img 
+          src="/mzn_logo.svg" 
+          alt="MZN Logo" 
+          className={`transition-all duration-300 ${isSticky ? 'h-8' : 'h-10'}`}
+        />
       </div>
       {/* Main Navigation */}
       <div className={`flex-1 flex justify-between items-center bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600 text-white px-4 transition-all duration-300 ${isSticky ? 'h-12' : 'h-16'}`}>
