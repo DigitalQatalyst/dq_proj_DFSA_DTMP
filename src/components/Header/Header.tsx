@@ -81,13 +81,13 @@ export function Header({
   return <>
     <header className={`flex items-center w-full transition-all duration-300 ${isSticky ? 'fixed top-0 left-0 right-0 z-40 shadow-lg backdrop-blur-sm bg-gradient-to-r from-teal-500/95 via-blue-500/95 to-purple-600/95' : 'relative bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600'}`} data-id={dataId}>
       {/* Logo Section */}
-      <div className={`bg-gradient-to-r from-teal-600 to-teal-500 text-white py-2 px-4 flex items-center transition-all duration-300 ${isSticky ? 'h-12' : 'h-16'}`}>
+      <Link to="/" className={`bg-gradient-to-r from-teal-600 to-teal-500 text-white py-2 px-4 flex items-center transition-all duration-300 ${isSticky ? 'h-12' : 'h-16'}`}>
         <img 
           src="/mzn_logo.svg" 
           alt="MZN Logo" 
           className={`transition-all duration-300 ${isSticky ? 'h-8' : 'h-10'}`}
         />
-      </div>
+      </Link>
       {/* Main Navigation */}
       <div className={`flex-1 flex justify-between items-center bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600 text-white px-4 transition-all duration-300 ${isSticky ? 'h-12' : 'h-16'}`}>
         {/* Left Navigation - Desktop and Tablet */}

@@ -114,19 +114,19 @@ const partnerLogos = [
 ];
 const strategicPartners = [{
   name: 'Abu Dhabi Department of Economic Development',
-  logo: 'https://added.gov.ae/-/media/Project/TAMM/DED/DED-Website/Header/DED-logo.png'
+  logo: '/logo/addad-logo.webp'
 }, {
   name: 'Abu Dhabi Investment Office',
-  logo: 'https://www.investinabudhabi.gov.ae/ADIO/media/ADIO/Images/ADIO-Logo-color.png'
+  logo: '/logo/abio-logo.webp'
 }, {
   name: 'Mubadala',
-  logo: 'https://mubadala.com/wp-content/themes/mubadala_theme/assets/images/mubadala-logo.svg'
+  logo: '/logo/mubadala-logo.webp'
 }, {
   name: 'First Abu Dhabi Bank',
-  logo: 'https://www.bankfab.com/-/media/fabgroup/home/images/fav-logo.svg'
+  logo: '/logo/fab-logo.webp'
 }, {
   name: 'Etihad Airways',
-  logo: 'https://www.etihad.com/content/dam/eag/etihadairways/etihadcom/Global/logo/etihad-logo.svg'
+  logo: '/logo/etihad-logo.webp'
 }];
 const impactStats = [{
   label: 'SMEs Supported',
@@ -424,12 +424,25 @@ const PartnerLogo = ({
   index
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  return <div className={`relative mx-6 my-2 transition-all duration-300 ease-out transform ${isHovered ? 'scale-110' : ''}`} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-      <img src={partner.logo} alt={partner.name} className={`h-12 object-contain transition-all duration-500 ${isHovered ? 'grayscale-0' : 'grayscale'}`} style={{
-      filter: isHovered ? 'none' : 'grayscale(100%)',
-      opacity: isHovered ? 1 : 0.7
-    }} />
-    </div>;
+  return (
+    <div 
+      className={`relative mx-6 my-2 transition-all duration-300 ease-out transform ${isHovered ? 'scale-110' : ''}`} 
+      onMouseEnter={() => setIsHovered(true)} 
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <img 
+        src={partner.logo} 
+        alt={partner.name} 
+        className="h-12 object-contain transition-all duration-500"
+        style={{
+          filter: isHovered ? 'none' : 'grayscale(100%)',
+          opacity: isHovered ? 1 : 0.7,
+          width: 'auto',
+          maxWidth: '120px'
+        }} 
+      />
+    </div>
+  );
 };
 // Featured Partners Carousel component
 const FeaturedPartnersCarousel = () => {
