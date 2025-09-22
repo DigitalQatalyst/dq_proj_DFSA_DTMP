@@ -66,7 +66,7 @@ const DashboardRouter = () => {
 
     return (
         <DashboardLayout
-            onboardingComplete={true}
+            onboardingComplete={onboardingComplete}
             setOnboardingComplete={setOnboardingComplete}
             isOpen={isOpen}
             setIsOpen={setIsOpen}
@@ -74,30 +74,29 @@ const DashboardRouter = () => {
             setIsLoggedIn={setIsLoggedIn}
         >
             <Routes>
-                <Route path="/" element={<Navigate to={onboardingComplete ? "/dashboard/overview" : "/dashboard/onboarding"} replace />} />
-                <Route path="/onboarding" element={<OnboardingForm onComplete={handleOnboardingComplete} isRevisit={onboardingComplete} />} />
-                <Route path="/overview" element={<Overview />} />
-                {/* <Route path="/profile" element={<ProfilePage activeSection={activeSection} sidebarOpen={isOpen} toggleSidebar={() => setIsOpen(!isOpen)} />} /> */}
-                <Route path="/documents" element={<DocumentsPage
+                <Route index element={<Navigate to={onboardingComplete ? "overview" : "onboarding"} replace />} />
+                <Route path="onboarding" element={<OnboardingForm onComplete={handleOnboardingComplete} isRevisit={onboardingComplete} />} />
+                <Route path="overview" element={<Overview />} />
+                <Route path="documents" element={<DocumentsPage
                     isOpen={isOpen}
                     setIsOpen={setIsOpen}
                     isLoggedIn={isLoggedIn}
                     setIsLoggedIn={setIsLoggedIn}
                 />} />
-                <Route path="/requests" element={<ServiceRequestsPage
+                <Route path="requests" element={<ServiceRequestsPage
                     setIsOpen={setIsOpen}
                     isLoggedIn={isLoggedIn}
                 />} />
-                <Route path="/reporting" element={<Navigate to="/dashboard/reporting-obligations" replace />} />
-                <Route path="/reporting-obligations" element={<ReportsPage />} />
-                <Route path="/reporting-obligations/obligations" element={<AllUpcomingObligationsPage />} />
-                <Route path="/reporting-obligations/submitted" element={<AllSubmittedReportsPage />} />
-                <Route path="/reporting-obligations/received" element={<AllReceivedReportsPage />} />
-                <Route path="/profile" element={<BusinessProfilePage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-                <Route path="/support" element={<SupportPage />} />
-                <Route path="/chat-support" element={<ChatInterface />} />
-                <Route path="*" element={<Navigate to="/dashboard/overview" replace />} />
+                <Route path="reporting" element={<Navigate to="reporting-obligations" replace />} />
+                <Route path="reporting-obligations" element={<ReportsPage />} />
+                <Route path="reporting-obligations/obligations" element={<AllUpcomingObligationsPage />} />
+                <Route path="reporting-obligations/submitted" element={<AllSubmittedReportsPage />} />
+                <Route path="reporting-obligations/received" element={<AllReceivedReportsPage />} />
+                <Route path="profile" element={<BusinessProfilePage />} />
+                <Route path="settings" element={<SettingsPage />} />
+                <Route path="support" element={<SupportPage />} />
+                <Route path="chat-support" element={<ChatInterface />} />
+                <Route path="*" element={<Navigate to="overview" replace />} />
             </Routes>
         </DashboardLayout>
     );
