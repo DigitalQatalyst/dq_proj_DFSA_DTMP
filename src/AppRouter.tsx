@@ -10,22 +10,26 @@ import { DiscoverAbuDhabi } from './pages/discoverAbuDhabi';
 import NotFound from './pages/NotFound';
 import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
 import { ApolloProvider } from '@apollo/client/react';
+import KfBot from "./bot/KfBot";
 
 export function AppRouter() {
   const [bookmarkedCourses, setBookmarkedCourses] = useState<string[]>([]);
   const [compareCourses, setCompareCourses] = useState<CourseType[]>([]);
   const toggleBookmark = (courseId: string) => {
-    setBookmarkedCourses(prev => {
+    setBookmarkedCourses((prev) => {
       if (prev.includes(courseId)) {
-        return prev.filter(id => id !== courseId);
+        return prev.filter((id) => id !== courseId);
       } else {
         return [...prev, courseId];
       }
     });
   };
   const handleAddToComparison = (course: CourseType) => {
-    if (compareCourses.length < 3 && !compareCourses.some(c => c.id === course.id)) {
-      setCompareCourses(prev => [...prev, course]);
+    if (
+      compareCourses.length < 3 &&
+      !compareCourses.some((c) => c.id === course.id)
+    ) {
+      setCompareCourses((prev) => [...prev, course]);
     }
   };
 
@@ -37,6 +41,7 @@ export function AppRouter() {
   return <ApolloProvider client={client}>
       <BrowserRouter>
         <AuthProvider>
+        <KfBot />
           <Routes>
             <Route path="/" element={<App />} />
             <Route path="/courses" element={<App />} />
