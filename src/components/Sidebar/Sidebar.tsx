@@ -187,12 +187,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 href: '/dashboard/requests',
             },
             {
-                id: 'insights',
-                label: 'Insights',
-                icon: <BarChart3 size={20} />,
-                href: '/dashboard/insights',
-            },
-            {
                 id: 'reporting-obligations',
                 label: 'Reporting Obligations',
                 icon: <BarChart3 size={20} />,

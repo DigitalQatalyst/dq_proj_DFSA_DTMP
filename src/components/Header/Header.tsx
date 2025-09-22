@@ -51,15 +51,7 @@ export function Header({
   };
   // Handle sign in
   const handleSignIn = () => {
-    // Mock sign in - in real app this would open a sign in modal or redirect
-    login({
-      id: '1',
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      givenName: 'John',
-      familyName: 'Doe',
-      picture: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face'
-    });
+    login();
   };
   // Reset notification states when user logs out
   useEffect(() => {

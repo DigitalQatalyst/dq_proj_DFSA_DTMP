@@ -26,6 +26,9 @@ import { ReportsPage } from './reportingObligations/ReportsPage';
 import { AllReceivedReportsPage } from './reportingObligations/AllReceivedReportsPage';
 import { AllSubmittedReportsPage } from './reportingObligations/AllSubmittedReportsPage';
 import { AllUpcomingObligationsPage } from './reportingObligations/AllUpcomingObligationsPage';
+import BusinessProfilePage from './businessProfile';
+import SupportPage from './support';
+import SettingsPage from './settings';
 
 // Dashboard Layout Component
 // const DashboardLayout = ({ children }: { children: React.ReactNode; }) => {
@@ -318,40 +321,7 @@ const WelcomeStep = () => {
 //     </div>
 // );
 
-const RequestsPage = () => (
-    <div className="p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">Requests</h1>
-        <p className="text-gray-600">This section is locked. Complete onboarding to access.</p>
-    </div>
-);
 
-const InsightsPage = () => (
-    <div className="p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">Insights</h1>
-        <p className="text-gray-600">This section is locked. Complete onboarding to access.</p>
-    </div>
-);
-
-const ReportingPage = () => (
-    <div className="p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">Reporting Obligations</h1>
-        <p className="text-gray-600">This section is locked. Complete onboarding to access.</p>
-    </div>
-);
-
-const SettingsPage = () => (
-    <div className="p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">Settings</h1>
-        <p className="text-gray-600">This section is locked. Complete onboarding to access.</p>
-    </div>
-);
-
-const SupportPage = () => (
-    <div className="p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">Support</h1>
-        <p className="text-gray-600">This section is locked. Complete onboarding to access.</p>
-    </div>
-);
 
 // Main Dashboard Router Component
 const DashboardRouter = () => {
@@ -423,11 +393,11 @@ const DashboardRouter = () => {
                     setIsOpen={setIsOpen}
                     isLoggedIn={isLoggedIn}
                 />} />
-                <Route path="/insights" element={<InsightsPage />} />
                 <Route path="/reporting-obligations" element={<ReportsPage />} />
                 <Route path="/reporting-obligations/obligations" element={<AllUpcomingObligationsPage />} />
                 <Route path="/reporting-obligations/submitted" element={<AllSubmittedReportsPage />} />
                 <Route path="/reporting-obligations/received" element={<AllReceivedReportsPage />} />
+                <Route path="/profile" element={<BusinessProfilePage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/support" element={<SupportPage />} />
             </Routes>
