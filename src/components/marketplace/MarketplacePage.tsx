@@ -10,10 +10,8 @@ import { getMarketplaceConfig } from '../../utils/marketplaceConfiguration';
 import { MarketplaceComparison } from './MarketplaceComparison';
 import { Header } from '../Header';
 import { Footer } from '../Footer';
-import { getFallbackItems } from '../../utils/fallbackData';
 import { useQuery } from '@apollo/client/react';
 import { GET_PRODUCTS, GET_FACETS } from '../../services/marketplaceQueries.ts';
-
 
 // Type for comparison items
 interface ComparisonItem {
@@ -260,23 +258,16 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           console.log('filters:', filters);
           console.log('filteredItems:', filtered);
 
-          // Use fetched data if available, otherwise use fallback data
-          const finalItems =
-            mappedItems.length > 0 ? mappedItems : getFallbackItems(marketplaceType);
-          const finalFilteredItems =
-            filtered.length > 0 ? filtered : getFallbackItems(marketplaceType);
-
-          setItems(finalItems);
-          setFilteredItems(finalFilteredItems);
+          // Set items and filteredItems to backend data
+          setItems(mappedItems);
+          setFilteredItems(filtered);
           setLoading(false);
         }
       } catch (err) {
         console.error(`Error processing ${marketplaceType} items:`, err);
         setError(`Failed to load ${marketplaceType}`);
-        // Use fallback data when API fails
-        const fallbackItems = getFallbackItems(marketplaceType);
-        setItems(fallbackItems);
-        setFilteredItems(fallbackItems);
+        setItems([]);
+        setFilteredItems([]);
         setLoading(false);
       }
     };
@@ -505,6 +496,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 message={error || facetError?.message || productError?.message || `Failed to load ${marketplaceType}`}
                 onRetry={retryFetch}
               />
+            ) : filteredItems.length === 0 ? (
+              <div className="text-center text-gray-600 py-8">
+                No service available
+              </div>
             ) : (
               <MarketplaceGrid
                 items={filteredItems}
