@@ -71,7 +71,7 @@ const uploadBufferToBlob = async (buffer: Buffer, blobName: string, contentType?
   // Fallback: use static SAS token (less secure; SAS_TOKEN must be configured)
   const safeName = encodeURIComponent(blobName);
   const urlWithSas = `https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net/${CONTAINER_NAME}/${safeName}?${SAS_TOKEN}`;
-  // Convert Buffer to an exact ArrayBuffer slice to satisfy BodyInit typing
+  // see if this will deploy
   const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
   const res = await fetch(urlWithSas, {
     method: 'PUT',
