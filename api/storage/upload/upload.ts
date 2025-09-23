@@ -178,7 +178,7 @@ export default async function handler(req: AnyRequest, res: AnyResponse): Promis
       chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : Buffer.from(chunk));
     }
     const buffer = Buffer.concat(chunks);
-
+    console.log('buffer', buffer);
     if (!buffer || buffer.length === 0) {
       res.status?.(400);
       res.json?.({ error: 'No body provided for raw upload' });
