@@ -378,131 +378,141 @@ export function BusinessProfile({ activeSection = 'profile', toggleSidebar, side
           )}
 
           {/* Desktop Tabs */}
-          {activeSection === 'profile' && !showAll && (
-            <div className="hidden md:block border-b border-gray-200 bg-gray-50 sticky top-[57px] z-10">
-              <div className="flex items-center max-w-full">
-                <button
-                  className="px-2 py-3 text-gray-500 hover:text-gray-700 focus:outline-none"
-                  onClick={scrollLeft}
-                  aria-label="Scroll tabs left"
-                >
-                  <ChevronLeftIcon size={16} />
-                </button>
-                <div
-                  ref={tabsRef}
-                  className="flex-1 overflow-x-auto scrollbar-hide scroll-smooth snap-x"
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                  role="tablist"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'ArrowRight') {
-                      scrollRight();
-                      if (activeTabIndex < sectionsToDisplay.length - 1) {
-                        setActiveTabIndex(activeTabIndex + 1);
-                      }
-                    } else if (e.key === 'ArrowLeft') {
-                      scrollLeft();
-                      if (activeTabIndex > 0) {
-                        setActiveTabIndex(activeTabIndex - 1);
-                      }
-                    }
-                  }}
-                >
-                  {sectionsToDisplay.map((section, index) => (
-                    <button
-                      key={section.id}
-                      className={`px-4 py-3 text-sm font-medium whitespace-nowrap flex items-center snap-start ${
-                        activeTabIndex === index
-                          ? 'text-blue-600 border-b-2 border-blue-600 bg-white'
-                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                      }`}
-                      onClick={() => setActiveTabIndex(index)}
-                      role="tab"
-                      aria-selected={activeTabIndex === index}
-                      id={`tab-${section.id}`}
-                      aria-controls={`panel-${section.id}`}
-                    >
-                      <span>{section.title}</span>
-                      <div className="flex items-center ml-2">
-                        {section.mandatoryCompletion.percentage === 100 ? (
-                          <span className="flex items-center text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-700">
-                            <CheckCircleIcon size={14} className="mr-1" />
-                            {section.completion}%
-                          </span>
-                        ) : section.mandatoryCompletion.percentage > 0 ? (
-                          <span className="flex items-center text-xs px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
-                            <span className="w-2 h-2 rounded-full bg-amber-500 mr-1"></span>
-                            {section.completion}%
-                          </span>
-                        ) : (
-                          <span className="flex items-center text-xs px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700">
-                            <span className="w-2 h-2 rounded-full bg-gray-400 mr-1"></span>
-                            {section.completion}%
-                          </span>
-                        )}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-                <button
-                  className="px-2 py-3 text-gray-500 hover:text-gray-700 focus:outline-none"
-                  onClick={scrollRight}
-                  aria-label="Scroll tabs right"
-                >
-                  <ChevronRightIcon size={16} />
-                </button>
-                <div className="relative">
-                  <button
-                    className="px-2 py-3 text-gray-500 hover:text-gray-700 focus:outline-none"
-                    onClick={() => setShowTabsMenu(!showTabsMenu)}
-                    aria-label="Show all tabs"
-                  >
-                    <MoreHorizontalIcon size={16} />
-                  </button>
-                  {showTabsMenu && (
-                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-10 border border-gray-200">
-                      <div className="py-1 max-h-64 overflow-y-auto">
-                        {sectionsToDisplay.map((section, index) => (
-                          <button
-                            key={section.id}
-                            className={`w-full text-left px-4 py-2 text-sm flex items-center justify-between ${
-                              activeTabIndex === index
-                                ? 'bg-blue-50 text-blue-600'
-                                : 'text-gray-700 hover:bg-gray-100'
-                            }`}
-                            onClick={() => {
-                              setActiveTabIndex(index);
-                              setShowTabsMenu(false);
-                            }}
-                          >
-                            <span>{section.title}</span>
-                            <div className="flex items-center">
-                              {section.mandatoryCompletion.percentage === 100 ? (
-                                <span className="flex items-center text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-700">
-                                  <CheckCircleIcon size={14} className="mr-1" />
-                                  {section.completion}%
-                                </span>
-                              ) : section.mandatoryCompletion.percentage > 0 ? (
-                                <span className="flex items-center text-xs px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
-                                  <span className="w-2 h-2 rounded-full bg-amber-500 mr-1"></span>
-                                  {section.completion}%
-                                </span>
-                              ) : (
-                                <span className="flex items-center text-xs px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700">
-                                  <span className="w-2 h-2 rounded-full bg-gray-400 mr-1"></span>
-                                  {section.completion}%
-                                </span>
-                              )}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+          {/* Desktop Tabs - Updated to match image design */}
+{activeSection === 'profile' && !showAll && (
+  <div className="hidden md:block border-b border-gray-200 bg-gray-50 sticky top-[57px] z-10">
+    <div className="flex items-center justify-between px-6 py-4">
+
+      {/* Right side - Scrollable tabs */}
+      <div className="flex items-center flex-1 max-w-[1470px] justify-end">
+        <button
+          className="px-2 py-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+          onClick={scrollLeft}
+          aria-label="Scroll tabs left"
+        >
+          <ChevronLeftIcon size={16} />
+        </button>
+        
+        <div
+          ref={tabsRef}
+          className="flex-1 overflow-x-auto scrollbar-hide scroll-smooth mx-2"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          role="tablist"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowRight') {
+              scrollRight();
+              if (activeTabIndex < sectionsToDisplay.length - 1) {
+                setActiveTabIndex(activeTabIndex + 1);
+              }
+            } else if (e.key === 'ArrowLeft') {
+              scrollLeft();
+              if (activeTabIndex > 0) {
+                setActiveTabIndex(activeTabIndex - 1);
+              }
+            }
+          }}
+        >
+          <div className="flex space-x-1 min-w-max">
+            {sectionsToDisplay.map((section, index) => (
+              <button
+                key={section.id}
+                className={`px-4 py-2 text-sm font-medium whitespace-nowrap flex items-center rounded-lg transition-all duration-200 ${
+                  activeTabIndex === index
+                    ? 'bg-white text-blue-600 shadow-sm border border-blue-200'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+                onClick={() => setActiveTabIndex(index)}
+                role="tab"
+                aria-selected={activeTabIndex === index}
+                id={`tab-${section.id}`}
+                aria-controls={`panel-${section.id}`}
+              >
+                <span>{section.title}</span>
+                <div className="flex items-center ml-2">
+                  {section.mandatoryCompletion.percentage === 100 ? (
+                    <span className="flex items-center text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-700">
+                      <CheckCircleIcon size={14} className="mr-1" />
+                      {section.completion}%
+                    </span>
+                  ) : section.mandatoryCompletion.percentage > 0 ? (
+                    <span className="flex items-center text-xs px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                      <span className="w-2 h-2 rounded-full bg-amber-500 mr-1"></span>
+                      {section.completion}%
+                    </span>
+                  ) : (
+                    <span className="flex items-center text-xs px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700">
+                      <span className="w-2 h-2 rounded-full bg-gray-400 mr-1"></span>
+                      {section.completion}%
+                    </span>
                   )}
                 </div>
+              </button>
+            ))}
+          </div>
+        </div>
+        
+        <button
+          className="px-2 py-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+          onClick={scrollRight}
+          aria-label="Scroll tabs right"
+        >
+          <ChevronRightIcon size={16} />
+        </button>
+        
+        <div className="relative ml-2">
+          <button
+            className="px-2 py-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+            onClick={() => setShowTabsMenu(!showTabsMenu)}
+            aria-label="Show all tabs"
+          >
+            <MoreHorizontalIcon size={16} />
+          </button>
+          {showTabsMenu && (
+            <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+              <div className="py-1 max-h-64 overflow-y-auto">
+                {sectionsToDisplay.map((section, index) => (
+                  <button
+                    key={section.id}
+                    className={`w-full text-left px-4 py-2 text-sm flex items-center justify-between ${
+                      activeTabIndex === index
+                        ? 'bg-blue-50 text-blue-600'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                    onClick={() => {
+                      setActiveTabIndex(index);
+                      setShowTabsMenu(false);
+                    }}
+                  >
+                    <span>{section.title}</span>
+                    <div className="flex items-center">
+                      {section.mandatoryCompletion.percentage === 100 ? (
+                        <span className="flex items-center text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-700">
+                          <CheckCircleIcon size={14} className="mr-1" />
+                          {section.completion}%
+                        </span>
+                      ) : section.mandatoryCompletion.percentage > 0 ? (
+                        <span className="flex items-center text-xs px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                          <span className="w-2 h-2 rounded-full bg-amber-500 mr-1"></span>
+                          {section.completion}%
+                        </span>
+                      ) : (
+                        <span className="flex items-center text-xs px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700">
+                          <span className="w-2 h-2 rounded-full bg-gray-400 mr-1"></span>
+                          {section.completion}%
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                ))}
               </div>
             </div>
           )}
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
           {/* Content Area */}
           <div className="p-3 sm:p-4 md:p-6">
