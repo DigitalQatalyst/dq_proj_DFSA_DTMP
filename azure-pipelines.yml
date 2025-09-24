@@ -35,7 +35,7 @@ steps:
 # 2. Setting Image with Build Id and creating secret.
 - script: |
     echo "Injecting image tag: staging-$(Build.BuildId)"
-    sed -i "s|image: .*$|image: $(registry)/$(imageName):$(imageTag)|" k8s/base/vendure/deployment.yaml
+    sed -i "s|image: .*$|image: $(registry)/$(imageName):$(imageTag)|" k8s/overlays/staging/deployment.yaml
   displayName: 'Setting Image with BuildId'
 
 # 3. Download the Kubeconfig File from Azure DevOps Secure Files
