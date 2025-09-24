@@ -139,6 +139,8 @@ declare global {
         close?: () => void;
         interact?: (payload: any) => void;
         destroy?: () => void;
+        open?: () => void;  // Add the open method
+        show?: () => void;  // Alternative method name (some widgets use 'show')
       };
     };
   }
