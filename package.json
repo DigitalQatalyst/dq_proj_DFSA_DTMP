@@ -7,13 +7,16 @@
     "dev": "npx vite",
     "build": "npx vite build",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "preview": "npx vite preview"
+    "preview": "npx vite preview",
+    "vercel:dev": "vercel dev"
   },
   "dependencies": {
     "@apollo/client": "^4.0.5",
     "@azure/msal-browser": "^4.23.0",
     "@azure/msal-react": "^3.0.19",
+    "@azure/storage-blob": "^12.28.0",
     "date-fns": "^4.0.0",
+    "formidable": "^3.5.4",
     "graphql": "^16.11.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.441.0",

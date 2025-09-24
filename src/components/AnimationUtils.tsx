@@ -76,31 +76,46 @@ export function useCountUp(end: number, duration = 2000, startOnView = true): [R
   return [ref, count];
 }
 // Animated text component for word-by-word animation
+// 🔄 Drop-in replacement for AnimatedText
 export const AnimatedText = ({
   text,
   className = '',
   delay = 0.1,
   duration = 0.5,
-  once = true
+  once = true,
+  /** Option A: CSS word spacing applied to the wrapper */
+  wordSpacing, // e.g. "0.75rem" | "12px"
+  /** Option B: margin gap between word spans (ignored if wordSpacing is set) */
+  gap, // e.g. "0.75rem" | "12px"
+}: {
+  text: string;
+  className?: string;
+  delay?: number;
+  duration?: number;
+  once?: boolean;
+  wordSpacing?: string;
+  gap?: string;
 }) => {
   const words = text.split(' ');
   const [ref, isInView] = useInView({
     triggerOnce: once,
     threshold: 0.1,
-    rootMargin: '0px 0px -20% 0px'
+    rootMargin: '0px 0px -20% 0px',
   });
-  const [hasAnimated, setHasAnimated] = useState(false);
-  // Always default to showing text after a short delay
-  const [forceShow, setForceShow] = useState(false);
-  useEffect(() => {
+
+  const [hasAnimated, setHasAnimated] = React.useState(false);
+  const [forceShow, setForceShow] = React.useState(false);
+
+  // Fallback: ensure text shows even if observer doesn’t fire
+  React.useEffect(() => {
     const timer = setTimeout(() => setForceShow(true), 1000);
     return () => clearTimeout(timer);
   }, []);
+
   const shouldAnimate = forceShow || (once ? isInView && !hasAnimated : isInView);
-  useEffect(() => {
-    if (isInView && !hasAnimated && once) {
-      setHasAnimated(true);
-    }
+
+  React.useEffect(() => {
+    if (isInView && !hasAnimated && once) setHasAnimated(true);
   }, [isInView, hasAnimated, once]);
   return <span ref={ref as React.RefObject<HTMLSpanElement>} className={className}>
       {words.map((word, i) => <span key={i} className="inline-block" style={{
@@ -108,12 +123,13 @@ export const AnimatedText = ({
       transform: shouldAnimate ? 'translateY(0)' : 'translateY(20px)',
       transition: `opacity ${duration}s ease-out, transform ${duration}s ease-out`,
       transitionDelay: `${delay * i}s`,
-      marginRight: '1 rem',
+      marginRight: '1rem',
     }}>
           {word}{' '}
         </span>)}
     </span>;
 };
+
 // Animated element that fades and slides up when scrolled into view
 export function FadeInUpOnScroll({
   children,

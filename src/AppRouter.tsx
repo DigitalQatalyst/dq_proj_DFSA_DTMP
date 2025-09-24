@@ -6,6 +6,7 @@ import { AuthProvider } from './components/Header';
 import { MarketplaceRouter } from './pages/marketplace/MarketplaceRouter';
 import MarketplaceDetailsPage from './pages/marketplace/MarketplaceDetailsPage';
 import DashboardRouter from './pages/dashboard/DashboardRouter';
+import ProtectedRoute from './components/ProtectedRoute';
 import { DiscoverAbuDhabi } from './pages/discoverAbuDhabi';
 import NotFound from './pages/NotFound';
 import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
@@ -47,7 +48,7 @@ export function AppRouter() {
             <Route path="/courses" element={<App />} />
             <Route path="/courses/:itemId" element={<MarketplaceDetailsPage marketplaceType="courses" bookmarkedItems={bookmarkedCourses} onToggleBookmark={toggleBookmark} onAddToComparison={handleAddToComparison} />} />
             <Route path="/marketplace/*" element={<MarketplaceRouter />} />
-            <Route path="/dashboard/*" element={<DashboardRouter />} />
+            <Route path="/dashboard/*" element={<ProtectedRoute><DashboardRouter /></ProtectedRoute>} />
             <Route path="/discover-abudhabi" element={<DiscoverAbuDhabi />} />
             <Route path="/404" element={<NotFound />} />
             <Route path="*" element={<Navigate to="/404" replace />} />

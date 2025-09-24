@@ -55,7 +55,12 @@ const HeroSection: React.FC<HeroSectionProps> = ({
       <div className="container mx-auto px-4 h-full flex flex-col justify-center items-center relative z-10">
         <div className="text-center max-w-4xl mx-auto mb-8">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight overflow-hidden">
-            <AnimatedText text="Your Gateway to Enterprise Growth in Abu Dhabi" />
+            
+              <AnimatedText
+                text="Your Gateway to Enterprise Growth in Abu Dhabi"
+                gap="1rem"
+              />
+            
           </h1>
           <FadeInUpOnScroll delay={0.8}>
             <p className="text-xl text-white/90 mb-8">
