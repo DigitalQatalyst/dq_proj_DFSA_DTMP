@@ -107,7 +107,8 @@ export const AnimatedText = ({
       opacity: shouldAnimate ? 1 : 0,
       transform: shouldAnimate ? 'translateY(0)' : 'translateY(20px)',
       transition: `opacity ${duration}s ease-out, transform ${duration}s ease-out`,
-      transitionDelay: `${delay * i}s`
+      transitionDelay: `${delay * i}s`,
+      marginRight: '1 rem',
     }}>
           {word}{' '}
         </span>)}
