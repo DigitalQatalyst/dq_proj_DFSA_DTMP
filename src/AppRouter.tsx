@@ -65,9 +65,9 @@ export function AppRouter() {
             <Route
               path="/dashboard/*"
               element={
-                <ProtectedRoute>
-                  <DashboardRouter />
-                </ProtectedRoute>
+                // <ProtectedRoute>
+                <DashboardRouter />
+                // </ProtectedRoute>
               }
             />
             <Route path="/discover-abudhabi" element={<DiscoverAbuDhabi />} />

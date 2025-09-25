@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { ServiceRequestForm } from "../../components/Forms/FormPreview";
-// import { RequestForMembershipSchema } from "../../components/Forms/form-schemas/RequestForMembershipSchema";
 import { IssueSupportLetterSchema } from "../../components/Forms/form-schemas/IssueSupportLetterSchema";
 
-function Forms() {
+function IssueSupportLetter() {
   const [formData, setFormData] = useState<any>({});
 
   const handleSubmit = async (data: any) => {
@@ -23,12 +22,12 @@ function Forms() {
         onSubmit={handleSubmit}
         onSave={handleSave}
         initialData={formData}
-        data-id="general-service-request"
+        data-id="issue-support-letter"
       />
     </div>
   );
 }
 
 // Export the specific form name
-export const IssueSupportLetterForm = Forms;
-export default Forms;
+export const IssueSupportLetterForm = IssueSupportLetter;
+export default IssueSupportLetter;

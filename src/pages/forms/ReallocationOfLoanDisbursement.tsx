@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { ServiceRequestForm } from "../../components/Forms/FormPreview";
-// import { RequestForMembershipSchema } from "../../components/Forms/form-schemas/RequestForMembershipSchema";
-import { IssueSupportLetterSchema } from "../../components/Forms/form-schemas/IssueSupportLetterSchema";
+import { reallocationLoanSchema } from "../../components/Forms/form-schemas/LoanDisbursement";
 
-function Forms() {
+function ReallocationOfLoanDisbursement() {
   const [formData, setFormData] = useState<any>({});
 
   const handleSubmit = async (data: any) => {
@@ -19,16 +18,17 @@ function Forms() {
   return (
     <div>
       <ServiceRequestForm
-        schema={IssueSupportLetterSchema}
+        schema={reallocationLoanSchema}
         onSubmit={handleSubmit}
         onSave={handleSave}
         initialData={formData}
-        data-id="general-service-request"
+        data-id="reallocation-of-loan-disbursement"
       />
     </div>
   );
 }
 
 // Export the specific form name
-export const IssueSupportLetterForm = Forms;
-export default Forms;
+export const ReallocationOfLoanDisbursementForm =
+  ReallocationOfLoanDisbursement;
+export default ReallocationOfLoanDisbursement;

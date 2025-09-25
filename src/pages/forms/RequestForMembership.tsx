@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { ServiceRequestForm } from "../../components/Forms/FormPreview";
-// import { RequestForMembershipSchema } from "../../components/Forms/form-schemas/RequestForMembershipSchema";
-import { IssueSupportLetterSchema } from "../../components/Forms/form-schemas/IssueSupportLetterSchema";
+import { RequestForMembershipSchema } from "../../components/Forms/form-schemas/RequestForMembershipSchema";
 
-function Forms() {
+function RequestForMembership() {
   const [formData, setFormData] = useState<any>({});
 
   const handleSubmit = async (data: any) => {
@@ -19,16 +18,16 @@ function Forms() {
   return (
     <div>
       <ServiceRequestForm
-        schema={IssueSupportLetterSchema}
+        schema={RequestForMembershipSchema}
         onSubmit={handleSubmit}
         onSave={handleSave}
         initialData={formData}
-        data-id="general-service-request"
+        data-id="request-for-membership"
       />
     </div>
   );
 }
 
 // Export the specific form name
-export const IssueSupportLetterForm = Forms;
-export default Forms;
+export const RequestForMembershipForm = RequestForMembership;
+export default RequestForMembership;

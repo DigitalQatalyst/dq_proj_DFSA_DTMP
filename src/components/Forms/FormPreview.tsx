@@ -730,7 +730,7 @@ const FormField: React.FC<{
           </div>
         );
       }
-       case "checkbox":
+      case "checkbox":
         return (
           <div className="space-y-1">
             {fieldOptions.map((option) => (
@@ -1012,7 +1012,6 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
   onSave,
   initialData = {},
   "data-id": dataId,
-
 }) => {
   // Validate and use schema with fallback
   const schema = useMemo(
