@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { generalServiceRequestSchema } from "../../components/Forms/form-schemas/SingleStep";
-import { ServiceRequestForm } from "../../components/Forms/ServiceRequestForm";
+import { ServiceRequestForm } from "../../components/Forms/FormPreview";
 
 function Forms() {
   const [formData, setFormData] = useState<any>({});

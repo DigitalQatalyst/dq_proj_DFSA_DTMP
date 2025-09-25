@@ -1,4 +1,4 @@
-import { FormSchema } from "../ServiceRequestForm";
+import { FormSchema } from "../FormPreview";
 export const generalServiceRequestSchema: FormSchema = {
   formId: "general-service-request",
   formTitle: "General Service Request",
