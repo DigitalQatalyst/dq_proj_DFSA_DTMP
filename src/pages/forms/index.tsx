@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { generalServiceRequestSchema } from "../../components/Forms/form-schemas/SingleStep";
 import { ServiceRequestForm } from "../../components/Forms/FormPreview";
+// import { RequestForMembershipSchema } from "../../components/Forms/form-schemas/RequestForMembershipSchema";
+import { IssueSupportLetterSchema } from "../../components/Forms/form-schemas/IssueSupportLetterSchema";
 
 function Forms() {
   const [formData, setFormData] = useState<any>({});
@@ -18,7 +19,7 @@ function Forms() {
   return (
     <div>
       <ServiceRequestForm
-        schema={generalServiceRequestSchema}
+        schema={IssueSupportLetterSchema}
         onSubmit={handleSubmit}
         onSave={handleSave}
         initialData={formData}

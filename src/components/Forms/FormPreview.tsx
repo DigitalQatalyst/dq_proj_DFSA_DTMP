@@ -69,6 +69,7 @@ export interface FormField {
     | "autocomplete"
     | "tags"
     | "signature"
+    | "checkbox-group"
     | "consent";
   placeholder?: string;
   required?: boolean;
