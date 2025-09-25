@@ -27,4 +27,6 @@ RUN npm run build --no-lint
 EXPOSE 3000
 
 # Step 7: Define the command to run the app
+
 CMD ["npm", "run", "preview"]
+
