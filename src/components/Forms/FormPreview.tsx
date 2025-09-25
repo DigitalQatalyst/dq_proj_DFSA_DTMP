@@ -730,6 +730,31 @@ const FormField: React.FC<{
           </div>
         );
       }
+       case "checkbox":
+        return (
+          <div className="space-y-1">
+            {fieldOptions.map((option) => (
+              <div key={option.value} className="flex items-center gap-3 py-2">
+                <input
+                  id={`${fieldId}-${option.value}`}
+                  type="checkbox"
+                  name={field.id}
+                  value={option.value}
+                  checked={value === option.value}
+                  onChange={(e) => onChange(e.target.value)}
+                  onBlur={handleBlur}
+                  className="h-4 w-4 text-blue-600"
+                />
+                <label
+                  htmlFor={`${fieldId}-${option.value}`}
+                  className="text-sm text-gray-900"
+                >
+                  {option.label}
+                </label>
+              </div>
+            ))}
+          </div>
+        );
       case "consent":
         return (
           <div className="flex items-center gap-3 py-2">
@@ -987,8 +1012,7 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
   onSave,
   initialData = {},
   "data-id": dataId,
-  enablePersistence = false,
-  enableAutoSave = false,
+
 }) => {
   // Validate and use schema with fallback
   const schema = useMemo(
@@ -1263,7 +1287,7 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
                         onClick={() => toggleSection(index)}
                         className="w-full flex items-center justify-between py-3 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md"
                       >
-                        <h3 className="text-lg font-semibold text-blue-600">
+                        <h3 className="text-sm font-semibold text-blue-600">
                           {group.groupTitle}
                         </h3>
                         {isCollapsed ? (
@@ -1273,15 +1297,15 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
                         )}
                       </button>
                     ) : (
-                      <h3 className="text-lg font-semibold text-blue-600 mb-4">
+                      <h3 className="text-sm font-semibold text-blue-600">
                         {group.groupTitle}
                       </h3>
                     )}
                   </div>
                   {/* Section Divider */}
-                  <div className="px-8">
-                    <div className="border-t border-gray-200 mt-2" />
-                  </div>
+                  {/* <div className="px-8">
+                    <div className="mt-2" />
+                  </div> */}
                   {/* Fields */}
                   <div
                     className={`overflow-hidden transition-all duration-300 ease-in-out ${
@@ -1364,7 +1388,7 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
             })}
           </div>
           {/* Form Actions Footer */}
-          <div className="border-t border-gray-200 pt-8 mt-10">
+          <div className="pt-8 mt-1">
             <div
               className={`flex gap-4 ${
                 isMobile

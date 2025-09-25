@@ -12,7 +12,6 @@ interface CourseCardProps {
 }
 export const CourseCard: React.FC<CourseCardProps> = ({
   course,
-  onClick,
   onQuickView,
   isBookmarked,
   onToggleBookmark,
@@ -54,7 +53,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({
                 </span>)}
           </div>
           <div className="flex space-x-2 flex-shrink-0">
-            <button onClick={e => {
+              <button onClick={e => {
             e.stopPropagation();
             onToggleBookmark();
           }} className={`p-1.5 rounded-full ${isBookmarked ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`} aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'} title={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}>
