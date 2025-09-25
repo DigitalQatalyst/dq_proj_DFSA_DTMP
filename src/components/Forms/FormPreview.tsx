@@ -730,6 +730,31 @@ const FormField: React.FC<{
           </div>
         );
       }
+       case "checkbox":
+        return (
+          <div className="space-y-1">
+            {fieldOptions.map((option) => (
+              <div key={option.value} className="flex items-center gap-3 py-2">
+                <input
+                  id={`${fieldId}-${option.value}`}
+                  type="checkbox"
+                  name={field.id}
+                  value={option.value}
+                  checked={value === option.value}
+                  onChange={(e) => onChange(e.target.value)}
+                  onBlur={handleBlur}
+                  className="h-4 w-4 text-blue-600"
+                />
+                <label
+                  htmlFor={`${fieldId}-${option.value}`}
+                  className="text-sm text-gray-900"
+                >
+                  {option.label}
+                </label>
+              </div>
+            ))}
+          </div>
+        );
       case "consent":
         return (
           <div className="flex items-center gap-3 py-2">
@@ -987,8 +1012,7 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
   onSave,
   initialData = {},
   "data-id": dataId,
-  enablePersistence = false,
-  enableAutoSave = false,
+
 }) => {
   // Validate and use schema with fallback
   const schema = useMemo(
