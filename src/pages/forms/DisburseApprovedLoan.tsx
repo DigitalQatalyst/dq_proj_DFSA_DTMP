@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { ServiceRequestForm } from "../../components/Forms/FormPreview";
-// import { DisburseApprovedLoanSchema } from "../../components/Forms/form-schemas/DisburseApprovedLoanSchema";
+import { DisburseApprovedLoanSchema } from "../../components/Forms/form-schemas/DisburseApprovedLoanSchema";
 
-function DisburseApprovedLoan() {
+function BookConsultationForEntrepreneurship() {
   const [formData, setFormData] = useState<any>({});
 
   const handleSubmit = async (data: any) => {
@@ -17,26 +17,18 @@ function DisburseApprovedLoan() {
 
   return (
     <div>
-      {/* Uncomment when schema is ready */}
-      {/* <ServiceRequestForm
+      <ServiceRequestForm
         schema={DisburseApprovedLoanSchema}
         onSubmit={handleSubmit}
         onSave={handleSave}
         initialData={formData}
-        data-id="disburse-approved-loan"
-      /> */}
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">Disburse an Approved Loan</h1>
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <p className="text-gray-600 mb-4">
-            Disburse an Approved Loan form will be implemented here.
-          </p>
-        </div>
-      </div>
+        data-id="book-consultation-for-entrepreneurship"
+      />
     </div>
   );
 }
 
 // Export the specific form name
-export const DisburseApprovedLoanForm = DisburseApprovedLoan;
-export default DisburseApprovedLoan;
+export const BookConsultationForEntrepreneurshipForm =
+  BookConsultationForEntrepreneurship;
+export default BookConsultationForEntrepreneurship;

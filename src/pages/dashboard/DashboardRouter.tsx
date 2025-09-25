@@ -24,7 +24,6 @@ import { ChatInterface } from "../../components/Chat/ChatInterface";
 // Form imports
 import BookConsultationForEntrepreneurship from "../forms/BookConsultationForEntrepreneurship";
 import CancelLoan from "../forms/CancelLoan";
-import CollectLoanGuide from "../forms/CollectLoanGuide";
 import DisburseApprovedLoan from "../forms/DisburseApprovedLoan";
 import FacilitateCommunication from "../forms/FacilitateCommunication";
 import IssueSupportLetter from "../forms/IssueSupportLetter";
@@ -164,7 +163,6 @@ const DashboardRouter = () => {
           element={<BookConsultationForEntrepreneurship />}
         />
         <Route path="forms/cancel-loan" element={<CancelLoan />} />
-        <Route path="forms/collect-loan-guide" element={<CollectLoanGuide />} />
         <Route
           path="forms/disburse-approved-loan"
           element={<DisburseApprovedLoan />}

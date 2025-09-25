@@ -12,7 +12,6 @@ import NotFound from "./pages/NotFound";
 import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
 import KfBot from "./bot/KfBot";
-import Forms from "./pages/forms";
 
 export function AppRouter() {
   const [bookmarkedCourses, setBookmarkedCourses] = useState<string[]>([]);
@@ -72,7 +71,6 @@ export function AppRouter() {
             />
             <Route path="/discover-abudhabi" element={<DiscoverAbuDhabi />} />
             <Route path="/404" element={<NotFound />} />
-            <Route path="/forms" element={<Forms />} />
 
             <Route path="*" element={<Navigate to="/404" replace />} />
           </Routes>

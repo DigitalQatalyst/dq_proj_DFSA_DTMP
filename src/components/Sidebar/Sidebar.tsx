@@ -440,13 +440,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     >
                       Cancel Loan
                     </Link>
-                    <Link
-                      to="/dashboard/forms/collect-loan-guide"
-                      className="flex items-center px-4 py-3 pl-12 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
-                      onClick={() => setFormsDropdownOpen(false)}
-                    >
-                      Collect Loan Guide
-                    </Link>
+
                     <Link
                       to="/dashboard/forms/disburse-approved-loan"
                       className="flex items-center px-4 py-3 pl-12 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"

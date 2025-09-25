@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { ServiceRequestForm } from "../../components/Forms/FormPreview";
-// import { FacilitateCommunicationSchema } from "../../components/Forms/form-schemas/FacilitateCommunicationSchema";
+import { facilitateCommunicationSchema } from "../../components/Forms/form-schemas/FacilitateCommunicationSchema";
 
-function FacilitateCommunication() {
+function BookConsultationForEntrepreneurship() {
   const [formData, setFormData] = useState<any>({});
 
   const handleSubmit = async (data: any) => {
@@ -17,26 +17,18 @@ function FacilitateCommunication() {
 
   return (
     <div>
-      {/* Uncomment when schema is ready */}
-      {/* <ServiceRequestForm
-        schema={FacilitateCommunicationSchema}
+      <ServiceRequestForm
+        schema={facilitateCommunicationSchema}
         onSubmit={handleSubmit}
         onSave={handleSave}
         initialData={formData}
-        data-id="facilitate-communication"
-      /> */}
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">Facilitate Communication</h1>
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <p className="text-gray-600 mb-4">
-            Facilitate Communication form will be implemented here.
-          </p>
-        </div>
-      </div>
+        data-id="book-consultation-for-entrepreneurship"
+      />
     </div>
   );
 }
 
 // Export the specific form name
-export const FacilitateCommunicationForm = FacilitateCommunication;
-export default FacilitateCommunication;
+export const BookConsultationForEntrepreneurshipForm =
+  BookConsultationForEntrepreneurship;
+export default BookConsultationForEntrepreneurship;

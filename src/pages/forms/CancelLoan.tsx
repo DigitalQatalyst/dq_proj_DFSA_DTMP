@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { ServiceRequestForm } from "../../components/Forms/FormPreview";
-// import { CancelLoanSchema } from "../../components/Forms/form-schemas/CancelLoanSchema";
+import { loanCancellationSchema } from "../../components/Forms/form-schemas/CancelLoans";
 
-function CancelLoan() {
+function BookConsultationForEntrepreneurship() {
   const [formData, setFormData] = useState<any>({});
 
   const handleSubmit = async (data: any) => {
@@ -17,26 +17,18 @@ function CancelLoan() {
 
   return (
     <div>
-      {/* Uncomment when schema is ready */}
-      {/* <ServiceRequestForm
-        schema={CancelLoanSchema}
+      <ServiceRequestForm
+        schema={loanCancellationSchema}
         onSubmit={handleSubmit}
         onSave={handleSave}
         initialData={formData}
-        data-id="cancel-loan"
-      /> */}
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">Cancel Loan</h1>
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <p className="text-gray-600 mb-4">
-            Cancel Loan form will be implemented here.
-          </p>
-        </div>
-      </div>
+        data-id="book-consultation-for-entrepreneurship"
+      />
     </div>
   );
 }
 
 // Export the specific form name
-export const CancelLoanForm = CancelLoan;
-export default CancelLoan;
+export const BookConsultationForEntrepreneurshipForm =
+  BookConsultationForEntrepreneurship;
+export default BookConsultationForEntrepreneurship;
