@@ -15,9 +15,10 @@ export interface ComingSoonViewProps {
   primaryAction?: ComingSoonAction;
   secondaryAction?: ComingSoonAction;
   logoText?: string;
-  gradientFrom?: string; // e.g., indigo-900
-  gradientVia?: string; // e.g., blue-900
-  gradientTo?: string; // e.g., teal-900
+  /**
+   * Use a preset to avoid Tailwind purging dynamic class names in production.
+   */
+  gradientPreset?: 'indigoBlueTeal' | 'purpleFuchsiaRose';
 }
 
 const ComingSoonView: React.FC<ComingSoonViewProps> = ({
@@ -31,11 +32,14 @@ const ComingSoonView: React.FC<ComingSoonViewProps> = ({
   primaryAction = { label: "Back to Home", to: "/", variant: "secondary" },
   secondaryAction = { label: "Contact Us", href: "/#contact", variant: "primary" },
   logoText = "EJP",
-  gradientFrom = "indigo-900",
-  gradientVia = "blue-900",
-  gradientTo = "teal-900",
+  gradientPreset = 'indigoBlueTeal',
 }) => {
-  const gradientClass = `bg-gradient-to-br from-${gradientFrom} via-${gradientVia} to-${gradientTo}`;
+  // Preset-based classes to ensure Tailwind includes them in production builds
+  const presetClasses: Record<NonNullable<ComingSoonViewProps['gradientPreset']>, string> = {
+    indigoBlueTeal: 'bg-gradient-to-br from-indigo-900 via-blue-900 to-teal-900',
+    purpleFuchsiaRose: 'bg-gradient-to-br from-purple-900 via-fuchsia-900 to-rose-900',
+  };
+  const gradientClass = presetClasses[gradientPreset] || presetClasses.indigoBlueTeal;
 
   const ActionButton: React.FC<{ action: ComingSoonAction }> = ({ action }) => {
     const base = "px-5 py-3 rounded-lg font-semibold transition";
