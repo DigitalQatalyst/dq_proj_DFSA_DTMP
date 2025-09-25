@@ -1287,7 +1287,7 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
                         onClick={() => toggleSection(index)}
                         className="w-full flex items-center justify-between py-3 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md"
                       >
-                        <h3 className="text-lg font-semibold text-blue-600">
+                        <h3 className="text-sm font-semibold text-blue-600">
                           {group.groupTitle}
                         </h3>
                         {isCollapsed ? (
@@ -1297,15 +1297,15 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
                         )}
                       </button>
                     ) : (
-                      <h3 className="text-lg font-semibold text-blue-600 mb-4">
+                      <h3 className="text-sm font-semibold text-blue-600">
                         {group.groupTitle}
                       </h3>
                     )}
                   </div>
                   {/* Section Divider */}
-                  <div className="px-8">
-                    <div className="border-t border-gray-200 mt-2" />
-                  </div>
+                  {/* <div className="px-8">
+                    <div className="mt-2" />
+                  </div> */}
                   {/* Fields */}
                   <div
                     className={`overflow-hidden transition-all duration-300 ease-in-out ${
@@ -1388,7 +1388,7 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
             })}
           </div>
           {/* Form Actions Footer */}
-          <div className="border-t border-gray-200 pt-8 mt-10">
+          <div className="pt-8 mt-1">
             <div
               className={`flex gap-4 ${
                 isMobile
