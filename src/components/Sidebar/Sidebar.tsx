@@ -217,7 +217,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         id: "forms",
         label: "Forms",
         icon: <FolderOpen size={20} />,
-      },
+      }as MenuItem,
       {
         id: "settings-support",
         label: "Settings & Support",
