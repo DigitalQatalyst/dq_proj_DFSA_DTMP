@@ -6,7 +6,6 @@ import {
     CheckIcon,
     CalendarIcon,
 } from 'lucide-react';
-import { uploadFileToBlobStorage } from '../../services/AzureBlobService';
 import { createDocument } from '../../services/DataverseService';
 export function DocumentUpload({ onClose, onUpload, categories }: { onClose: () => void, onUpload: (document: any) => void, categories: string[]; }) {
     const [isDragging, setIsDragging] = useState(false);
@@ -80,7 +79,7 @@ export function DocumentUpload({ onClose, onUpload, categories }: { onClose: () 
         if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
         return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
     };
-    // Upload file to Azure Blob Storage and save metadata to Dataverse
+    // Upload file to API and save metadata to Dataverse
     const uploadToAzure = async () => {
         try {
             setIsUploading(true);
@@ -94,10 +93,18 @@ export function DocumentUpload({ onClose, onUpload, categories }: { onClose: () 
                     return prev + 5;
                 });
             }, 200);
-            // Generate a unique blob name
-            const blobName = `${Date.now()}-${file!.name.replace(/\s+/g, '_')}`;
-            // Upload file to Azure Blob Storage
-            const fileUrl = await uploadFileToBlobStorage(file, blobName);
+            // Prepare multipart form data and call serverless API
+            const form = new FormData();
+            form.append('file', file);
+            const response = await fetch('/api/storage/upload/upload', {
+                method: 'POST',
+                body: form,
+            });
+            if (!response.ok) {
+                throw new Error('Upload failed');
+            }
+            const result = await response.json();
+            const fileUrl = (result?.urls && result.urls[0]) || result?.url;
             // Create document metadata in Dataverse
             const newDocument = {
                 name: formData.name,
