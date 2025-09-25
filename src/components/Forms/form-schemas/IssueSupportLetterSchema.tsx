@@ -171,13 +171,13 @@ export const IssueSupportLetterSchema: FormSchema = {
               id: "confirmationCheckbox",
               label:
                 "I confirm that the information provided is accurate and complete.",
-              type: "checkbox",
+              type: "consent",
               //   required: true,
             },
             {
               id: "termsAndConditions",
               label: "I agree to the Terms and Conditions",
-              type: "checkbox",
+              type: "consent",
               //   required: true,
             },
           ],
