@@ -12,6 +12,7 @@ import NotFound from './pages/NotFound';
 import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
 import { ApolloProvider } from '@apollo/client/react';
 import KfBot from "./bot/KfBot";
+import ComingSoon from "./pages/ComingSoon";
 
 export function AppRouter() {
   const [bookmarkedCourses, setBookmarkedCourses] = useState<string[]>([]);
@@ -46,6 +47,7 @@ export function AppRouter() {
           <Routes>
             <Route path="/" element={<App />} />
             <Route path="/courses" element={<App />} />
+            <Route path="/coming-soon" element={<ComingSoon />} />
             <Route path="/courses/:itemId" element={<MarketplaceDetailsPage marketplaceType="courses" bookmarkedItems={bookmarkedCourses} onToggleBookmark={toggleBookmark} onAddToComparison={handleAddToComparison} />} />
             <Route path="/marketplace/*" element={<MarketplaceRouter />} />
             <Route path="/dashboard/*" element={<ProtectedRoute><DashboardRouter /></ProtectedRoute>} />
