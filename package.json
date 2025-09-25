@@ -26,8 +26,8 @@
     "react-leaflet": "^5.0.0-rc.2",
     "react-router-dom": "^6.26.2",
     "recharts": "^3.2.1",
-    "rxjs": "^7.8.2"
-
+    "rxjs": "^7.8.2",
+    "yup": "^1.7.1"
   },
   "devDependencies": {
     "@types/leaflet": "^1.9.20",
