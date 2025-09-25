@@ -177,7 +177,7 @@ export const IssueSupportLetterSchema: FormSchema = {
             {
               id: "termsAndConditions",
               label: "I agree to the Terms and Conditions",
-              type: "checkbox-group",
+              type: "checkbox",
               //   required: true,
             },
           ],
