@@ -6,6 +6,8 @@ interface MobileDrawerProps {
   onSignIn: () => void;
   onSignUp: () => void;
   isSignedIn: boolean;
+  onEnquiry?: () => void;
+  onPartner?: () => void;
 }
 const marketplaces = [{
   id: 'non-financial',
@@ -60,7 +62,9 @@ export function MobileDrawer({
   isCompact = false,
   onSignIn,
   onSignUp,
-  isSignedIn
+  isSignedIn,
+  onEnquiry,
+  onPartner
 }: MobileDrawerProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isExploreExpanded, setIsExploreExpanded] = useState(false);
@@ -85,7 +89,11 @@ export function MobileDrawer({
   };
   // Sign out is handled via profile dropdown in desktop; mobile can add later if needed
   const handleCTAClick = (action: string) => {
-    console.log(`${action} clicked`);
+    if (action === 'Make an Enquiry') {
+      onEnquiry && onEnquiry();
+    } else if (action === 'Become a Partner') {
+      onPartner && onPartner();
+    }
     setIsDrawerOpen(false);
   };
   const handleMarketplaceClick = (href: string) => {

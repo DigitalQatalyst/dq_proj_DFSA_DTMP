@@ -6,7 +6,7 @@ import { NotificationsMenu } from "./notifications/NotificationsMenu";
 import { NotificationCenter } from "./notifications/NotificationCenter";
 import { mockNotifications } from "./utils/mockNotifications";
 import { useAuth } from "./context/AuthContext";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   toggleSidebar?: () => void;
@@ -23,6 +23,8 @@ export function Header({
   const [showNotificationCenter, setShowNotificationCenter] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
   const { user, login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Count unread notifications
   const unreadCount = mockNotifications.filter((notif) => !notif.read).length;
@@ -73,7 +75,12 @@ export function Header({
 
   // Smooth scroll to specific CTA areas
   const scrollToContact = () => {
-    // Set hash to trigger auto-expansion in CallToAction
+    // If we're not on home route, navigate there with the hash.
+    if (location.pathname !== "/") {
+      navigate({ pathname: "/", hash: "#contact" });
+      return;
+    }
+    // On home, set hash to trigger auto-expansion in CallToAction and smooth scroll.
     if (window.location.hash !== "#contact") {
       window.location.hash = "#contact";
     }
@@ -84,6 +91,10 @@ export function Header({
   };
 
   const scrollToPartner = () => {
+    if (location.pathname !== "/") {
+      navigate({ pathname: "/", hash: "#partner" });
+      return;
+    }
     if (window.location.hash !== "#partner") {
       window.location.hash = "#partner";
     }
@@ -191,6 +202,8 @@ export function Header({
               onSignIn={handleSignIn}
               onSignUp={handleSignUp}
               isSignedIn={!!user}
+              onEnquiry={scrollToContact}
+              onPartner={scrollToPartner}
             />
           </div>
         </div>
