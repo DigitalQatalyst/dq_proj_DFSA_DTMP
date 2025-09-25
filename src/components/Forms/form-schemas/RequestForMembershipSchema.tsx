@@ -23,6 +23,7 @@ export const RequestForMembershipSchema: FormSchema = {
               label: "Full Name",
               type: "text",
               validation: { minLength: 2 },
+              required: true,
             },
             {
               id: "applicantEmail",
@@ -74,6 +75,7 @@ export const RequestForMembershipSchema: FormSchema = {
                 { value: "partner", label: "Partner" },
                 { value: "other", label: "Other" },
               ],
+              required: true,
             },
             {
               id: "yearsOfExperience",
@@ -89,6 +91,7 @@ export const RequestForMembershipSchema: FormSchema = {
                 { value: "yes", label: "Yes" },
                 { value: "no", label: "No" },
               ],
+              required: true,
             },
             {
               id: "previousFundingDetails",
@@ -100,6 +103,7 @@ export const RequestForMembershipSchema: FormSchema = {
                 dependsOn: "previousFunding",
                 showWhen: "yes",
               },
+              required: true,
             },
           ],
         },
@@ -118,6 +122,7 @@ export const RequestForMembershipSchema: FormSchema = {
               label: "Company Name",
               type: "text",
               validation: { minLength: 2 },
+              required: true,
             },
             {
               id: "companyRegistrationNumber",
@@ -139,6 +144,7 @@ export const RequestForMembershipSchema: FormSchema = {
                 { value: "cooperative", label: "Cooperative" },
                 { value: "other", label: "Other" },
               ],
+              required: true,
             },
             {
               id: "industry",
@@ -164,6 +170,7 @@ export const RequestForMembershipSchema: FormSchema = {
                 { value: "entertainment", label: "Entertainment" },
                 { value: "other", label: "Other" },
               ],
+              required: true,
             },
             {
               id: "yearEstablished",
@@ -176,14 +183,11 @@ export const RequestForMembershipSchema: FormSchema = {
               type: "select",
               options: [
                 { value: "1", label: "Just me (1)" },
-                { value: "2-5", label: "2-5 employees" },
-                { value: "6-10", label: "6-10 employees" },
-                { value: "11-25", label: "11-25 employees" },
-                { value: "26-50", label: "26-50 employees" },
+                { value: "2-50", label: "2-50 employees" },
                 { value: "51-100", label: "51-100 employees" },
                 { value: "101-250", label: "101-250 employees" },
                 { value: "251-500", label: "251-500 employees" },
-                { value: "501-1000", label: "501-1,000 employees" },
+                { value: "501-1000", label: "501-1000 employees" },
                 { value: "1000+", label: "1,000+ employees" },
               ],
             },
@@ -255,6 +259,7 @@ export const RequestForMembershipSchema: FormSchema = {
               type: "number",
               currency: "USD",
               validation: { min: 1000, max: 10000000 },
+              required: true,
             },
           ],
         },
@@ -272,7 +277,7 @@ export const RequestForMembershipSchema: FormSchema = {
               id: "dataSharingConsent",
               label:
                 "I consent to the sharing of my business information with third parties for partnership opportunities and platform services.",
-              type: "checkbox",
+              type: "consent",
               required: true,
             },
           ],
