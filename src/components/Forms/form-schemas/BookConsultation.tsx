@@ -49,7 +49,7 @@ export const bookConsultationSchema: FormSchema = {
           ],
         },
         {
-          groupTitle: "REQUESTOR INFORMATION",
+          groupTitle: "REQUESTER INFORMATION",
           groupDescription: "Tell us about the person making this request",
           fields: [
             {

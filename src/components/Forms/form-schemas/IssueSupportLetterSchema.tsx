@@ -16,7 +16,7 @@ export const IssueSupportLetterSchema: FormSchema = {
       stepDescription: "Tell us about yourself and your role in the business.",
       groups: [
         {
-          groupTitle: "Personal Details",
+          groupTitle: "PERSONAL DETAILS",
           fields: [
             {
               id: "applicantFullName",
@@ -55,7 +55,7 @@ export const IssueSupportLetterSchema: FormSchema = {
           ],
         },
         {
-          groupTitle: "Role & Experience",
+          groupTitle: "ROLE & EXPERIENCE",
           fields: [
             {
               id: "roleInBusiness",
@@ -84,7 +84,7 @@ export const IssueSupportLetterSchema: FormSchema = {
         "Provide details about the support letter and its purpose.",
       groups: [
         {
-          groupTitle: "Letter Request",
+          groupTitle: "LETTER REQUEST",
           fields: [
             {
               id: "supportLetterType",
@@ -135,7 +135,7 @@ export const IssueSupportLetterSchema: FormSchema = {
         "Upload any required documents to complete your request.",
       groups: [
         {
-          groupTitle: "Required Documents",
+          groupTitle: "REQUIRED DOCUMENTS",
           fields: [
             {
               id: "supportingDocuments",
@@ -159,7 +159,7 @@ export const IssueSupportLetterSchema: FormSchema = {
       stepDescription: "Review your information and submit the request.",
       groups: [
         {
-          groupTitle: "Confirmation",
+          groupTitle: "COFIRMATION",
           fields: [
             {
               id: "reviewSummary",

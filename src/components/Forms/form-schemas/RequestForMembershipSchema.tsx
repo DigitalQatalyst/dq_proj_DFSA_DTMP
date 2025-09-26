@@ -16,7 +16,7 @@ export const RequestForMembershipSchema: FormSchema = {
       stepDescription: "Tell us about yourself and your role in the business.",
       groups: [
         {
-          groupTitle: "Personal Details",
+          groupTitle: "PERSONAL DETAILS",
           fields: [
             {
               id: "applicantFullName",
@@ -66,7 +66,7 @@ export const RequestForMembershipSchema: FormSchema = {
           ],
         },
         {
-          groupTitle: "Role & Experience",
+          groupTitle: "ROLE & EXPERIENCE",
           fields: [
             {
               id: "roleInBusiness",
@@ -118,7 +118,7 @@ export const RequestForMembershipSchema: FormSchema = {
         "Provide information about your business and funding needs.",
       groups: [
         {
-          groupTitle: "Company Information",
+          groupTitle: "COMPANY INFORMATION",
           fields: [
             {
               id: "companyName",
@@ -237,7 +237,7 @@ export const RequestForMembershipSchema: FormSchema = {
         "Tell us about your business offerings and funding needs.",
       groups: [
         {
-          groupTitle: "Business Offerings",
+          groupTitle: "BUSINESS OFFERINGS",
           fields: [
             {
               id: "productOrService",
@@ -279,7 +279,7 @@ export const RequestForMembershipSchema: FormSchema = {
         "Consent for sharing your information with the platform and third parties.",
       groups: [
         {
-          groupTitle: "Consent",
+          groupTitle: "DATA SHARING CONSENT",
           fields: [
             {
               id: "dataSharingConsent",

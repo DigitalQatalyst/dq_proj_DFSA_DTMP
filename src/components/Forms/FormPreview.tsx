@@ -1442,7 +1442,13 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
   }
   return (
     <div className="min-h-screen bg-gray-50" ref={formRef} data-id={dataId}>
-      <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 py-6 sm:py-8">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-6 sm:py-8">
+         {/* Title Above Progress Indicator */}
+    {schema.formTitle && (
+      <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+        {schema.formTitle}
+      </h2>
+    )}
         {/* Progress Indicator for Multi-step */}
         {schema.multiStep && schema.steps && (
           <ProgressIndicator
