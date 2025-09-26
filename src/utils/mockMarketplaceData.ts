@@ -65,8 +65,7 @@ export const mockFinancialServices = [
     serviceType: "Credit",
     provider: {
       name: "ADGM Academy",
-      logoUrl:
-        "https://images.squarespace-cdn.com/content/v1/5cc0e1e9a0cd27177a2dd7ec/1556171141973-2BKLJ7QWZM0RN9Y1DKBY/ADGM+Academy.png",
+      logoUrl: "/image.png",
       description:
         "ADGM Academy is the knowledge arm of Abu Dhabi Global Market.",
     },
@@ -121,7 +120,7 @@ export const mockFinancialServices = [
     serviceType: "Risk Management",
     provider: {
       name: "Hub71",
-      logoUrl: "https://hub71.com/wp-content/uploads/2023/05/hub71-logo-1.png",
+      logoUrl: "/image.png",
       description:
         "Hub71 is a global tech ecosystem that enables startups to scale globally from Abu Dhabi.",
     },
@@ -176,8 +175,7 @@ export const mockFinancialServices = [
     serviceType: "Financing",
     provider: {
       name: "NYU Abu Dhabi",
-      logoUrl:
-        "https://nyuad.nyu.edu/content/dam/nyuad/departments/public-affairs/logos/NYUAD-logo-color.png",
+      logoUrl: "/image.png",
       description:
         "NYU Abu Dhabi is a degree-granting research university with a fully integrated liberal arts and science college.",
     },

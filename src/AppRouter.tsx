@@ -9,8 +9,6 @@ import DashboardRouter from './pages/dashboard/DashboardRouter';
 import ProtectedRoute from './components/ProtectedRoute';
 import { DiscoverAbuDhabi } from './pages/discoverAbuDhabi';
 import NotFound from './pages/NotFound';
-import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
-import { ApolloProvider } from '@apollo/client/react';
 import KfBot from "./bot/KfBot";
 
 export function AppRouter() {
@@ -34,13 +32,7 @@ export function AppRouter() {
     }
   };
 
-  const client = new ApolloClient({
-    link: new HttpLink({ uri: 'https://9609a7336af8.ngrok-free.app/services-api' }), // <-- Use HttpLink
-    cache: new InMemoryCache(),
-  });
-
-  return <ApolloProvider client={client}>
-      <BrowserRouter>
+  return <BrowserRouter>
         <AuthProvider>
         <KfBot />
           <Routes>
@@ -55,5 +47,4 @@ export function AppRouter() {
           </Routes>
         </AuthProvider>
       </BrowserRouter>
-    </ApolloProvider>
   };

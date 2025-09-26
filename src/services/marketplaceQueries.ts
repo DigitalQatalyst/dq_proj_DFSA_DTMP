@@ -28,7 +28,11 @@ const GET_PRODUCTS = gql`
           Cost
           Steps
           TermsOfService
-          RequiredDocuments
+          RequiredDocuments {
+            id
+            name
+            source
+          }
           RelatedServices {
             id
             name
@@ -59,4 +63,48 @@ const GET_FACETS = gql`
   }
 `;
 
-export { GET_PRODUCTS, GET_FACETS };
+// GraphQL Query for a single Product by ID
+const GET_PRODUCT = gql`
+  query GetProduct($id: ID!) {
+    product(id: $id) {
+      id
+      assets {
+        name
+      }
+      name
+      slug
+      description
+      customFields {
+        Logo {
+          name
+          source
+        }
+        CustomerType
+        BusinessStage
+        Nationality
+        LegalStructure
+        CustomerType
+        Industry
+        ProcessingTime
+        RegistrationValidity
+        Cost
+        Steps
+        TermsOfService
+        RequiredDocuments {
+          id
+          name
+          source
+        }
+        EmpowermentandLeadership
+        RelatedServices {
+          id
+          name
+          description
+          slug
+        }
+      }
+    }
+  }
+`;
+
+export { GET_PRODUCTS, GET_FACETS, GET_PRODUCT };
