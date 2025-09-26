@@ -22,18 +22,22 @@ export const RequestForMembershipSchema: FormSchema = {
               id: "applicantFullName",
               label: "Full Name",
               type: "text",
+              placeholder: "John Smith",
+              required: true,
               validation: { minLength: 2 },
             },
             {
               id: "applicantEmail",
               label: "Email Address",
               type: "email",
+              placeholder: "john.smith@email.com",
               required: true,
             },
             {
               id: "applicantPhone",
               label: "Phone Number",
               type: "tel",
+              placeholder: "+1 234 567 8900",
               required: true,
             },
             {
@@ -68,6 +72,7 @@ export const RequestForMembershipSchema: FormSchema = {
               id: "roleInBusiness",
               label: "Role in Business",
               type: "select",
+              required: true,
               options: [
                 { value: "owner", label: "Owner/Founder" },
                 { value: "ceo", label: "CEO" },
@@ -79,12 +84,14 @@ export const RequestForMembershipSchema: FormSchema = {
               id: "yearsOfExperience",
               label: "Years of Business Experience",
               type: "number",
+              placeholder: "5",
               validation: { min: 0, max: 50 },
             },
             {
               id: "previousFunding",
               label: "Have you received business funding before?",
               type: "radio",
+              required: true,
               options: [
                 { value: "yes", label: "Yes" },
                 { value: "no", label: "No" },
@@ -117,17 +124,21 @@ export const RequestForMembershipSchema: FormSchema = {
               id: "companyName",
               label: "Company Name",
               type: "text",
+              placeholder: "Futuretech LLC",
+              required: true,
               validation: { minLength: 2 },
             },
             {
               id: "companyRegistrationNumber",
               label: "Company Registration Number",
               type: "text",
+              placeholder: "12345678",
               required: true,
             },
             {
               id: "businessType",
               label: "Business Type",
+              required: true,
               type: "select",
               options: [
                 { value: "sole-proprietorship", label: "Sole Proprietorship" },
@@ -143,6 +154,7 @@ export const RequestForMembershipSchema: FormSchema = {
             {
               id: "industry",
               label: "Industry",
+              required: true,
               type: "select",
               options: [
                 { value: "technology", label: "Technology" },
@@ -176,20 +188,18 @@ export const RequestForMembershipSchema: FormSchema = {
               type: "select",
               options: [
                 { value: "1", label: "Just me (1)" },
-                { value: "2-5", label: "2-5 employees" },
-                { value: "6-10", label: "6-10 employees" },
-                { value: "11-25", label: "11-25 employees" },
-                { value: "26-50", label: "26-50 employees" },
+                { value: "2-50", label: "2-50 employees" },
                 { value: "51-100", label: "51-100 employees" },
                 { value: "101-250", label: "101-250 employees" },
                 { value: "251-500", label: "251-500 employees" },
-                { value: "501-1000", label: "501-1,000 employees" },
+                { value: "501-1000", label: "501-1000 employees" },
                 { value: "1000+", label: "1,000+ employees" },
               ],
             },
             {
               id: "annualRevenue",
               label: "Annual Revenue",
+              required: true,
               type: "select",
               options: [
                 { value: "under-50k", label: "Under $50,000" },
@@ -233,6 +243,7 @@ export const RequestForMembershipSchema: FormSchema = {
               id: "productOrService",
               label: "What services/products does your business offer?",
               type: "textarea",
+              placeholder: "Please describe your business offerings...",
               required: true,
             },
             {
@@ -254,7 +265,8 @@ export const RequestForMembershipSchema: FormSchema = {
               label: "Funding Amount Requested",
               type: "currency",
               currency: "USD",
-              placeholder: "e.g., 50000",
+              required: true,
+              placeholder: "e.g., 50,000",
               validation: { min: 1000, max: 10000000 },
             },
           ],
@@ -273,7 +285,7 @@ export const RequestForMembershipSchema: FormSchema = {
               id: "dataSharingConsent",
               label:
                 "I consent to the sharing of my business information with third parties for partnership opportunities and platform services.",
-              type: "checkbox",
+              type: "consent",
               required: true,
             },
           ],

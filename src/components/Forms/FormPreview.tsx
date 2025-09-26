@@ -398,6 +398,8 @@ const validateSchema = (schema: FormSchema | undefined): FormSchema => {
   return schema;
 };
 // Simplified Custom Select Component
+// Replace the CustomSelect component (around line 344-424) with this version:
+
 const CustomSelect: React.FC<{
   id: string;
   value: string;
@@ -421,6 +423,8 @@ const CustomSelect: React.FC<{
   success = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
+
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,
     onOpenChange: setIsOpen,
@@ -428,17 +432,21 @@ const CustomSelect: React.FC<{
     middleware: [offset(4), flip(), shift(), size()],
     whileElementsMounted: autoUpdate,
   });
+
   const click = useClick(context);
   const dismiss = useDismiss(context);
   const role = useRole(context, {
     role: "listbox",
   });
+
   const { getReferenceProps, getFloatingProps } = useInteractions([
     click,
     dismiss,
     role,
   ]);
+
   const selectedOption = options.find((opt) => opt.value === value);
+
   const getTriggerClasses = () => {
     const baseClasses =
       "w-full h-11 px-4 bg-white border rounded-md transition-all duration-200 focus:outline-none focus:ring-2";
@@ -446,6 +454,14 @@ const CustomSelect: React.FC<{
     if (success) return `${baseClasses} border-green-500 focus:ring-green-500`;
     return `${baseClasses} border-gray-300 hover:border-gray-400 focus:ring-blue-500`;
   };
+
+  const handleBlur = () => {
+    // Only trigger onBlur if user has actually interacted (selected something or closed dropdown)
+    if (hasInteracted && !isOpen) {
+      onBlur?.();
+    }
+  };
+
   return (
     <div className="relative">
       <button
@@ -453,7 +469,7 @@ const CustomSelect: React.FC<{
         id={id}
         ref={refs.setReference}
         className={getTriggerClasses()}
-        onBlur={onBlur}
+        onBlur={handleBlur}
         {...getReferenceProps()}
       >
         <div className="flex items-center justify-between h-full">
@@ -493,6 +509,7 @@ const CustomSelect: React.FC<{
                   }`}
                   onClick={() => {
                     onChange(option.value);
+                    setHasInteracted(true);
                     setIsOpen(false);
                   }}
                 >
@@ -506,6 +523,114 @@ const CustomSelect: React.FC<{
     </div>
   );
 };
+// const CustomSelect: React.FC<{
+//   id: string;
+//   value: string;
+//   onChange: (value: string) => void;
+//   onBlur?: () => void;
+//   options: Array<{
+//     value: string;
+//     label: string;
+//   }>;
+//   placeholder?: string;
+//   error?: boolean;
+//   success?: boolean;
+// }> = ({
+//   id,
+//   value,
+//   onChange,
+//   onBlur,
+//   options,
+//   placeholder = "Select an option",
+//   error = false,
+//   success = false,
+// }) => {
+//   const [isOpen, setIsOpen] = useState(false);
+//   const { refs, floatingStyles, context } = useFloating({
+//     open: isOpen,
+//     onOpenChange: setIsOpen,
+//     placement: "bottom-start",
+//     middleware: [offset(4), flip(), shift(), size()],
+//     whileElementsMounted: autoUpdate,
+//   });
+//   const click = useClick(context);
+//   const dismiss = useDismiss(context);
+//   const role = useRole(context, {
+//     role: "listbox",
+//   });
+//   const { getReferenceProps, getFloatingProps } = useInteractions([
+//     click,
+//     dismiss,
+//     role,
+//   ]);
+//   const selectedOption = options.find((opt) => opt.value === value);
+//   const getTriggerClasses = () => {
+//     const baseClasses =
+//       "w-full h-11 px-4 bg-white border rounded-md transition-all duration-200 focus:outline-none focus:ring-2";
+//     if (error) return `${baseClasses} border-red-500 focus:ring-red-500`;
+//     if (success) return `${baseClasses} border-green-500 focus:ring-green-500`;
+//     return `${baseClasses} border-gray-300 hover:border-gray-400 focus:ring-blue-500`;
+//   };
+//   return (
+//     <div className="relative">
+//       <button
+//         type="button"
+//         id={id}
+//         ref={refs.setReference}
+//         className={getTriggerClasses()}
+//         onBlur={onBlur}
+//         {...getReferenceProps()}
+//       >
+//         <div className="flex items-center justify-between h-full">
+//           <span
+//             className={`block truncate text-left ${
+//               selectedOption ? "text-gray-900" : "text-gray-500"
+//             }`}
+//           >
+//             {selectedOption ? selectedOption.label : placeholder}
+//           </span>
+//           <ChevronDown
+//             className={`w-4 h-4 text-gray-500 transition-transform ${
+//               isOpen ? "rotate-180" : ""
+//             }`}
+//           />
+//         </div>
+//       </button>
+//       {success && (
+//         <Check className="absolute right-10 top-1/2 transform -translate-y-1/2 w-4 h-4 text-green-500 pointer-events-none" />
+//       )}
+//       {isOpen &&
+//         createPortal(
+//           <FloatingFocusManager context={context} modal={false}>
+//             <div
+//               ref={refs.setFloating}
+//               className="rounded-lg bg-white shadow-lg ring-1 ring-gray-200 z-50 max-h-80 overflow-auto"
+//               style={floatingStyles}
+//               {...getFloatingProps()}
+//             >
+//               {options.map((option) => (
+//                 <div
+//                   key={option.value}
+//                   className={`px-3 py-2 text-sm cursor-pointer transition-colors ${
+//                     option.value === value
+//                       ? "bg-blue-50 border-l-2 border-blue-500"
+//                       : "hover:bg-gray-100"
+//                   }`}
+//                   onClick={() => {
+//                     onChange(option.value);
+//                     setIsOpen(false);
+//                   }}
+//                 >
+//                   {option.label}
+//                 </div>
+//               ))}
+//             </div>
+//           </FloatingFocusManager>,
+//           document.body
+//         )}
+//     </div>
+//   );
+// };
 // Form Field Component
 const FormField: React.FC<{
   field: FormField;
@@ -1145,6 +1270,7 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
     },
     [errors]
   );
+  //new handlefieldblur function
   const handleFieldBlur = (fieldId: string) => {
     const allGroups = schema.multiStep
       ? schema.steps?.flatMap((step) => step.groups) || []
@@ -1152,16 +1278,43 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
     const field = allGroups
       .flatMap((group) => group.fields)
       .find((f) => f.id === fieldId);
+
     if (field) {
-      const error = validateField(field, formData[fieldId]);
-      if (error) {
-        setErrors((prev) => ({
-          ...prev,
-          [fieldId]: error,
-        }));
+      const fieldValue = formData[fieldId];
+      // Only validate on blur if field has a value
+      // This prevents "required" errors from showing when just tabbing through
+      if (
+        fieldValue &&
+        (typeof fieldValue !== "string" || fieldValue.trim() !== "")
+      ) {
+        const error = validateField(field, fieldValue);
+        if (error) {
+          setErrors((prev) => ({
+            ...prev,
+            [fieldId]: error,
+          }));
+        }
       }
     }
   };
+
+  // const handleFieldBlur = (fieldId: string) => {
+  //   const allGroups = schema.multiStep
+  //     ? schema.steps?.flatMap((step) => step.groups) || []
+  //     : schema.groups || [];
+  //   const field = allGroups
+  //     .flatMap((group) => group.fields)
+  //     .find((f) => f.id === fieldId);
+  //   if (field) {
+  //     const error = validateField(field, formData[fieldId]);
+  //     if (error) {
+  //       setErrors((prev) => ({
+  //         ...prev,
+  //         [fieldId]: error,
+  //       }));
+  //     }
+  //   }
+  // };
   const validateStep = (stepIndex?: number): boolean => {
     const currentGroups = schema.multiStep
       ? schema.steps?.[stepIndex ?? currentStep]?.groups || []
