@@ -23,6 +23,7 @@ export const DisburseApprovedLoanSchema: FormSchema = {
               id: "loanId",
               label: "Loan ID",
               type: "text",
+              required: true,
               validation: { minLength: 2 },
             },
             {

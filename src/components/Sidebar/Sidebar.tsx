@@ -54,7 +54,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpen = true,
   onClose,
   onSectionChange,
-  onboardingComplete = false,
+  onboardingComplete = true,
   companies = [
     {
       id: "1",
@@ -217,7 +217,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         id: "forms",
         label: "Forms",
         icon: <FolderOpen size={20} />,
-      },
+      } as MenuItem,
       {
         id: "settings-support",
         label: "Settings & Support",
