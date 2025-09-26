@@ -637,6 +637,35 @@ const FormField: React.FC<{
             className={getFieldClasses()}
           />
         );
+      case "currency": {
+        const currencySymbol =
+          field.currency === "USD" ? "$" : field.currency || "$";
+        const formatCurrency = (val: string) => {
+          const number = val.replace(/[^0-9]/g, "");
+          if (!number) return "";
+          return Number(number).toLocaleString();
+        };
+
+        return (
+          <div className="relative">
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
+              {currencySymbol}
+            </div>
+            <input
+              id={fieldId}
+              type="text"
+              value={value ? formatCurrency(value.toString()) : ""}
+              onChange={(e) => {
+                const rawValue = e.target.value.replace(/[^0-9]/g, "");
+                onChange(rawValue ? Number(rawValue) : "");
+              }}
+              onBlur={handleBlur}
+              placeholder={field.placeholder}
+              className={getFieldClasses().replace("px-4", "pl-8 pr-4")}
+            />
+          </div>
+        );
+      }
       case "textarea":
         return (
           <div className="space-y-2">
@@ -932,12 +961,14 @@ const ProgressIndicator: React.FC<{
 };
 
 // Error Summary
+// Replace the ErrorSummary component with this simplified version:
+
 const ErrorSummary: React.FC<{
   errors: Record<string, string>;
-  onErrorClick: (fieldId: string) => void;
-}> = ({ errors, onErrorClick }) => {
-  const errorEntries = Object.entries(errors);
-  if (errorEntries.length === 0) return null;
+}> = ({ errors }) => {
+  const errorCount = Object.keys(errors).length;
+  if (errorCount === 0) return null;
+
   return (
     <div
       className="bg-red-50 text-red-700 border border-red-200 rounded-lg p-4 mb-6"
@@ -946,28 +977,51 @@ const ErrorSummary: React.FC<{
       <div className="flex items-start">
         <AlertCircle className="w-5 h-5 text-red-500 mr-3 flex-shrink-0 mt-0.5" />
         <div className="flex-1">
-          <h3 className="text-sm font-semibold text-red-800 mb-2">
-            Please correct {errorEntries.length} error
-            {errorEntries.length !== 1 ? "s" : ""} to continue:
-          </h3>
-          <ul className="space-y-1">
-            {errorEntries.map(([fieldId, error]) => (
-              <li key={fieldId}>
-                <button
-                  type="button"
-                  onClick={() => onErrorClick(fieldId)}
-                  className="text-sm text-red-700 hover:text-red-900 underline hover:no-underline"
-                >
-                  {error}
-                </button>
-              </li>
-            ))}
-          </ul>
+          <p className="text-sm font-medium text-red-800">
+            Please correct {errorCount} error{errorCount !== 1 ? "s" : ""} below
+            to continue
+          </p>
         </div>
       </div>
     </div>
   );
 };
+// const ErrorSummary: React.FC<{
+//   errors: Record<string, string>;
+//   onErrorClick: (fieldId: string) => void;
+// }> = ({ errors, onErrorClick }) => {
+//   const errorEntries = Object.entries(errors);
+//   if (errorEntries.length === 0) return null;
+//   return (
+//     <div
+//       className="bg-red-50 text-red-700 border border-red-200 rounded-lg p-4 mb-6"
+//       role="alert"
+//     >
+//       <div className="flex items-start">
+//         <AlertCircle className="w-5 h-5 text-red-500 mr-3 flex-shrink-0 mt-0.5" />
+//         <div className="flex-1">
+//           <h3 className="text-sm font-semibold text-red-800 mb-2">
+//             Please correct {errorEntries.length} error
+//             {errorEntries.length !== 1 ? "s" : ""} to continue:
+//           </h3>
+//           <ul className="space-y-1">
+//             {errorEntries.map(([fieldId, error]) => (
+//               <li key={fieldId}>
+//                 <button
+//                   type="button"
+//                   onClick={() => onErrorClick(fieldId)}
+//                   className="text-sm text-red-700 hover:text-red-900 underline hover:no-underline"
+//                 >
+//                   {error}
+//                 </button>
+//               </li>
+//             ))}
+//           </ul>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
 
 // Success State
 const SuccessState: React.FC<{
@@ -1141,6 +1195,12 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
       formRef.current?.scrollIntoView({
         behavior: "smooth",
       });
+    } else {
+      // Scroll to top when validation fails
+      formRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     }
   };
   const handleBack = () => {
@@ -1196,16 +1256,16 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
       setIsSubmitting(false);
     }
   };
-  const handleErrorClick = (fieldId: string) => {
-    const element = document.querySelector(`#field-${fieldId}`);
-    if (element) {
-      element.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-      setTimeout(() => (element as HTMLElement).focus(), 300);
-    }
-  };
+  // const handleErrorClick = (fieldId: string) => {
+  //   const element = document.querySelector(`#field-${fieldId}`);
+  //   if (element) {
+  //     element.scrollIntoView({
+  //       behavior: "smooth",
+  //       block: "center",
+  //     });
+  //     setTimeout(() => (element as HTMLElement).focus(), 300);
+  //   }
+  // };
   const currentGroups = schema.multiStep
     ? schema.steps?.[currentStep]?.groups || []
     : schema.groups || [];
@@ -1268,7 +1328,7 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
             </div>
           )}
           {/* Error Summary */}
-          <ErrorSummary errors={errors} onErrorClick={handleErrorClick} />
+          <ErrorSummary errors={errors} />
           {/* Form Sections */}
           <div className="space-y-10">
             {currentGroups.map((group, index) => {
