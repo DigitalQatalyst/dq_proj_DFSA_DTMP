@@ -1,5 +1,6 @@
 import { useState } from "react";
-// import { TrainingInEntrepreneurshipSchema } from "../../components/Forms/form-schemas/TrainingInEntrepreneurshipSchema";
+import { TrainingInEntrepreneurshipSchema } from "../../components/Forms/form-schemas/TrainingInEnterprenuershipSchema";
+import {ServiceRequestForm} from "../../components/Forms/FormPreview.tsx";
 
 function TrainingInEntrepreneurship() {
   const [formData, setFormData] = useState<any>({});
@@ -17,23 +18,23 @@ function TrainingInEntrepreneurship() {
   return (
     <div>
       {/* Uncomment when schema is ready */}
-      {/* <ServiceRequestForm
+       <ServiceRequestForm
         schema={TrainingInEntrepreneurshipSchema}
         onSubmit={handleSubmit}
         onSave={handleSave}
         initialData={formData}
         data-id="training-in-entrepreneurship"
-      /> */}
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">
-          Training in Entrepreneurship
-        </h1>
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <p className="text-gray-600 mb-4">
-            Training in Entrepreneurship form will be implemented here.
-          </p>
-        </div>
-      </div>
+      />
+      {/*<div className="container mx-auto px-4 py-8">*/}
+      {/*  <h1 className="text-2xl font-bold mb-6">*/}
+      {/*    Training in Entrepreneurship*/}
+      {/*  </h1>*/}
+      {/*  <div className="bg-white rounded-lg shadow-md p-6">*/}
+      {/*    <p className="text-gray-600 mb-4">*/}
+      {/*      Training in Entrepreneurship form will be implemented here.*/}
+      {/*    </p>*/}
+      {/*  </div>*/}
+      {/*</div>*/}
     </div>
   );
 }
