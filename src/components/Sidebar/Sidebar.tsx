@@ -434,6 +434,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       Book Consultation for Entrepreneurship
                     </Link>
                     <Link
+                      to="/dashboard/forms/collateral-user-guide"
+                      className="flex items-center px-4 py-3 pl-12 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
+                      onClick={() => setFormsDropdownOpen(false)}
+                    >
+                      Collateral User Guide
+                    </Link>
+                    <Link
                       to="/dashboard/forms/cancel-loan"
                       className="flex items-center px-4 py-3 pl-12 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
                       onClick={() => setFormsDropdownOpen(false)}
