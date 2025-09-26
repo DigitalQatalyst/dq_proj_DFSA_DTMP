@@ -17,12 +17,13 @@ export const DisburseApprovedLoanSchema: FormSchema = {
         "Enter the loan details and the requestor's information to proceed with the disbursement.",
       groups: [
         {
-          groupTitle: "Loan Information",
+          groupTitle: "LOAN INFORMATION",
           fields: [
             {
               id: "loanId",
               label: "Loan ID",
               type: "text",
+              required: true,
               validation: { minLength: 2 },
             },
             {
@@ -61,7 +62,7 @@ export const DisburseApprovedLoanSchema: FormSchema = {
           ],
         },
         {
-          groupTitle: "Requester Information",
+          groupTitle: "REQUESTER INFORMATION",
           fields: [
             {
               id: "requesterFullName",
@@ -117,7 +118,7 @@ export const DisburseApprovedLoanSchema: FormSchema = {
         "Provide details about the beneficiary receiving the loan disbursement.",
       groups: [
         {
-          groupTitle: "Beneficiary Information",
+          groupTitle: "BENEFICIARY INFORMATION",
           fields: [
             {
               id: "beneficiaryName",
@@ -167,7 +168,7 @@ export const DisburseApprovedLoanSchema: FormSchema = {
         "Specify the amount and payment method for the disbursement.",
       groups: [
         {
-          groupTitle: "Disbursement Details",
+          groupTitle: "DISBURSEMENT DETAILS",
           fields: [
             {
               id: "disbursementAmount",
@@ -217,7 +218,7 @@ export const DisburseApprovedLoanSchema: FormSchema = {
         "Review the details before submitting the disbursement request.",
       groups: [
         {
-          groupTitle: "Confirmation",
+          groupTitle: "CONFIRMATION",
           fields: [
             {
               id: "reviewSummary",

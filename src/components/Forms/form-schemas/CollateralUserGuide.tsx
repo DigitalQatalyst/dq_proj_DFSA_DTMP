@@ -2,7 +2,7 @@ import * as yup from 'yup'
 // Define the form schema for the "Book Consultation for Entrepreneurs" form
 export const collateraGuideSchema = {
   formId: 'book-consultation-form',
-  formTitle: 'Book Consultation for Entrepreneurs',
+  formTitle: 'Collateral User Guide',
   description:
     'Please complete the form below to proceed with your application.',
   multiStep: true,
@@ -49,7 +49,7 @@ export const collateraGuideSchema = {
         },
         {
           id: 'requestor-information',
-          groupTitle: 'REQUESTOR INFORMATION',
+          groupTitle: 'REQUESTER INFORMATION',
           description: 'Tell us about the person making this request',
           fields: [
             {

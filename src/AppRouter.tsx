@@ -65,7 +65,7 @@ export function AppRouter() {
               path="/dashboard/*"
               element={
                 // <ProtectedRoute>
-                <DashboardRouter />
+                  <DashboardRouter />
                 // </ProtectedRoute>
               }
             />

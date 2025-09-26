@@ -33,6 +33,7 @@ import RequestForFunding from "../forms/RequestForFunding";
 import RequestForMembership from "../forms/RequestForMembership";
 import RequestToAmendExistingLoanDetails from "../forms/RequestToAmendExistingLoanDetails";
 import TrainingInEntrepreneurship from "../forms/TrainingInEntrepreneurship";
+import CollateralUserGuide from "../forms/CollateralUserGuide";
 
 // Main Dashboard Router Component
 const DashboardRouter = () => {
@@ -163,6 +164,12 @@ const DashboardRouter = () => {
           element={<BookConsultationForEntrepreneurship />}
         />
         <Route path="forms/cancel-loan" element={<CancelLoan />} />
+
+        <Route
+          path="forms/collateral-user-guide"
+          element={<CollateralUserGuide />}
+        />
+
         <Route
           path="forms/disburse-approved-loan"
           element={<DisburseApprovedLoan />}
@@ -199,6 +206,8 @@ const DashboardRouter = () => {
           path="forms/training-in-entrepreneurship"
           element={<TrainingInEntrepreneurship />}
         />
+
+        
 
         <Route path="*" element={<Navigate to="overview" replace />} />
       </Routes>

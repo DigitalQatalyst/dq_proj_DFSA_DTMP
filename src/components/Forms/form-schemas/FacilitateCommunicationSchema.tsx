@@ -14,7 +14,7 @@ export const facilitateCommunicationSchema: FormSchema = {
             stepDescription: 'Provide your company and contact information.',
             groups: [
                 {
-                    groupTitle: 'Company Information',
+                    groupTitle: 'COMPANY INFORMATION',
                     fields: [
                         {
                             id: 'companyName',
@@ -34,7 +34,7 @@ export const facilitateCommunicationSchema: FormSchema = {
                     ],
                 },
                 {
-                    groupTitle: 'Requestor Information',
+                    groupTitle: 'REQUESTER INFORMATION',
                     fields: [
                         {
                             id: 'requestorName',
@@ -73,7 +73,7 @@ export const facilitateCommunicationSchema: FormSchema = {
             stepDescription: 'Provide details about the support you require.',
             groups: [
                 {
-                    groupTitle: 'Add Support Details',
+                    groupTitle: 'ADD SUPPORT DETAILS',
                     fields: [
                         {
                             id: 'supportType',
@@ -136,7 +136,7 @@ export const facilitateCommunicationSchema: FormSchema = {
             stepDescription: 'Review and confirm your data sharing consent.',
             groups: [
                 {
-                    groupTitle: 'Data Sharing Consent',
+                    groupTitle: 'DATA SHARING CONSENT',
                     groupDescription: 'Kindly Accept Data Sharing',
                     fields: [
                         {

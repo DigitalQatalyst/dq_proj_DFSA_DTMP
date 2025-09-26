@@ -15,7 +15,7 @@ export const amendExistingLoanSchema: FormSchema = {
             stepDescription: 'Provide your company and contact information.',
             groups: [
                 {
-                    groupTitle: 'Company Information',
+                    groupTitle: 'COMPANY INFORMATION',
                     fields: [
                         {
                             id: 'companyName',
@@ -36,7 +36,7 @@ export const amendExistingLoanSchema: FormSchema = {
                     ],
                 },
                 {
-                    groupTitle: 'Requestor Information',
+                    groupTitle: 'REQUESTER INFORMATION',
                     fields: [
                         {
                             id: 'requestorName',
@@ -75,7 +75,7 @@ export const amendExistingLoanSchema: FormSchema = {
             stepDescription: 'Specify the loan details you wish to amend.',
             groups: [
                 {
-                    groupTitle: 'Loan Details',
+                    groupTitle: 'LOAN DETAILS',
                     fields: [
                         {
                             id: 'fundingRequestNumber',
@@ -96,7 +96,7 @@ export const amendExistingLoanSchema: FormSchema = {
                     ],
                 },
                 {
-                    groupTitle: 'Upload Documents',
+                    groupTitle: 'UPLOAD DOCUMENTS',
                     fields: [
                         {
                             id: 'supportingDocuments',

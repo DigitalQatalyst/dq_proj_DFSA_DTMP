@@ -16,25 +16,28 @@ export const RequestForMembershipSchema: FormSchema = {
       stepDescription: "Tell us about yourself and your role in the business.",
       groups: [
         {
-          groupTitle: "Personal Details",
+          groupTitle: "PERSONAL DETAILS",
           fields: [
             {
               id: "applicantFullName",
               label: "Full Name",
               type: "text",
-              validation: { minLength: 2 },
+              placeholder: "John Smith",
               required: true,
+              validation: { minLength: 2 },
             },
             {
               id: "applicantEmail",
               label: "Email Address",
               type: "email",
+              placeholder: "john.smith@email.com",
               required: true,
             },
             {
               id: "applicantPhone",
               label: "Phone Number",
               type: "tel",
+              placeholder: "+1 234 567 8900",
               required: true,
             },
             {
@@ -63,35 +66,36 @@ export const RequestForMembershipSchema: FormSchema = {
           ],
         },
         {
-          groupTitle: "Role & Experience",
+          groupTitle: "ROLE & EXPERIENCE",
           fields: [
             {
               id: "roleInBusiness",
               label: "Role in Business",
               type: "select",
+              required: true,
               options: [
                 { value: "owner", label: "Owner/Founder" },
                 { value: "ceo", label: "CEO" },
                 { value: "partner", label: "Partner" },
                 { value: "other", label: "Other" },
               ],
-              required: true,
             },
             {
               id: "yearsOfExperience",
               label: "Years of Business Experience",
               type: "number",
+              placeholder: "5",
               validation: { min: 0, max: 50 },
             },
             {
               id: "previousFunding",
               label: "Have you received business funding before?",
               type: "radio",
+              required: true,
               options: [
                 { value: "yes", label: "Yes" },
                 { value: "no", label: "No" },
               ],
-              required: true,
             },
             {
               id: "previousFundingDetails",
@@ -103,7 +107,6 @@ export const RequestForMembershipSchema: FormSchema = {
                 dependsOn: "previousFunding",
                 showWhen: "yes",
               },
-              required: true,
             },
           ],
         },
@@ -115,24 +118,27 @@ export const RequestForMembershipSchema: FormSchema = {
         "Provide information about your business and funding needs.",
       groups: [
         {
-          groupTitle: "Company Information",
+          groupTitle: "COMPANY INFORMATION",
           fields: [
             {
               id: "companyName",
               label: "Company Name",
               type: "text",
-              validation: { minLength: 2 },
+              placeholder: "Futuretech LLC",
               required: true,
+              validation: { minLength: 2 },
             },
             {
               id: "companyRegistrationNumber",
               label: "Company Registration Number",
               type: "text",
+              placeholder: "12345678",
               required: true,
             },
             {
               id: "businessType",
               label: "Business Type",
+              required: true,
               type: "select",
               options: [
                 { value: "sole-proprietorship", label: "Sole Proprietorship" },
@@ -144,11 +150,11 @@ export const RequestForMembershipSchema: FormSchema = {
                 { value: "cooperative", label: "Cooperative" },
                 { value: "other", label: "Other" },
               ],
-              required: true,
             },
             {
               id: "industry",
               label: "Industry",
+              required: true,
               type: "select",
               options: [
                 { value: "technology", label: "Technology" },
@@ -170,11 +176,10 @@ export const RequestForMembershipSchema: FormSchema = {
                 { value: "entertainment", label: "Entertainment" },
                 { value: "other", label: "Other" },
               ],
-              required: true,
             },
             {
               id: "yearEstablished",
-              label: "Year Established",
+              label: "Date Established",
               type: "date",
             },
             {
@@ -194,6 +199,7 @@ export const RequestForMembershipSchema: FormSchema = {
             {
               id: "annualRevenue",
               label: "Annual Revenue",
+              required: true,
               type: "select",
               options: [
                 { value: "under-50k", label: "Under $50,000" },
@@ -231,12 +237,13 @@ export const RequestForMembershipSchema: FormSchema = {
         "Tell us about your business offerings and funding needs.",
       groups: [
         {
-          groupTitle: "Business Offerings",
+          groupTitle: "BUSINESS OFFERINGS",
           fields: [
             {
               id: "productOrService",
               label: "What services/products does your business offer?",
               type: "textarea",
+              placeholder: "Please describe your business offerings...",
               required: true,
             },
             {
@@ -255,11 +262,12 @@ export const RequestForMembershipSchema: FormSchema = {
             },
             {
               id: "fundingAmountRequested",
-              label: "Funding Amount Requested (USD)",
-              type: "number",
+              label: "Funding Amount Requested",
+              type: "currency",
               currency: "USD",
-              validation: { min: 1000, max: 10000000 },
               required: true,
+              placeholder: "e.g., 50,000",
+              validation: { min: 1000, max: 10000000 },
             },
           ],
         },
@@ -271,7 +279,7 @@ export const RequestForMembershipSchema: FormSchema = {
         "Consent for sharing your information with the platform and third parties.",
       groups: [
         {
-          groupTitle: "Consent",
+          groupTitle: "DATA SHARING CONSENT",
           fields: [
             {
               id: "dataSharingConsent",

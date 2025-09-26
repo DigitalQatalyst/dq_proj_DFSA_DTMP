@@ -54,7 +54,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpen = true,
   onClose,
   onSectionChange,
-  onboardingComplete = false,
+  onboardingComplete = true,
   companies = [
     {
       id: "1",
@@ -217,7 +217,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         id: "forms",
         label: "Forms",
         icon: <FolderOpen size={20} />,
-      }as MenuItem,
+      } as MenuItem,
       {
         id: "settings-support",
         label: "Settings & Support",
@@ -432,6 +432,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       onClick={() => setFormsDropdownOpen(false)}
                     >
                       Book Consultation for Entrepreneurship
+                    </Link>
+                    <Link
+                      to="/dashboard/forms/collateral-user-guide"
+                      className="flex items-center px-4 py-3 pl-12 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
+                      onClick={() => setFormsDropdownOpen(false)}
+                    >
+                      Collateral User Guide
                     </Link>
                     <Link
                       to="/dashboard/forms/cancel-loan"
