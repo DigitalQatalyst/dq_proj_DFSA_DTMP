@@ -1616,7 +1616,7 @@ const MediaDetailPage: React.FC = () => {
                   <div className="flex items-center">
                     <ChevronRightIcon size={16} className="text-gray-400" />
                     <Link
-                      to="/knowledge-hub"
+                      to="/marketplace/knowledge-hub"
                       className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2"
                     >
                       Knowledge Hub
@@ -2337,7 +2337,7 @@ const MediaDetailPage: React.FC = () => {
                 Related Resources
               </h2>
               <Link
-                to="/knowledge-hub"
+                to="/marketplace/knowledge-hub"
                 className="text-blue-600 font-medium hover:text-blue-800 flex items-center"
               >
                 See All Resources
