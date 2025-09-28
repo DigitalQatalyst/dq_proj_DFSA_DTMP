@@ -29,7 +29,7 @@ const AccordionSection: React.FC<AccordionSectionProps> = ({
   children
 }) => {
   return <div className="border-b border-gray-100 py-3">
-      <button className="flex w-full justify-between items-center text-left font-medium text-gray-900 mb-2" onClick={onToggle}>
+      <button className="flex w-full justify-between items-center text-left font-medium text-gray-900 mb-2" onClick={onToggle} aria-expanded={isOpen}>
         {title}
         {isOpen ? <ChevronUp size={16} className="text-gray-500" /> : <ChevronDown size={16} className="text-gray-500" />}
       </button>
@@ -52,14 +52,14 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
       [section]: !prev[section]
     }));
   };
-  const textSizeClass = 'text-sm';
+  const textSizeClass = isResponsive ? 'text-xs' : 'text-sm';
   const spacingClass = isResponsive ? 'space-y-1' : 'space-y-2';
   return <div className="space-y-2">
       {filterConfig.map(config => <AccordionSection key={config.id} title={config.title} isOpen={openSections[config.id] || false} onToggle={() => toggleSection(config.id)}>
           <div className={spacingClass}>
             {config.options.map(option => <div key={option.id} className="flex items-center">
-                <input type="checkbox" id={`${config.id}-${option.id}`} checked={filters[config.id] === option.name} onChange={() => onFilterChange(config.id, option.name)} className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                <label htmlFor={`${config.id}-${option.id}`} className={`ml-2 ${textSizeClass} text-gray-700`}>
+                <input type="checkbox" id={`${isResponsive ? 'mobile' : 'desktop'}-${config.id}-${option.id}`} checked={filters[config.id] === option.name} onChange={() => onFilterChange(config.id, option.name)} className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                <label htmlFor={`${isResponsive ? 'mobile' : 'desktop'}-${config.id}-${option.id}`} className={`ml-2 ${textSizeClass} text-gray-700`}>
                   {option.name}
                 </label>
               </div>)}

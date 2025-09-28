@@ -1,454 +1,977 @@
-// Mock data for Financial Services and Non-Financial Services
-import { providers } from "./mockData";
-// Mock financial services data
+// Mock data for Knowledge Hub marketplace
+export const mockKnowledgeHubItems = [
+  {
+    id: '1',
+    title: 'Abu Dhabi SME Growth Strategies',
+    description:
+      'Comprehensive guide to scaling your business in Abu Dhabi with practical insights and local market analysis.',
+    mediaType: 'Guide',
+    businessStage: 'Growth',
+    domain: 'Strategy & Growth',
+    format: 'In-Depth Reports',
+    popularity: 'Trending',
+    provider: {
+      name: 'Khalifa Fund',
+      logoUrl:
+        'https://uploadthingy.s3.us-west-1.amazonaws.com/hFf47Y1ehebABQyP4p31yY/image.png',
+      description: 'Supporting entrepreneurs and SMEs in Abu Dhabi.',
+    },
+    tags: ['Strategy', 'Growth'],
+    imageUrl:
+      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    date: 'May 15, 2023',
+    downloadCount: 1253,
+    fileSize: '4.2 MB',
+  },
+  {
+    id: '2',
+    title: 'Digital Transformation for SMEs',
+    description:
+      'Learn how to leverage digital technologies to transform your business operations and customer experience.',
+    mediaType: 'Report',
+    businessStage: 'Established',
+    domain: 'Technology & Innovation',
+    format: 'In-Depth Reports',
+    popularity: 'Most Downloaded',
+    provider: {
+      name: 'Hub71',
+      logoUrl: 'https://hub71.com/wp-content/uploads/2023/05/hub71-logo-1.png',
+      description: "Abu Dhabi's global tech ecosystem for startups.",
+    },
+    tags: ['Technology', 'Digital'],
+    imageUrl:
+      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    date: 'April 28, 2023',
+    downloadCount: 2845,
+    fileSize: '5.8 MB',
+  },
+  {
+    id: '3',
+    title: 'Funding Options for Abu Dhabi Startups',
+    description:
+      'Explore various funding options available for startups in Abu Dhabi, from venture capital to government grants.',
+    mediaType: 'Guide',
+    businessStage: 'Startup',
+    domain: 'Finance & Funding',
+    format: 'Quick Reads',
+    popularity: "Editor's Pick",
+    provider: {
+      name: 'ADGM Academy',
+      logoUrl:
+        'https://images.squarespace-cdn.com/content/v1/5cc0e1e9a0cd27177a2dd7ec/1556171141973-2BKLJ7QWZM0RN9Y1DKBY/ADGM+Academy.png',
+      description: 'The knowledge arm of Abu Dhabi Global Market.',
+    },
+    tags: ['Finance', 'Funding'],
+    imageUrl:
+      'https://images.unsplash.com/photo-1559526324-593bc073d938?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    date: 'March 15, 2023',
+    downloadCount: 1876,
+    fileSize: '3.5 MB',
+  },
+  {
+    id: '4',
+    title: 'Financial Planning Templates',
+    description:
+      'Ready-to-use templates for financial planning and forecasting with automated calculations and projections.',
+    mediaType: 'Toolkits & Templates',
+    businessStage: 'Idea Stage',
+    domain: 'Finance & Funding',
+    format: 'Downloadable Templates',
+    popularity: 'Most Downloaded',
+    provider: {
+      name: 'NYU Abu Dhabi',
+      logoUrl:
+        'https://nyuad.nyu.edu/content/dam/nyuad/departments/public-affairs/logos/NYUAD-logo-color.png',
+      description:
+        'A degree-granting research university with a liberal arts and science college.',
+    },
+    tags: ['Finance', 'Templates'],
+    imageUrl:
+      'https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    date: 'February 10, 2023',
+    downloadCount: 3254,
+    fileSize: '1.8 MB',
+  },
+  {
+    id: '5',
+    title: 'Abu Dhabi Business Forum 2023',
+    description:
+      'Join the largest business networking event in Abu Dhabi with industry leaders and government officials.',
+    mediaType: 'Event',
+    businessStage: 'All Stages',
+    domain: 'Strategy & Growth',
+    format: 'Live Events',
+    popularity: 'Latest',
+    provider: {
+      name: 'Abu Dhabi Chamber of Commerce',
+      logoUrl:
+        'https://upload.wikimedia.org/wikipedia/en/0/08/Abu_Dhabi_Chamber_Logo.png',
+      description:
+        'Supporting business growth and economic development in Abu Dhabi.',
+    },
+    tags: ['Event', 'Networking'],
+    imageUrl:
+      'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    date: 'June 15-16, 2023',
+    location: 'Abu Dhabi National Exhibition Centre',
+  },
+  {
+    id: '6',
+    title: 'Marketing Strategy for SMEs',
+    description:
+      'Learn effective marketing strategies tailored for small and medium enterprises in the UAE market.',
+    mediaType: 'Video',
+    businessStage: 'Growth',
+    domain: 'Marketing & Sales',
+    format: 'Recorded Media',
+    popularity: 'Trending',
+    provider: {
+      name: 'Google for Startups',
+      logoUrl:
+        'https://storage.googleapis.com/cms-storage-bucket/6e19fee6b47b36ca613f.png',
+      description:
+        "Google's program to help startups thrive across every corner of the world.",
+    },
+    tags: ['Marketing', 'Strategy'],
+    imageUrl:
+      'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    date: 'April 5, 2023',
+    duration: '45 minutes',
+  },
+  {
+    id: '7',
+    title: 'Legal Compliance Guide for UAE Businesses',
+    description:
+      'Essential guide to understanding and complying with UAE business regulations and legal requirements.',
+    mediaType: 'Guide',
+    businessStage: 'All Stages',
+    domain: 'Legal & Compliance',
+    format: 'In-Depth Reports',
+    popularity: 'Most Downloaded',
+    provider: {
+      name: 'ADGM Academy',
+      logoUrl:
+        'https://images.squarespace-cdn.com/content/v1/5cc0e1e9a0cd27177a2dd7ec/1556171141973-2BKLJ7QWZM0RN9Y1DKBY/ADGM+Academy.png',
+      description: 'The knowledge arm of Abu Dhabi Global Market.',
+    },
+    tags: ['Legal', 'Compliance'],
+    imageUrl:
+      'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    date: 'January 20, 2023',
+    downloadCount: 2156,
+    fileSize: '6.2 MB',
+  },
+  {
+    id: '8',
+    title: 'Operational Excellence Podcast',
+    description:
+      'Weekly podcast discussing operational best practices for businesses in the UAE and wider Middle East.',
+    mediaType: 'Podcast',
+    businessStage: 'Established',
+    domain: 'Operations & Productivity',
+    format: 'Recorded Media',
+    popularity: 'Latest',
+    provider: {
+      name: 'Khalifa Fund',
+      logoUrl:
+        'https://uploadthingy.s3.us-west-1.amazonaws.com/hFf47Y1ehebABQyP4p31yY/image.png',
+      description: 'Supporting entrepreneurs and SMEs in Abu Dhabi.',
+    },
+    tags: ['Operations', 'Productivity'],
+    imageUrl:
+      'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    date: 'May 5, 2023',
+    duration: '30 minutes',
+    episodes: 25,
+  },
+  {
+    id: '9',
+    title: 'Innovation Workshop Series',
+    description:
+      'Interactive workshop series focused on fostering innovation and creative problem-solving in your business.',
+    mediaType: 'Event',
+    businessStage: 'Growth',
+    domain: 'Technology & Innovation',
+    format: 'Live Events',
+    popularity: "Editor's Pick",
+    provider: {
+      name: 'Hub71',
+      logoUrl: 'https://hub71.com/wp-content/uploads/2023/05/hub71-logo-1.png',
+      description: "Abu Dhabi's global tech ecosystem for startups.",
+    },
+    tags: ['Innovation', 'Workshop'],
+    imageUrl:
+      'https://images.unsplash.com/photo-1540317580384-e5d43867caa6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    date: 'June 5-7, 2023',
+    location: 'Hub71, Abu Dhabi',
+  },
+  {
+    id: '10',
+    title: 'Business Plan Templates',
+    description:
+      'Comprehensive templates to help you create a professional business plan for your startup or growth-stage business.',
+    mediaType: 'Toolkits & Templates',
+    businessStage: 'Idea Stage',
+    domain: 'Strategy & Growth',
+    format: 'Downloadable Templates',
+    popularity: 'Most Downloaded',
+    provider: {
+      name: 'Khalifa Fund',
+      logoUrl:
+        'https://uploadthingy.s3.us-west-1.amazonaws.com/hFf47Y1ehebABQyP4p31yY/image.png',
+      description: 'Supporting entrepreneurs and SMEs in Abu Dhabi.',
+    },
+    tags: ['Business Plan', 'Templates'],
+    imageUrl:
+      'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    date: 'March 1, 2023',
+    downloadCount: 4587,
+    fileSize: '3.2 MB',
+  },
+  {
+    id: '11',
+    title: 'Export Market Analysis Report',
+    description:
+      'Detailed analysis of export opportunities for Abu Dhabi businesses with market insights and regulatory information.',
+    mediaType: 'Report',
+    businessStage: 'Scale-up',
+    domain: 'Strategy & Growth',
+    format: 'In-Depth Reports',
+    popularity: 'Latest',
+    provider: {
+      name: 'Abu Dhabi Export Office',
+      logoUrl: 'https://www.adexporters.ae/sites/default/files/adex-logo.png',
+      description:
+        'Supporting Abu Dhabi-based companies to export their products globally.',
+    },
+    tags: ['Export', 'Market Research'],
+    imageUrl:
+      'https://images.unsplash.com/photo-1493894473891-10fc1e5dbd22?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1469&q=80',
+    date: 'April 18, 2023',
+    downloadCount: 1456,
+    fileSize: '7.5 MB',
+  },
+  {
+    id: '12',
+    title: 'Tech Startups in Abu Dhabi See 40% Growth',
+    description:
+      'Technology startups in Abu Dhabi have seen a 40% growth in the past year, according to a new report.',
+    mediaType: 'News',
+    businessStage: 'Startup',
+    domain: 'Technology & Innovation',
+    format: 'Quick Reads',
+    popularity: 'Trending',
+    provider: {
+      name: 'TechNews Daily',
+      logoUrl: 'https://placehold.co/400x400/4338ca/white?text=TND',
+      description: 'Leading technology news source in the UAE.',
+    },
+    tags: ['Technology', 'Startup'],
+    imageUrl:
+      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    date: 'April 28, 2023',
+  },
+]
+
+// Mock data for Knowledge Hub filter options
+export const mockKnowledgeHubFilterOptions = {
+  mediaTypes: [
+    { id: 'news', name: 'News' },
+    { id: 'reports', name: 'Reports' },
+    { id: 'toolkits', name: 'Toolkits & Templates' },
+    { id: 'guides', name: 'Guides' },
+    { id: 'events', name: 'Events' },
+    { id: 'videos', name: 'Videos' },
+    { id: 'podcasts', name: 'Podcasts' },
+  ],
+  businessStages: [
+    { id: 'idea', name: 'Idea Stage' },
+    { id: 'startup', name: 'Startup' },
+    { id: 'growth', name: 'Growth' },
+    { id: 'scaleup', name: 'Scale-up' },
+    { id: 'established', name: 'Established' },
+  ],
+  domains: [
+    { id: 'finance', name: 'Finance & Funding' },
+    { id: 'marketing', name: 'Marketing & Sales' },
+    { id: 'technology', name: 'Technology & Innovation' },
+    { id: 'operations', name: 'Operations & Productivity' },
+    { id: 'legal', name: 'Legal & Compliance' },
+    { id: 'strategy', name: 'Strategy & Growth' },
+  ],
+  formats: [
+    { id: 'quickreads', name: 'Quick Reads' },
+    { id: 'indepth', name: 'In-Depth Reports' },
+    { id: 'interactive', name: 'Interactive Tools' },
+    { id: 'templates', name: 'Downloadable Templates' },
+    { id: 'recorded', name: 'Recorded Media' },
+    { id: 'live', name: 'Live Events' },
+  ],
+  popularity: [
+    { id: 'latest', name: 'Latest' },
+    { id: 'trending', name: 'Trending' },
+    { id: 'downloaded', name: 'Most Downloaded' },
+    { id: 'editors', name: "Editor's Pick" },
+  ],
+}
+
+// Mock data for financial services
 export const mockFinancialServices = [
   {
-    id: "f1",
-    title: "Business Startup Loan",
+    id: 'fin-1',
+    title: 'SME Growth Loan',
     description:
-      "Get funding to start your business with competitive interest rates and flexible repayment terms.",
-    category: "Loans",
-    serviceType: "Financing",
+      'Low-interest loans designed specifically for small and medium enterprises looking to expand their operations in Abu Dhabi.',
+    category: 'Loans',
+    serviceType: 'Financing',
+    businessStage: 'Growth',
     provider: {
-      name: "Khalifa Fund",
-      logoUrl: "/image.png",
-      description:
-        "Khalifa Fund for Enterprise Development supports UAE nationals in developing their entrepreneurial skills and establishing their own SMEs.",
-    },
-    amount: "Up to AED 500,000",
-    duration: "5 years",
-    eligibility: "UAE Nationals, 21+ years",
-    interestRate: "0%",
-    details: [
-      "Zero interest rate for qualified applicants",
-      "Flexible repayment terms up to 5 years",
-      "No collateral required for loans under AED 250,000",
-      "Dedicated business advisor throughout the loan term",
-      "Access to business development workshops and training",
-    ],
-    highlights: [
-      "Zero interest rate for qualified applicants",
-      "Flexible repayment terms up to 5 years",
-      "No collateral required for loans under AED 250,000",
-      "Dedicated business advisor throughout the loan term",
-      "Access to business development workshops and training",
-    ],
-    requiredDocuments: [
-      "Valid Emirates ID",
-      "Business plan",
-      "Feasibility study",
-      "Quotations for equipment/setup costs",
-      "Proof of premises (if applicable)",
-    ],
-    applicationProcess: [
-      "Submit online application",
-      "Initial screening (1-2 weeks)",
-      "Interview with loan officer",
-      "Business plan review",
-      "Final approval (3-4 weeks)",
-      "Disbursement of funds",
-    ],
-    terms: [
-      "Repayment begins 6 months after disbursement",
-      "Monthly repayment schedule",
-      "No early repayment penalties",
-      "Must maintain business operation throughout loan term",
-      "Quarterly progress reports required",
-    ],
-  },
-  {
-    id: "f2",
-    title: "SME Growth Financing",
-    description:
-      "Financing solution designed to help small and medium enterprises expand their operations and reach new markets.",
-    category: "Financing",
-    serviceType: "Credit",
-    provider: {
-      name: "ADGM Academy",
+      name: 'Abu Dhabi Commercial Bank',
       logoUrl:
-        "https://images.squarespace-cdn.com/content/v1/5cc0e1e9a0cd27177a2dd7ec/1556171141973-2BKLJ7QWZM0RN9Y1DKBY/ADGM+Academy.png",
+        'https://upload.wikimedia.org/wikipedia/commons/8/80/ADCB_Logo.svg',
       description:
-        "ADGM Academy is the knowledge arm of Abu Dhabi Global Market.",
+        'One of the largest banks in the UAE, offering a wide range of financial services for businesses.',
     },
-    amount: "AED 100,000 - 2,000,000",
-    duration: "3-7 years",
-    eligibility: "Established businesses, 2+ years in operation",
-    interestRate: "3.5%",
-    details: [
-      "Competitive interest rates starting at 3.5%",
-      "Flexible use of funds for expansion, equipment, or working capital",
-      "Streamlined application process with fast approval",
-      "Option for interest-only payments during initial period",
-      "No early repayment penalties",
-    ],
-    highlights: [
-      "Competitive interest rates starting at 3.5%",
-      "Flexible use of funds for expansion, equipment, or working capital",
-      "Streamlined application process with fast approval",
-      "Option for interest-only payments during initial period",
-      "No early repayment penalties",
-    ],
-    requiredDocuments: [
-      "Business registration documents",
-      "Financial statements for the past 2 years",
-      "Bank statements for the past 6 months",
-      "Business expansion plan",
-      "Cash flow projections",
-      "Collateral documentation (if applicable)",
-    ],
-    applicationProcess: [
-      "Online application submission",
-      "Document verification (1 week)",
-      "Credit assessment (1-2 weeks)",
-      "Approval and offer letter",
-      "Collateral registration (if applicable)",
-      "Fund disbursement",
-    ],
-    terms: [
-      "Repayment term between 3-7 years based on assessment",
-      "Monthly repayment schedule",
-      "Discounted rates for early repayment",
-      "Quarterly financial reporting required",
-      "Option to restructure in case of business challenges",
-    ],
-  },
-  {
-    id: "f3",
-    title: "Export Credit Insurance",
-    description:
-      "Protect your business against non-payment risks when selling goods and services internationally.",
-    category: "Insurance",
-    serviceType: "Risk Management",
-    provider: {
-      name: "Hub71",
-      logoUrl: "https://hub71.com/wp-content/uploads/2023/05/hub71-logo-1.png",
-      description:
-        "Hub71 is a global tech ecosystem that enables startups to scale globally from Abu Dhabi.",
-    },
-    coverageLimit: "Up to AED 5,000,000",
-    premium: "Based on risk assessment",
-    eligibility: "UAE-based exporters",
-    interestRate: "N/A",
-    amount: "Up to AED 5,000,000 coverage",
-    duration: "1 year (renewable)",
-    details: [
-      "Coverage for commercial and political risks",
-      "Customizable policies based on your export markets",
-      "Enhances ability to offer competitive payment terms to buyers",
-      "Access to market intelligence and risk assessments",
-      "Claims paid within 60 days of due date",
-    ],
-    highlights: [
-      "Coverage for commercial and political risks",
-      "Customizable policies based on your export markets",
-      "Enhances ability to offer competitive payment terms to buyers",
-      "Access to market intelligence and risk assessments",
-      "Claims paid within 60 days of due date",
-    ],
-    requiredDocuments: [
-      "Export contracts or purchase orders",
-      "Company registration documents",
-      "Financial statements",
-      "Export history documentation",
-      "Buyer information and credit history (if available)",
-    ],
-    applicationProcess: [
-      "Initial consultation and risk assessment",
-      "Application submission with required documents",
-      "Underwriting review (1-2 weeks)",
-      "Policy customization and pricing",
-      "Policy issuance",
-    ],
-    terms: [
-      "Annual policy with monthly premium payments",
-      "Coverage for both commercial and political risks",
-      "Claim submission within 30 days of payment default",
-      "Quarterly reporting of export activities",
-      "Premium adjustments based on risk profile changes",
-    ],
-  },
-  {
-    id: "f4",
-    title: "Business Credit Card",
-    description:
-      "Manage your business expenses with a dedicated credit card offering rewards and cashback on business purchases.",
-    category: "Credit Card",
-    serviceType: "Financing",
-    provider: {
-      name: "NYU Abu Dhabi",
-      logoUrl:
-        "https://nyuad.nyu.edu/content/dam/nyuad/departments/public-affairs/logos/NYUAD-logo-color.png",
-      description:
-        "NYU Abu Dhabi is a degree-granting research university with a fully integrated liberal arts and science college.",
-    },
-    creditLimit: "Up to AED 100,000",
-    annualFee: "AED 500",
-    cashback: "2% on all purchases",
-    interestRate: "18% p.a.",
-    amount: "Up to AED 100,000 credit limit",
-    duration: "Ongoing",
+    amount: 'Up to AED 5 million',
+    duration: '5-7 years',
+    interestRate: 'Starting from 3%',
     eligibility:
-      "Businesses with 1+ year operation, min. annual turnover AED 500,000",
+      'Business must be operating for at least 2 years with annual revenue of AED 1 million+',
     details: [
-      "2% cashback on all business purchases",
-      "No foreign transaction fees",
-      "Complimentary airport lounge access",
-      "Purchase protection and extended warranty",
-      "Detailed expense reporting and integration with accounting software",
+      'No collateral required for loans up to AED 1 million',
+      'Flexible repayment options',
+      'Dedicated relationship manager',
+      'Fast approval process within 5 business days',
+      'Option for grace period of up to 6 months',
     ],
-    highlights: [
-      "2% cashback on all business purchases",
-      "No foreign transaction fees",
-      "Complimentary airport lounge access",
-      "Purchase protection and extended warranty",
-      "Detailed expense reporting and integration with accounting software",
-    ],
-    requiredDocuments: [
-      "Business registration documents",
-      "Trade license",
-      "Financial statements",
-      "Bank statements for the past 6 months",
-      "Personal guarantee from business owner",
-    ],
-    applicationProcess: [
-      "Online application",
-      "Document submission",
-      "Credit assessment (3-5 business days)",
-      "Approval and card issuance",
-      "Card delivery (5-7 business days)",
-    ],
-    terms: [
-      "Annual fee: AED 500 (waived if annual spend exceeds AED 100,000)",
-      "Interest rate: 18% p.a. on unpaid balances",
-      "25-day interest-free period on purchases",
-      "Minimum payment: 5% of outstanding balance",
-      "Late payment fee: AED 230",
-    ],
+    tags: ['Loans', 'Financing', 'Growth'],
   },
-];
-// Mock non-financial services data
+  {
+    id: 'fin-2',
+    title: 'Startup Capital Fund',
+    description:
+      'Equity financing for innovative startups in technology, healthcare, and sustainable energy sectors in Abu Dhabi.',
+    category: 'Financing',
+    serviceType: 'Equity',
+    businessStage: 'Conception',
+    provider: {
+      name: 'Hub71',
+      logoUrl: 'https://hub71.com/wp-content/uploads/2023/05/hub71-logo-1.png',
+      description:
+        "Abu Dhabi's global tech ecosystem that enables startups to scale globally.",
+    },
+    amount: 'AED 500,000 - 2 million',
+    duration: 'Equity investment',
+    interestRate: 'N/A (Equity-based)',
+    eligibility:
+      'Innovative startups with strong growth potential in priority sectors',
+    details: [
+      'Equity investment ranging from 10-25%',
+      "Access to Hub71's ecosystem and mentorship",
+      'Connection to potential clients and partners',
+      'Support with future funding rounds',
+      'No repayment obligations',
+    ],
+    tags: ['Financing', 'Equity', 'Conception'],
+  },
+  {
+    id: 'fin-3',
+    title: 'Business Insurance Package',
+    description:
+      'Comprehensive insurance coverage tailored for businesses operating in Abu Dhabi, protecting against various risks.',
+    category: 'Insurance',
+    serviceType: 'Risk Management',
+    businessStage: 'All Stages',
+    provider: {
+      name: 'Abu Dhabi National Insurance Company',
+      logoUrl:
+        'https://www.adnic.ae/wp-content/themes/adnic/assets/images/logo.svg',
+      description:
+        'Leading insurance provider in the UAE offering comprehensive coverage for businesses.',
+    },
+    amount: 'Coverage up to AED 10 million',
+    duration: 'Annual, renewable',
+    interestRate: 'N/A',
+    eligibility: 'Licensed businesses operating in Abu Dhabi',
+    details: [
+      'Property and asset protection',
+      'Business interruption coverage',
+      'Liability insurance',
+      'Employee health and accident coverage',
+      'Customizable package based on business needs',
+    ],
+    tags: ['Insurance', 'Risk Management', 'All Stages'],
+  },
+  {
+    id: 'fin-4',
+    title: 'Export Credit Guarantee',
+    description:
+      'Financial protection for Abu Dhabi businesses engaged in export activities, minimizing risks of international trade.',
+    category: 'Insurance',
+    serviceType: 'Credit',
+    businessStage: 'Maturity',
+    provider: {
+      name: 'Abu Dhabi Exports Office',
+      logoUrl: 'https://www.adexporters.ae/sites/default/files/adex-logo.png',
+      description:
+        'Government entity supporting Abu Dhabi-based exporters to expand globally.',
+    },
+    amount: 'Up to 90% of export value',
+    duration: 'Transaction-based',
+    interestRate: 'N/A',
+    eligibility: 'Abu Dhabi-based companies with export activities',
+    details: [
+      'Protection against non-payment by international buyers',
+      'Coverage for commercial and political risks',
+      'Improved cash flow management',
+      'Enhanced credibility with international partners',
+      'Access to competitive financing terms',
+    ],
+    tags: ['Insurance', 'Credit', 'Maturity'],
+  },
+  {
+    id: 'fin-5',
+    title: 'Business Credit Card',
+    description:
+      'Specialized credit card for business expenses with rewards tailored to business needs and spending patterns.',
+    category: 'Credit Card',
+    serviceType: 'Credit',
+    businessStage: 'All Stages',
+    provider: {
+      name: 'First Abu Dhabi Bank',
+      logoUrl:
+        'https://www.bankfab.com/-/media/fabgroup/home/images/fab-logo.svg',
+      description:
+        'The largest bank in the UAE, offering comprehensive financial services for businesses of all sizes.',
+    },
+    amount: 'Credit limit up to AED 500,000',
+    duration: 'Revolving credit',
+    interestRate: '18% APR',
+    eligibility: 'Registered businesses with good credit history',
+    details: [
+      'Business-specific rewards and cashback',
+      'Multiple cards for employees with spending controls',
+      'Detailed expense reporting and categorization',
+      'Travel insurance and purchase protection',
+      'Integration with accounting software',
+    ],
+    tags: ['Credit Card', 'Credit', 'All Stages'],
+  },
+  {
+    id: 'fin-6',
+    title: 'Equipment Financing',
+    description:
+      'Specialized financing solution for purchasing business equipment and machinery with flexible terms.',
+    category: 'Loans',
+    serviceType: 'Financing',
+    businessStage: 'Growth',
+    provider: {
+      name: 'Abu Dhabi Islamic Bank',
+      logoUrl: 'https://www.adib.ae/en/PublishingImages/ADIB_Logo_2016_En.svg',
+      description:
+        'Leading Islamic financial services group providing Sharia-compliant solutions for businesses.',
+    },
+    amount: 'Up to AED 3 million',
+    duration: '3-5 years',
+    interestRate: 'Profit rate from 4%',
+    eligibility: 'Business must be operating for at least 1 year',
+    details: [
+      'Sharia-compliant financing structure',
+      'Equipment serves as collateral',
+      'Flexible payment schedules',
+      'Option to purchase equipment at end of term',
+      'Quick approval process',
+    ],
+    tags: ['Loans', 'Financing', 'Growth'],
+  },
+  {
+    id: 'fin-7',
+    title: 'Working Capital Solution',
+    description:
+      'Short-term financing to optimize cash flow and cover operational expenses during growth or seasonal fluctuations.',
+    category: 'Financing',
+    serviceType: 'Credit',
+    businessStage: 'Growth',
+    provider: {
+      name: 'Abu Dhabi Commercial Bank',
+      logoUrl:
+        'https://upload.wikimedia.org/wikipedia/commons/8/80/ADCB_Logo.svg',
+      description:
+        'One of the largest banks in the UAE, offering a wide range of financial services for businesses.',
+    },
+    amount: 'AED 250,000 - 3 million',
+    duration: '6-12 months',
+    interestRate: 'Starting from 4.5%',
+    eligibility: 'Businesses with at least 18 months of operation',
+    details: [
+      'Revolving credit facility',
+      'Flexible withdrawal and repayment',
+      'Online account management',
+      'No prepayment penalties',
+      'Competitive interest rates',
+    ],
+    tags: ['Financing', 'Credit', 'Growth'],
+  },
+  {
+    id: 'fin-8',
+    title: 'Trade Finance Facility',
+    description:
+      'Comprehensive trade finance solutions for businesses engaged in import and export activities.',
+    category: 'Financing',
+    serviceType: 'Credit',
+    businessStage: 'Maturity',
+    provider: {
+      name: 'First Abu Dhabi Bank',
+      logoUrl:
+        'https://www.bankfab.com/-/media/fabgroup/home/images/fab-logo.svg',
+      description:
+        'The largest bank in the UAE, offering comprehensive financial services for businesses of all sizes.',
+    },
+    amount: 'Up to AED 10 million',
+    duration: 'Transaction-based',
+    interestRate: 'Varies by product',
+    eligibility: 'Established businesses with international trade activities',
+    details: [
+      'Letters of credit and guarantees',
+      'Import and export financing',
+      'Supply chain financing',
+      'Documentary collections',
+      'Trade risk mitigation',
+    ],
+    tags: ['Financing', 'Credit', 'Maturity'],
+  },
+  {
+    id: 'fin-9',
+    title: 'Business Restructuring Loan',
+    description:
+      'Specialized financing to support business transformation, debt consolidation, or operational restructuring.',
+    category: 'Loans',
+    serviceType: 'Financing',
+    businessStage: 'Restructuring',
+    provider: {
+      name: 'Abu Dhabi Islamic Bank',
+      logoUrl: 'https://www.adib.ae/en/PublishingImages/ADIB_Logo_2016_En.svg',
+      description:
+        'Leading Islamic financial services group providing Sharia-compliant solutions for businesses.',
+    },
+    amount: 'Up to AED 7 million',
+    duration: 'Up to 10 years',
+    interestRate: 'Profit rate from 3.5%',
+    eligibility: 'Businesses with viable restructuring plan',
+    details: [
+      'Debt consolidation options',
+      'Customized repayment schedule',
+      'Business advisory services',
+      'Grace period options',
+      'Sharia-compliant structure',
+    ],
+    tags: ['Loans', 'Financing', 'Restructuring'],
+  },
+  {
+    id: 'fin-10',
+    title: 'Commercial Property Mortgage',
+    description:
+      'Long-term financing for purchasing commercial real estate or business premises in Abu Dhabi.',
+    category: 'Loans',
+    serviceType: 'Financing',
+    businessStage: 'Maturity',
+    provider: {
+      name: 'First Abu Dhabi Bank',
+      logoUrl:
+        'https://www.bankfab.com/-/media/fabgroup/home/images/fab-logo.svg',
+      description:
+        'The largest bank in the UAE, offering comprehensive financial services for businesses of all sizes.',
+    },
+    amount: 'Up to AED 20 million',
+    duration: 'Up to 15 years',
+    interestRate: 'Starting from 3.75%',
+    eligibility:
+      'Businesses with strong financial performance and at least 3 years of operation',
+    details: [
+      'Up to 70% financing of property value',
+      'Fixed and variable rate options',
+      'Flexible repayment terms',
+      'Option to refinance existing property',
+      'No early settlement fees after 5 years',
+    ],
+    tags: ['Loans', 'Financing', 'Maturity'],
+  },
+  {
+    id: 'fin-11',
+    title: 'Invoice Factoring Service',
+    description:
+      'Convert outstanding invoices into immediate cash flow to support business operations and growth.',
+    category: 'Financing',
+    serviceType: 'Credit',
+    businessStage: 'Growth',
+    provider: {
+      name: 'Abu Dhabi Commercial Bank',
+      logoUrl:
+        'https://upload.wikimedia.org/wikipedia/commons/8/80/ADCB_Logo.svg',
+      description:
+        'One of the largest banks in the UAE, offering a wide range of financial services for businesses.',
+    },
+    amount: 'Up to 85% of invoice value',
+    duration: '30-90 days',
+    interestRate: '2-3% monthly fee',
+    eligibility: 'B2B businesses with creditworthy customers',
+    details: [
+      'Immediate access to working capital',
+      'No additional debt on balance sheet',
+      'Optional accounts receivable management',
+      'Confidential and non-confidential options',
+      'Online platform for invoice submission and tracking',
+    ],
+    tags: ['Financing', 'Credit', 'Growth'],
+  },
+  {
+    id: 'fin-12',
+    title: 'Green Business Financing',
+    description:
+      'Specialized financing for environmentally sustainable projects and business initiatives in Abu Dhabi.',
+    category: 'Loans',
+    serviceType: 'Financing',
+    businessStage: 'All Stages',
+    provider: {
+      name: 'First Abu Dhabi Bank',
+      logoUrl:
+        'https://www.bankfab.com/-/media/fabgroup/home/images/fab-logo.svg',
+      description:
+        'The largest bank in the UAE, offering comprehensive financial services for businesses of all sizes.',
+    },
+    amount: 'Up to AED 15 million',
+    duration: 'Up to 10 years',
+    interestRate: 'Preferential rates from 2.5%',
+    eligibility: 'Projects with demonstrable environmental benefits',
+    details: [
+      'Preferential interest rates',
+      'Extended repayment periods',
+      'Technical assistance for project development',
+      'Compliance with international green standards',
+      'Enhanced reputation through green certification',
+    ],
+    tags: ['Loans', 'Financing', 'All Stages'],
+  },
+]
+
+// Mock data for non-financial services
 export const mockNonFinancialServices = [
   {
-    id: "nf1",
-    title: "Business Setup Consultancy",
+    id: 'nfin-1',
+    title: 'Business Setup Consultancy',
     description:
-      "Comprehensive guidance on establishing your business in the UAE, including legal structure, licensing, and registration.",
-    category: "Consultancy",
-    serviceType: "Advisory",
+      'Comprehensive guidance for establishing your business in Abu Dhabi, including legal structure, licensing, and location selection.',
+    category: 'Consultancy',
+    serviceType: 'Advisory',
+    deliveryMode: 'Hybrid',
+    businessStage: 'Conception',
     provider: {
-      name: "Khalifa Fund",
-      logoUrl: "/image.png",
-      description:
-        "Khalifa Fund for Enterprise Development supports UAE nationals in developing their entrepreneurial skills and establishing their own SMEs.",
-    },
-    duration: "2-4 weeks",
-    deliveryMode: "In-person",
-    price: "AED 5,000 - 15,000",
-    details: [
-      "Personalized business structure recommendations",
-      "Assistance with all licensing and registration paperwork",
-      "Guidance on location selection and office setup",
-      "Introduction to potential partners and service providers",
-      "Post-setup support for 3 months",
-    ],
-    highlights: [
-      "Personalized business structure recommendations",
-      "Assistance with all licensing and registration paperwork",
-      "Guidance on location selection and office setup",
-      "Introduction to potential partners and service providers",
-      "Post-setup support for 3 months",
-    ],
-    requiredDocuments: [
-      "Passport copies of all shareholders",
-      "Emirates ID (for UAE nationals/residents)",
-      "Business concept or plan",
-      "Initial capital proof (if available)",
-      "Educational certificates (for professional licenses)",
-    ],
-    applicationProcess: [
-      "Initial consultation (free)",
-      "Service package selection",
-      "Agreement signing and initial payment",
-      "Document collection and submission",
-      "Follow-up on government processes",
-      "License issuance and completion",
-    ],
-    eligibility: "Open to all entrepreneurs and businesses",
-    deliveryDetails: [
-      "Initial consultation conducted in-person or virtually",
-      "Regular progress updates via email and phone",
-      "In-person meetings for document signing and submission",
-      "Final handover meeting upon service completion",
-      "Three follow-up support sessions included",
-    ],
-  },
-  {
-    id: "nf2",
-    title: "Digital Transformation Package",
-    description:
-      "Modernize your business operations with digital tools and strategies to improve efficiency and customer experience.",
-    category: "Technology",
-    serviceType: "Implementation",
-    provider: {
-      name: "Hub71",
-      logoUrl: "https://hub71.com/wp-content/uploads/2023/05/hub71-logo-1.png",
-      description:
-        "Hub71 is a global tech ecosystem that enables startups to scale globally from Abu Dhabi.",
-    },
-    duration: "3 months",
-    deliveryMode: "Hybrid",
-    price: "AED 25,000 - 75,000",
-    details: [
-      "Comprehensive digital needs assessment",
-      "Custom technology implementation roadmap",
-      "Integration of cloud-based business solutions",
-      "Staff training on new digital tools",
-      "Ongoing technical support and optimization",
-    ],
-    highlights: [
-      "Comprehensive digital needs assessment",
-      "Custom technology implementation roadmap",
-      "Integration of cloud-based business solutions",
-      "Staff training on new digital tools",
-      "Ongoing technical support and optimization",
-    ],
-    requiredDocuments: [
-      "Current IT infrastructure documentation",
-      "Business process flowcharts (if available)",
-      "Staff organization chart",
-      "Current software licenses and subscriptions",
-      "Digital transformation objectives",
-    ],
-    applicationProcess: [
-      "Discovery meeting and needs assessment",
-      "Proposal and quotation",
-      "Contract signing and project initiation",
-      "Implementation phase (2-3 months)",
-      "Training and handover",
-      "Post-implementation support",
-    ],
-    eligibility: "SMEs with at least 5 employees and 1+ year in operation",
-    deliveryDetails: [
-      "Initial assessment conducted on-site",
-      "Weekly progress meetings (virtual or in-person)",
-      "Implementation team works both on-site and remotely",
-      "Training sessions conducted in-person",
-      "Remote support available 5 days a week during business hours",
-      "3 months of post-implementation support included",
-    ],
-  },
-  {
-    id: "nf3",
-    title: "Market Research Report",
-    description:
-      "Detailed analysis of market trends, consumer behavior, and competitive landscape for your industry.",
-    category: "Research",
-    serviceType: "Information",
-    provider: {
-      name: "ADGM Academy",
+      name: 'Khalifa Fund',
       logoUrl:
-        "https://images.squarespace-cdn.com/content/v1/5cc0e1e9a0cd27177a2dd7ec/1556171141973-2BKLJ7QWZM0RN9Y1DKBY/ADGM+Academy.png",
+        'https://uploadthingy.s3.us-west-1.amazonaws.com/hFf47Y1ehebABQyP4p31yY/image.png',
       description:
-        "ADGM Academy is the knowledge arm of Abu Dhabi Global Market.",
+        'Supporting entrepreneurs and SMEs in Abu Dhabi with comprehensive business development services.',
     },
-    deliveryMode: "Online",
-    duration: "2 weeks",
-    price: "AED 8,000 - 20,000",
-    turnaround: "2 weeks",
+    duration: '2-4 weeks',
+    price: 'AED 5,000 - 15,000',
     details: [
-      "In-depth analysis of target market size and growth potential",
-      "Consumer behavior and preferences insights",
-      "Competitive landscape and SWOT analysis",
-      "Pricing strategy recommendations",
-      "Market entry or expansion strategies",
+      'Business structure and legal form consultation',
+      'License and permit application assistance',
+      'Location selection guidance',
+      'Initial business plan review',
+      'Introduction to relevant government entities',
     ],
-    highlights: [
-      "In-depth analysis of target market size and growth potential",
-      "Consumer behavior and preferences insights",
-      "Competitive landscape and SWOT analysis",
-      "Pricing strategy recommendations",
-      "Market entry or expansion strategies",
-    ],
-    requiredDocuments: [
-      "Research brief with specific objectives",
-      "Current business model canvas (if available)",
-      "Information on current target audience",
-      "Competitor information (if available)",
-      "Specific research questions to address",
-    ],
-    applicationProcess: [
-      "Research brief submission",
-      "Scope clarification meeting",
-      "Proposal and quotation",
-      "Contract and payment",
-      "Research execution (2 weeks)",
-      "Report delivery and presentation",
-    ],
-    eligibility: "All businesses and entrepreneurs",
-    deliveryDetails: [
-      "Research conducted remotely",
-      "Weekly progress updates via email",
-      "Final report delivered in PDF format",
-      "Optional virtual presentation of findings",
-      "One round of revisions included",
-      "30-day support for questions after delivery",
-    ],
+    tags: ['Consultancy', 'Advisory', 'Conception'],
   },
   {
-    id: "nf4",
-    title: "Export Development Program",
+    id: 'nfin-2',
+    title: 'Digital Transformation Package',
     description:
-      "Comprehensive program to help businesses expand internationally, including market entry strategies and compliance guidance.",
-    category: "Export",
-    serviceType: "Program",
+      'End-to-end digital transformation services to help businesses adopt technology solutions that enhance efficiency and competitiveness.',
+    category: 'Technology',
+    serviceType: 'Implementation',
+    deliveryMode: 'Hybrid',
+    businessStage: 'Growth',
     provider: {
-      name: "Google for Startups",
-      logoUrl:
-        "https://storage.googleapis.com/cms-storage-bucket/6e19fee6b47b36ca613f.png",
+      name: 'Hub71',
+      logoUrl: 'https://hub71.com/wp-content/uploads/2023/05/hub71-logo-1.png',
       description:
-        "Google for Startups connects startups with the right people, products, and best practices to help them grow.",
+        "Abu Dhabi's global tech ecosystem that enables startups to scale globally.",
     },
-    duration: "6 months",
-    deliveryMode: "Hybrid",
-    price: "AED 30,000 - 50,000",
+    duration: '3-6 months',
+    price: 'AED 20,000 - 100,000',
     details: [
-      "International market opportunity assessment",
-      "Export readiness evaluation and preparation",
-      "Regulatory compliance and documentation guidance",
-      "International logistics and supply chain planning",
-      "Introduction to potential distributors and partners",
+      'Digital readiness assessment',
+      'Technology roadmap development',
+      'System selection and implementation',
+      'Staff training and change management',
+      'Post-implementation support',
     ],
-    highlights: [
-      "International market opportunity assessment",
-      "Export readiness evaluation and preparation",
-      "Regulatory compliance and documentation guidance",
-      "International logistics and supply chain planning",
-      "Introduction to potential distributors and partners",
-    ],
-    requiredDocuments: [
-      "Business registration documents",
-      "Product/service catalog",
-      "Current export activities (if any)",
-      "Target markets of interest",
-      "Financial statements for the past 2 years",
-    ],
-    applicationProcess: [
-      "Application submission",
-      "Initial assessment and eligibility check",
-      "Program acceptance and onboarding",
-      "Customized export development plan creation",
-      "Program implementation (6 months)",
-      "Final assessment and future planning",
-    ],
-    eligibility:
-      "Established businesses with export-ready products/services, min. 2 years in operation",
-    deliveryDetails: [
-      "Monthly in-person workshops (1 day each)",
-      "Bi-weekly virtual coaching sessions",
-      "Online learning modules and resources",
-      "International market visit (optional, additional cost)",
-      "Networking events with potential partners",
-      "Final export strategy presentation",
-    ],
+    tags: ['Technology', 'Implementation', 'Growth'],
   },
-];
+  {
+    id: 'nfin-3',
+    title: 'Market Research Service',
+    description:
+      'Comprehensive market analysis to identify opportunities, understand competition, and inform strategic decision-making.',
+    category: 'Research',
+    serviceType: 'Information',
+    deliveryMode: 'Online',
+    businessStage: 'All Stages',
+    provider: {
+      name: 'Abu Dhabi Chamber of Commerce',
+      logoUrl:
+        'https://upload.wikimedia.org/wikipedia/en/0/08/Abu_Dhabi_Chamber_Logo.png',
+      description:
+        'Supporting business growth and economic development in Abu Dhabi.',
+    },
+    duration: '4-8 weeks',
+    price: 'AED 15,000 - 50,000',
+    details: [
+      'Market size and growth analysis',
+      'Competitor landscape assessment',
+      'Consumer behavior and preferences study',
+      'Pricing strategy recommendations',
+      'Market entry strategy development',
+    ],
+    tags: ['Research', 'Information', 'All Stages'],
+  },
+  {
+    id: 'nfin-4',
+    title: 'Export Development Program',
+    description:
+      'Comprehensive support to help Abu Dhabi businesses expand into international markets and increase export capabilities.',
+    category: 'Export',
+    serviceType: 'Program',
+    deliveryMode: 'Hybrid',
+    businessStage: 'Maturity',
+    provider: {
+      name: 'Abu Dhabi Export Office',
+      logoUrl: 'https://www.adexporters.ae/sites/default/files/adex-logo.png',
+      description:
+        'Supporting Abu Dhabi-based companies to export their products globally.',
+    },
+    duration: '6-12 months',
+    price: 'Partially subsidized',
+    details: [
+      'Export readiness assessment',
+      'Market selection and entry strategy',
+      'Regulatory compliance guidance',
+      'International business matchmaking',
+      'Export documentation training',
+    ],
+    tags: ['Export', 'Program', 'Maturity'],
+  },
+  {
+    id: 'nfin-5',
+    title: 'Business Mentorship Program',
+    description:
+      'Personalized mentorship from experienced business leaders to guide entrepreneurs through challenges and growth opportunities.',
+    category: 'Consultancy',
+    serviceType: 'Advisory',
+    deliveryMode: 'Hybrid',
+    businessStage: 'Growth',
+    provider: {
+      name: 'Khalifa Fund',
+      logoUrl:
+        'https://uploadthingy.s3.us-west-1.amazonaws.com/hFf47Y1ehebABQyP4p31yY/image.png',
+      description:
+        'Supporting entrepreneurs and SMEs in Abu Dhabi with comprehensive business development services.',
+    },
+    duration: '6 months',
+    price: 'Free (application required)',
+    details: [
+      'One-on-one sessions with industry experts',
+      'Strategic business planning support',
+      'Problem-solving and decision-making guidance',
+      'Networking opportunities',
+      'Progress tracking and accountability',
+    ],
+    tags: ['Consultancy', 'Advisory', 'Growth'],
+  },
+  {
+    id: 'nfin-6',
+    title: 'Innovation Lab Access',
+    description:
+      'Access to state-of-the-art innovation facilities, equipment, and expertise to develop and test new products or services.',
+    category: 'Technology',
+    serviceType: 'Implementation',
+    deliveryMode: 'In-person',
+    businessStage: 'Conception',
+    provider: {
+      name: 'Hub71',
+      logoUrl: 'https://hub71.com/wp-content/uploads/2023/05/hub71-logo-1.png',
+      description:
+        "Abu Dhabi's global tech ecosystem that enables startups to scale globally.",
+    },
+    duration: 'Flexible membership',
+    price: 'AED 1,000 - 5,000 monthly',
+    details: [
+      'Access to prototyping equipment',
+      'Technical expertise and guidance',
+      'Collaborative workspace',
+      'Innovation workshops and events',
+      'Connection to potential partners and investors',
+    ],
+    tags: ['Technology', 'Implementation', 'Conception'],
+  },
+  {
+    id: 'nfin-7',
+    title: 'Business Process Optimization',
+    description:
+      'Expert analysis and improvement of business processes to enhance efficiency, reduce costs, and increase productivity.',
+    category: 'Consultancy',
+    serviceType: 'Implementation',
+    deliveryMode: 'Hybrid',
+    businessStage: 'Growth',
+    provider: {
+      name: 'Abu Dhabi Chamber of Commerce',
+      logoUrl:
+        'https://upload.wikimedia.org/wikipedia/en/0/08/Abu_Dhabi_Chamber_Logo.png',
+      description:
+        'Supporting business growth and economic development in Abu Dhabi.',
+    },
+    duration: '2-3 months',
+    price: 'AED 30,000 - 80,000',
+    details: [
+      'Comprehensive process audit',
+      'Bottleneck identification and resolution',
+      'Workflow redesign and optimization',
+      'Implementation of efficiency metrics',
+      'Staff training on new processes',
+    ],
+    tags: ['Consultancy', 'Implementation', 'Growth'],
+  },
+  {
+    id: 'nfin-8',
+    title: 'Sustainability Certification Program',
+    description:
+      'Guidance and support for businesses to achieve recognized sustainability certifications and implement eco-friendly practices.',
+    category: 'Consultancy',
+    serviceType: 'Program',
+    deliveryMode: 'Hybrid',
+    businessStage: 'Maturity',
+    provider: {
+      name: 'Environment Agency - Abu Dhabi',
+      logoUrl: 'https://www.ead.gov.ae/TempFile.aspx?id=107',
+      description:
+        'Government agency responsible for environmental protection and sustainable development in Abu Dhabi.',
+    },
+    duration: '3-6 months',
+    price: 'Partially subsidized',
+    details: [
+      'Sustainability assessment and gap analysis',
+      'Environmental management system development',
+      'Certification preparation and application',
+      'Staff training on sustainable practices',
+      'Ongoing compliance monitoring',
+    ],
+    tags: ['Consultancy', 'Program', 'Maturity'],
+  },
+  {
+    id: 'nfin-9',
+    title: 'Business Restructuring Advisory',
+    description:
+      'Specialized guidance for businesses undergoing significant changes, including reorganization, pivoting, or recovery strategies.',
+    category: 'Consultancy',
+    serviceType: 'Advisory',
+    deliveryMode: 'Hybrid',
+    businessStage: 'Restructuring',
+    provider: {
+      name: 'Khalifa Fund',
+      logoUrl:
+        'https://uploadthingy.s3.us-west-1.amazonaws.com/hFf47Y1ehebABQyP4p31yY/image.png',
+      description:
+        'Supporting entrepreneurs and SMEs in Abu Dhabi with comprehensive business development services.',
+    },
+    duration: '3-6 months',
+    price: 'AED 20,000 - 60,000',
+    details: [
+      'Business viability assessment',
+      'Restructuring plan development',
+      'Cost optimization strategies',
+      'Change management support',
+      'Implementation guidance and monitoring',
+    ],
+    tags: ['Consultancy', 'Advisory', 'Restructuring'],
+  },
+  {
+    id: 'nfin-10',
+    title: 'Intellectual Property Protection',
+    description:
+      'Comprehensive services to help businesses protect their intellectual property through patents, trademarks, and copyrights.',
+    category: 'Consultancy',
+    serviceType: 'Advisory',
+    deliveryMode: 'Online',
+    businessStage: 'All Stages',
+    provider: {
+      name: 'Abu Dhabi Global Market',
+      logoUrl: 'https://www.adgm.com/img/logo/logo-dark.svg',
+      description:
+        'International financial center in Abu Dhabi offering business-friendly regulatory environment.',
+    },
+    duration: '2-6 months',
+    price: 'AED 8,000 - 25,000',
+    details: [
+      'IP audit and assessment',
+      'Patent, trademark, and copyright registration',
+      'IP strategy development',
+      'Infringement monitoring and enforcement',
+      'International IP protection guidance',
+    ],
+    tags: ['Consultancy', 'Advisory', 'All Stages'],
+  },
+  {
+    id: 'nfin-11',
+    title: 'E-Commerce Enablement Package',
+    description:
+      'End-to-end support for businesses looking to establish or enhance their online sales capabilities and digital presence.',
+    category: 'Technology',
+    serviceType: 'Implementation',
+    deliveryMode: 'Online',
+    businessStage: 'Growth',
+    provider: {
+      name: 'Hub71',
+      logoUrl: 'https://hub71.com/wp-content/uploads/2023/05/hub71-logo-1.png',
+      description:
+        "Abu Dhabi's global tech ecosystem that enables startups to scale globally.",
+    },
+    duration: '2-3 months',
+    price: 'AED 15,000 - 40,000',
+    details: [
+      'E-commerce platform setup',
+      'Payment gateway integration',
+      'Product catalog and content development',
+      'Digital marketing strategy',
+      'Order fulfillment and logistics optimization',
+    ],
+    tags: ['Technology', 'Implementation', 'Growth'],
+  },
+  {
+    id: 'nfin-12',
+    title: 'Industry 4.0 Readiness Program',
+    description:
+      'Assessment and implementation support for advanced manufacturing technologies and smart factory solutions.',
+    category: 'Technology',
+    serviceType: 'Program',
+    deliveryMode: 'Hybrid',
+    businessStage: 'Maturity',
+    provider: {
+      name: 'Abu Dhabi Department of Economic Development',
+      logoUrl:
+        'https://added.gov.ae/-/media/Project/ADDED/ADDED/images/logo.svg',
+      description:
+        'Government entity responsible for economic development and business regulation in Abu Dhabi.',
+    },
+    duration: '6-12 months',
+    price: 'Partially subsidized',
+    details: [
+      'Industry 4.0 readiness assessment',
+      'Technology roadmap development',
+      'Smart manufacturing implementation',
+      'Workforce skills development',
+      'Integration of IoT and data analytics',
+    ],
+    tags: ['Technology', 'Program', 'Maturity'],
+  },
+]
