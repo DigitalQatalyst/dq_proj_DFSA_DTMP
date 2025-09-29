@@ -7,7 +7,6 @@ import EnterpriseStages from './EnterpriseStages';
 import Home from './Home';
 import KnowledgeHub from './KnowledgeHub';
 import CallToAction from './CallToAction';
-import Enquiry from './Enquiry/Enquiry';
 
 const HomePage: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -50,7 +49,6 @@ const HomePage: React.FC = () => {
         <Home />
         <KnowledgeHub graphqlEndpoint={null} />
         <CallToAction />
-        <Enquiry />
       </main>
       <Footer isLoggedIn={false} />
     </div>

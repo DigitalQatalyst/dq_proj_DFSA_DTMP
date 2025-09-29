@@ -2,11 +2,13 @@ import { gql } from '@apollo/client';
 
 // GraphQL Query for Products
 const GET_PRODUCTS = gql`
-  query GetProducts($take: Int!) {
-    products(options: { take: $take }) {
+  query getProducts {
+    products {
       items {
         id
-        createdAt
+        assets {
+          name
+        }
         name
         slug
         description
@@ -21,22 +23,30 @@ const GET_PRODUCTS = gql`
           code
         }
         customFields {
-          Industry
+          Logo {
+            name
+            source
+          }
+          CustomerType
           BusinessStage
+          Nationality
+          LegalStructure
+          Industry
           ProcessingTime
           RegistrationValidity
           Cost
           Steps
           TermsOfService
-          RequiredDocuments
+          RequiredDocuments {
+            id
+            customFields
+          }
+          EmpowermentandLeadership
           RelatedServices {
             id
-            name
-            slug
           }
         }
       }
-      totalItems
     }
   }
 `;
