@@ -1188,7 +1188,7 @@ const SuccessState: React.FC<{
   );
 };
 
-// Course Table Component (Add this before ServiceRequestForm component)
+// Course Table Component
 interface CourseTableData {
   courseName: string;
   language: string;
