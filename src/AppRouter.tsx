@@ -36,7 +36,7 @@ export function AppRouter() {
   };
 
   const client = new ApolloClient({
-    link: new HttpLink({ uri: 'https://9609a7336af8.ngrok-free.app/services-api' }), // <-- Use HttpLink
+    link: new HttpLink({ uri: 'https://b0e4e435962f.ngrok-free.app/services-api' }), // <-- Use HttpLink
     cache: new InMemoryCache(),
   });
 

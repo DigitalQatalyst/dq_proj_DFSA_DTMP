@@ -41,21 +41,38 @@ interface GetFacetsData {
 }
 
 // Types for GET_PRODUCTS query
+interface Asset {
+  name: string;
+}
+
+interface Logo {
+  name: string;
+  source: string;
+}
+
+interface RequiredDocument {
+  id: string;
+  customFields: any;
+}
+
 interface RelatedService {
   id: string;
-  name: string;
-  slug: string;
 }
 
 interface ProductCustomFields {
-  Industry?: string;
+  Logo?: Logo;
+  CustomerType?: string;
   BusinessStage?: string;
+  Nationality?: string;
+  LegalStructure?: string;
+  Industry?: string;
   ProcessingTime?: string;
   RegistrationValidity?: string;
   Cost?: number;
   Steps?: string;
   TermsOfService?: string;
-  RequiredDocuments?: string;
+  RequiredDocuments?: RequiredDocument[];
+  EmpowermentandLeadership?: string;
   RelatedServices?: RelatedService[];
 }
 
@@ -72,7 +89,7 @@ interface ProductFacetValue {
 
 interface Product {
   id: string;
-  createdAt: string;
+  assets: Asset[];
   name: string;
   slug: string;
   description: string;
@@ -217,11 +234,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             title: product.name,
             slug: product.slug,
             description: product.description,
-            createdAt: product.createdAt,
             facetValues: product.facetValues,
             provider: {
               name: product.customFields?.Industry || 'Unknown Provider',
-              logoUrl: '/mzn_logo.png',
+              logoUrl: product.customFields?.Logo?.source || '/mzn_logo.png',
               description: 'No provider description available',
             },
             ...product.customFields,
