@@ -254,6 +254,10 @@ const getGlobalOptions = (optionSetId: string) => {
         value: "au",
         label: "Australia",
       },
+      {
+        value: "other",
+        label: "Other",
+      },
     ],
     serviceTypes: [
       {
@@ -979,6 +983,172 @@ const FormField: React.FC<{
             )}
           </div>
         );
+
+      // Multi-file case
+
+      // Add this case to the renderField switch statement in the FormField component
+      // Place it right after the "file" and "image-upload" case (around line 680)
+
+      case "multi-file": {
+        const files = Array.isArray(value) ? value : [];
+        const maxFiles = field.validation?.max || 5; // Default max 5 files
+        const maxFileSize = field.validation?.maxFileSize || 5242880; // Default 5MB in bytes
+        const allowedTypes = field.validation?.fileTypes || [
+          ".pdf",
+          ".doc",
+          ".docx",
+          ".jpg",
+          ".jpeg",
+          ".png",
+          ".txt",
+        ];
+
+        const validateFile = (file: File): string | null => {
+          // Check file size
+          if (file.size > maxFileSize) {
+            return `${file.name} exceeds maximum size of ${(
+              maxFileSize / 1048576
+            ).toFixed(1)}MB`;
+          }
+
+          // Check file type
+          const fileExtension = "." + file.name.split(".").pop()?.toLowerCase();
+          if (!allowedTypes.includes(fileExtension)) {
+            return `${
+              file.name
+            } has an unsupported file type. Allowed types: ${allowedTypes.join(
+              ", "
+            )}`;
+          }
+
+          return null;
+        };
+
+        const [fileError, setFileError] = useState<string | null>(null);
+
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center justify-center w-full">
+              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <Upload className="w-8 h-8 mb-3 text-gray-400" />
+                  <p className="mb-2 text-sm text-gray-500">
+                    <span className="font-semibold">Click to upload</span> or
+                    drag and drop
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    Max {maxFiles} files, {(maxFileSize / 1048576).toFixed(1)}MB
+                    each
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {allowedTypes.join(", ")}
+                  </p>
+                </div>
+                <input
+                  id={fieldId}
+                  type="file"
+                  multiple
+                  accept={allowedTypes.join(",")}
+                  className="hidden"
+                  onChange={(e) => {
+                    setFileError(null);
+                    const newFiles = Array.from(e.target.files || []);
+
+                    if (newFiles.length === 0) return;
+
+                    const remainingSlots = maxFiles - files.length;
+
+                    // Check if adding new files would exceed max count
+                    if (newFiles.length > remainingSlots) {
+                      if (remainingSlots === 0) {
+                        setFileError(
+                          `Maximum of ${maxFiles} files reached. Remove files to upload more.`
+                        );
+                      } else {
+                        setFileError(
+                          `You can only upload ${remainingSlots} more file${
+                            remainingSlots !== 1 ? "s" : ""
+                          }. Maximum ${maxFiles} files total.`
+                        );
+                      }
+                      e.target.value = ""; // Reset input
+                      return;
+                    }
+
+                    // Validate each file
+                    const validFiles: File[] = [];
+                    for (const file of newFiles) {
+                      const error = validateFile(file);
+                      if (error) {
+                        setFileError(error);
+                        e.target.value = ""; // Reset input
+                        return;
+                      }
+                      validFiles.push(file);
+                    }
+
+                    // All validations passed, add only valid files
+                    onChange([...files, ...validFiles]);
+                    e.target.value = ""; // Reset input for next upload
+                  }}
+                  onBlur={handleBlur}
+                />
+              </label>
+            </div>
+
+            {fileError && (
+              <div className="flex items-start p-3 bg-red-50 border border-red-200 rounded-lg">
+                <AlertCircle className="w-5 h-5 text-red-500 mr-3 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-700">{fileError}</p>
+              </div>
+            )}
+
+            {files.length > 0 && (
+              <div className="space-y-2">
+                {files.map((file: File, index: number) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg"
+                  >
+                    <div className="flex items-center flex-1 min-w-0">
+                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm text-green-800 font-medium truncate">
+                          {file.name}
+                        </p>
+                        <p className="text-xs text-green-600">
+                          {(file.size / 1024).toFixed(1)} KB
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFileError(null); // Clear any errors when removing files
+                        const newFiles = files.filter(
+                          (_: File, i: number) => i !== index
+                        );
+                        onChange(newFiles.length > 0 ? newFiles : null);
+                      }}
+                      className="text-red-500 hover:text-red-700 ml-3 flex-shrink-0"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {files.length > 0 && (
+              <p className="text-sm text-gray-600">
+                {files.length} of {maxFiles} file{files.length !== 1 ? "s" : ""}{" "}
+                uploaded
+              </p>
+            )}
+          </div>
+        );
+      }
+
       case "course-table":
         return <CourseTableField value={value || []} onChange={onChange} />;
       default:
@@ -1259,18 +1429,18 @@ const CourseTableField: React.FC<{
   // Filter courses based on current filter values
   const filteredCourses = courses.filter((course) => {
     return (
-        (!filters.courseName || course.courseName === filters.courseName) &&
-        (!filters.language || course.language === filters.language) &&
-        (!filters.meetingType || course.meetingType === filters.meetingType) &&
-        (!filters.startDate || course.startDate === filters.startDate)
+      (!filters.courseName || course.courseName === filters.courseName) &&
+      (!filters.language || course.language === filters.language) &&
+      (!filters.meetingType || course.meetingType === filters.meetingType) &&
+      (!filters.startDate || course.startDate === filters.startDate)
     );
   });
 
   // Handle filter changes
   const handleFilterChange = (filterKey: string, value: string) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      [filterKey]: value
+      [filterKey]: value,
     }));
   };
 
@@ -1314,7 +1484,8 @@ const CourseTableField: React.FC<{
   const handleEditCourse = (index: number) => {
     // Find the actual course index in the original array
     const courseToEdit = filteredCourses[index];
-    const actualIndex = courses.findIndex(course =>
+    const actualIndex = courses.findIndex(
+      (course) =>
         course.courseName === courseToEdit.courseName &&
         course.language === courseToEdit.language &&
         course.meetingType === courseToEdit.meetingType &&
@@ -1329,7 +1500,8 @@ const CourseTableField: React.FC<{
   const handleDeleteCourse = (index: number) => {
     // Find the actual course index in the original array
     const courseToDelete = filteredCourses[index];
-    const actualIndex = courses.findIndex(course =>
+    const actualIndex = courses.findIndex(
+      (course) =>
         course.courseName === courseToDelete.courseName &&
         course.language === courseToDelete.language &&
         course.meetingType === courseToDelete.meetingType &&
@@ -1359,328 +1531,371 @@ const CourseTableField: React.FC<{
   };
 
   return (
-      <div className="space-y-6">
-        {/* Add Course Button */}
-        <div className="flex justify-end">
-          <button
-              type="button"
-              onClick={() => setShowAddForm(true)}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <span className="mr-2">+</span>
-            New Course
-          </button>
-        </div>
+    <div className="space-y-6">
+      {/* Add Course Button */}
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={() => setShowAddForm(true)}
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          <span className="mr-2">+</span>
+          New Course
+        </button>
+      </div>
 
-        {/* Course Selection Filters */}
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Course Names
-              </label>
-              <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                  value={filters.courseName}
-                  onChange={(e) => handleFilterChange('courseName', e.target.value)}
-              >
-                <option value="">Select Course</option>
-                {courseNameOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Language
-              </label>
-              <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                  value={filters.language}
-                  onChange={(e) => handleFilterChange('language', e.target.value)}
-              >
-                <option value="">Select Language</option>
-                {languageOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Meeting Type
-              </label>
-              <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                  value={filters.meetingType}
-                  onChange={(e) => handleFilterChange('meetingType', e.target.value)}
-              >
-                <option value="">Select Type</option>
-                {meetingTypeOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Start Date
-              </label>
-              <input
-                  type="date"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                  value={filters.startDate}
-                  onChange={(e) => handleFilterChange('startDate', e.target.value)}
-              />
-            </div>
+      {/* Course Selection Filters */}
+      <div className="bg-gray-50 p-4 rounded-lg">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Course Names
+            </label>
+            <select
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+              value={filters.courseName}
+              onChange={(e) => handleFilterChange("courseName", e.target.value)}
+            >
+              <option value="">Select Course</option>
+              {courseNameOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
           </div>
-
-          {/* Clear Filters Button */}
-          <div className="flex justify-between items-center">
-            <div className="text-sm text-gray-600">
-              {filteredCourses.length === courses.length
-                  ? `Showing all ${courses.length} course${courses.length !== 1 ? 's' : ''}`
-                  : `Showing ${filteredCourses.length} of ${courses.length} course${courses.length !== 1 ? 's' : ''}`
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Language
+            </label>
+            <select
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+              value={filters.language}
+              onChange={(e) => handleFilterChange("language", e.target.value)}
+            >
+              <option value="">Select Language</option>
+              {languageOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Meeting Type
+            </label>
+            <select
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+              value={filters.meetingType}
+              onChange={(e) =>
+                handleFilterChange("meetingType", e.target.value)
               }
-            </div>
-            {(filters.courseName || filters.language || filters.meetingType || filters.startDate) && (
-                <button
-                    type="button"
-                    onClick={clearFilters}
-                    className="text-sm text-blue-600 hover:text-blue-800 underline"
-                >
-                  Clear Filters
-                </button>
-            )}
+            >
+              <option value="">Select Type</option>
+              {meetingTypeOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Start Date
+            </label>
+            <input
+              type="date"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+              value={filters.startDate}
+              onChange={(e) => handleFilterChange("startDate", e.target.value)}
+            />
+          </div>
+        </div>
 
-          {filteredCourses.length === 0 && courses.length > 0 && (
-              <div className="text-center py-8 text-gray-500">
-                No courses match the current filters
-              </div>
-          )}
-
-          {courses.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                No data available
-              </div>
+        {/* Clear Filters Button */}
+        <div className="flex justify-between items-center">
+          <div className="text-sm text-gray-600">
+            {filteredCourses.length === courses.length
+              ? `Showing all ${courses.length} course${
+                  courses.length !== 1 ? "s" : ""
+                }`
+              : `Showing ${filteredCourses.length} of ${courses.length} course${
+                  courses.length !== 1 ? "s" : ""
+                }`}
+          </div>
+          {(filters.courseName ||
+            filters.language ||
+            filters.meetingType ||
+            filters.startDate) && (
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="text-sm text-blue-600 hover:text-blue-800 underline"
+            >
+              Clear Filters
+            </button>
           )}
         </div>
 
-        {/* Course Table */}
-        {filteredCourses.length > 0 && (
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Course Name
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Language
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Meeting Type
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Start Date
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredCourses.map((course, index) => (
-                      <tr key={index} className="hover:bg-gray-50">
-                        <td className="px-4 py-4 text-sm text-gray-900">
-                          {courseNameOptions.find(opt => opt.value === course.courseName)?.label || course.courseName}
-                        </td>
-                        <td className="px-4 py-4 text-sm text-gray-900">
-                          {languageOptions.find(opt => opt.value === course.language)?.label || course.language}
-                        </td>
-                        <td className="px-4 py-4 text-sm text-gray-900">
-                          {meetingTypeOptions.find(opt => opt.value === course.meetingType)?.label || course.meetingType}
-                        </td>
-                        <td className="px-4 py-4 text-sm text-gray-900">
-                          {course.startDate}
-                        </td>
-                        <td className="px-4 py-4 text-sm">
-                          <div className="flex space-x-2">
-                            <button
-                                onClick={() => handleEditCourse(index)}
-                                className="text-blue-600 hover:text-blue-900 text-sm"
-                            >
-                              Edit
-                            </button>
-                            <button
-                                onClick={() => handleDeleteCourse(index)}
-                                className="text-red-600 hover:text-red-900 text-sm"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                  ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Course Details Section - Updated to show filtered results info */}
-              <div className="border-t border-gray-200 bg-gray-50 p-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 text-sm">
-                  <div>
-                    <span className="font-medium text-gray-700">Description:</span>
-                    <span className="ml-1 text-gray-600">---</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Time:</span>
-                    <span className="ml-1 text-gray-600">---</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Duration:</span>
-                    <span className="ml-1 text-gray-600">---</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Location:</span>
-                    <span className="ml-1 text-gray-600">---</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Trainer:</span>
-                    <span className="ml-1 text-gray-600">---</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Fees:</span>
-                    <span className="ml-1 text-gray-600">---</span>
-                  </div>
-                </div>
-                <div className="text-center text-xs text-gray-500 mt-2">
-                  {filteredCourses.length > 0
-                      ? `1 - ${filteredCourses.length} of ${filteredCourses.length} | Page 1`
-                      : '0 - 0 of 0 | Page 1'
-                  }
-                </div>
-              </div>
-            </div>
+        {filteredCourses.length === 0 && courses.length > 0 && (
+          <div className="text-center py-8 text-gray-500">
+            No courses match the current filters
+          </div>
         )}
 
-        {/* Add/Edit Course Modal - No changes needed here */}
-        {showAddForm && (
-            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-              <div className="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
-                <div className="mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {editingIndex !== null ? "Edit Course" : "Add New Course"}
-                  </h3>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Course Name *
-                    </label>
-                    <select
-                        value={currentCourse.courseName}
-                        onChange={(e) => setCurrentCourse({ ...currentCourse, courseName: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Select Course</option>
-                      {courseNameOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Language *
-                    </label>
-                    <select
-                        value={currentCourse.language}
-                        onChange={(e) => setCurrentCourse({ ...currentCourse, language: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Select Language</option>
-                      {languageOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Meeting Type *
-                    </label>
-                    <select
-                        value={currentCourse.meetingType}
-                        onChange={(e) => setCurrentCourse({ ...currentCourse, meetingType: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Select Type</option>
-                      {meetingTypeOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Start Date *
-                    </label>
-                    <input
-                        type="date"
-                        value={currentCourse.startDate}
-                        onChange={(e) => setCurrentCourse({ ...currentCourse, startDate: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Description
-                    </label>
-                    <textarea
-                        value={currentCourse.description}
-                        onChange={(e) => setCurrentCourse({ ...currentCourse, description: e.target.value })}
-                        rows={3}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end space-x-3">
-                  <button
-                      type="button"
-                      onClick={handleCancel}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                      type="button"
-                      onClick={handleAddCourse}
-                      disabled={!currentCourse.courseName || !currentCourse.language || !currentCourse.meetingType || !currentCourse.startDate}
-                      className="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {editingIndex !== null ? "Update Course" : "Add Course"}
-                  </button>
-                </div>
-              </div>
-            </div>
+        {courses.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            No data available
+          </div>
         )}
       </div>
+
+      {/* Course Table */}
+      {filteredCourses.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Course Name
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Language
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Meeting Type
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Start Date
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredCourses.map((course, index) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="px-4 py-4 text-sm text-gray-900">
+                      {courseNameOptions.find(
+                        (opt) => opt.value === course.courseName
+                      )?.label || course.courseName}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-900">
+                      {languageOptions.find(
+                        (opt) => opt.value === course.language
+                      )?.label || course.language}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-900">
+                      {meetingTypeOptions.find(
+                        (opt) => opt.value === course.meetingType
+                      )?.label || course.meetingType}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-900">
+                      {course.startDate}
+                    </td>
+                    <td className="px-4 py-4 text-sm">
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleEditCourse(index)}
+                          className="text-blue-600 hover:text-blue-900 text-sm"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCourse(index)}
+                          className="text-red-600 hover:text-red-900 text-sm"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Course Details Section - Updated to show filtered results info */}
+          <div className="border-t border-gray-200 bg-gray-50 p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 text-sm">
+              <div>
+                <span className="font-medium text-gray-700">Description:</span>
+                <span className="ml-1 text-gray-600">---</span>
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Time:</span>
+                <span className="ml-1 text-gray-600">---</span>
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Duration:</span>
+                <span className="ml-1 text-gray-600">---</span>
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Location:</span>
+                <span className="ml-1 text-gray-600">---</span>
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Trainer:</span>
+                <span className="ml-1 text-gray-600">---</span>
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Fees:</span>
+                <span className="ml-1 text-gray-600">---</span>
+              </div>
+            </div>
+            <div className="text-center text-xs text-gray-500 mt-2">
+              {filteredCourses.length > 0
+                ? `1 - ${filteredCourses.length} of ${filteredCourses.length} | Page 1`
+                : "0 - 0 of 0 | Page 1"}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add/Edit Course Modal - No changes needed here */}
+      {showAddForm && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {editingIndex !== null ? "Edit Course" : "Add New Course"}
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Course Name *
+                </label>
+                <select
+                  value={currentCourse.courseName}
+                  onChange={(e) =>
+                    setCurrentCourse({
+                      ...currentCourse,
+                      courseName: e.target.value,
+                    })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select Course</option>
+                  {courseNameOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Language *
+                </label>
+                <select
+                  value={currentCourse.language}
+                  onChange={(e) =>
+                    setCurrentCourse({
+                      ...currentCourse,
+                      language: e.target.value,
+                    })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select Language</option>
+                  {languageOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Meeting Type *
+                </label>
+                <select
+                  value={currentCourse.meetingType}
+                  onChange={(e) =>
+                    setCurrentCourse({
+                      ...currentCourse,
+                      meetingType: e.target.value,
+                    })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select Type</option>
+                  {meetingTypeOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Start Date *
+                </label>
+                <input
+                  type="date"
+                  value={currentCourse.startDate}
+                  onChange={(e) =>
+                    setCurrentCourse({
+                      ...currentCourse,
+                      startDate: e.target.value,
+                    })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Description
+                </label>
+                <textarea
+                  value={currentCourse.description}
+                  onChange={(e) =>
+                    setCurrentCourse({
+                      ...currentCourse,
+                      description: e.target.value,
+                    })
+                  }
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleAddCourse}
+                disabled={
+                  !currentCourse.courseName ||
+                  !currentCourse.language ||
+                  !currentCourse.meetingType ||
+                  !currentCourse.startDate
+                }
+                className="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {editingIndex !== null ? "Update Course" : "Add Course"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -1943,12 +2158,12 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
   return (
     <div className="min-h-screen bg-gray-50" ref={formRef} data-id={dataId}>
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-6 sm:py-8">
-         {/* Title Above Progress Indicator */}
-    {schema.formTitle && (
-      <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-        {schema.formTitle}
-      </h2>
-    )}
+        {/* Title Above Progress Indicator */}
+        {schema.formTitle && (
+          <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+            {schema.formTitle}
+          </h2>
+        )}
         {/* Progress Indicator for Multi-step */}
         {schema.multiStep && schema.steps && (
           <ProgressIndicator
