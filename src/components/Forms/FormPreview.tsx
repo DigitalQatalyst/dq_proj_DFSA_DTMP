@@ -1189,6 +1189,8 @@ const SuccessState: React.FC<{
 };
 
 // Course Table Component
+
+
 interface CourseTableData {
   courseName: string;
   language: string;
@@ -1206,21 +1208,12 @@ const CourseTableField: React.FC<{
   value: CourseTableData[];
   onChange: (value: CourseTableData[]) => void;
 }> = ({ value, onChange }) => {
-  const [courses, setCourses] = useState<CourseTableData[]>(value || []);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [currentCourse, setCurrentCourse] = useState<CourseTableData>({
-    courseName: "",
-    language: "",
-    meetingType: "",
-    startDate: "",
-    description: "",
-    time: "",
-    duration: "",
-    location: "",
-    trainer: "",
-    fees: "",
-  });
+  const [courses, setCourses] = useState<CourseTableData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCourse, setSelectedCourse] = useState<CourseTableData | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const coursesPerPage = 10;
 
   // Filter states
   const [filters, setFilters] = useState({
@@ -1229,10 +1222,6 @@ const CourseTableField: React.FC<{
     meetingType: "",
     startDate: "",
   });
-
-  useEffect(() => {
-    setCourses(value || []);
-  }, [value]);
 
   const courseNameOptions = [
     { value: "business-fundamentals", label: "Business Fundamentals" },
@@ -1256,7 +1245,68 @@ const CourseTableField: React.FC<{
     { value: "hybrid", label: "Hybrid" },
   ];
 
-  // Filter courses based on current filter values
+  // Simulate fetching courses from server
+  useEffect(() => {
+    const fetchCourses = async () => {
+      setLoading(true);
+      try {
+        // Replace this with actual API call
+        // const response = await fetch('/api/courses');
+        // const data = await response.json();
+
+        // Mock data for demonstration
+        const mockCourses: CourseTableData[] = [
+          {
+            courseName: "business-fundamentals",
+            language: "english",
+            meetingType: "online",
+            startDate: "2025-10-15",
+            description: "Learn the core principles of business management",
+            time: "10:00 AM - 12:00 PM",
+            duration: "8 weeks",
+            location: "Virtual Classroom",
+            trainer: "Dr. Sarah Johnson",
+            fees: "$499"
+          },
+          {
+            courseName: "marketing-strategy",
+            language: "english",
+            meetingType: "hybrid",
+            startDate: "2025-10-20",
+            description: "Master modern marketing techniques",
+            time: "2:00 PM - 4:00 PM",
+            duration: "6 weeks",
+            location: "Room 301 / Online",
+            trainer: "Michael Chen",
+            fees: "$599"
+          },
+          // Add more mock courses to test pagination
+          ...Array.from({ length: 15 }, (_, i) => ({
+            courseName: courseNameOptions[i % courseNameOptions.length].value,
+            language: languageOptions[i % languageOptions.length].value,
+            meetingType: meetingTypeOptions[i % meetingTypeOptions.length].value,
+            startDate: `2025-${String(10 + (i % 3)).padStart(2, '0')}-${String(15 + i).padStart(2, '0')}`,
+            description: `Course description for course ${i + 3}`,
+            time: `${9 + (i % 8)}:00 AM - ${11 + (i % 8)}:00 AM`,
+            duration: `${4 + (i % 8)} weeks`,
+            location: i % 2 === 0 ? "Virtual Classroom" : `Room ${200 + i}`,
+            trainer: `Instructor ${i + 3}`,
+            fees: `$${400 + (i * 50)}`
+          }))
+        ];
+
+        setCourses(mockCourses);
+      } catch (error) {
+        console.error('Failed to fetch courses:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
+  // Filter courses
   const filteredCourses = courses.filter((course) => {
     return (
         (!filters.courseName || course.courseName === filters.courseName) &&
@@ -1266,15 +1316,20 @@ const CourseTableField: React.FC<{
     );
   });
 
-  // Handle filter changes
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredCourses.length / coursesPerPage);
+  const startIndex = (currentPage - 1) * coursesPerPage;
+  const endIndex = startIndex + coursesPerPage;
+  const currentCourses = filteredCourses.slice(startIndex, endIndex);
+
   const handleFilterChange = (filterKey: string, value: string) => {
     setFilters(prev => ({
       ...prev,
       [filterKey]: value
     }));
+    setCurrentPage(1); // Reset to first page when filtering
   };
 
-  // Clear all filters
   const clearFilters = () => {
     setFilters({
       courseName: "",
@@ -1282,109 +1337,56 @@ const CourseTableField: React.FC<{
       meetingType: "",
       startDate: "",
     });
+    setCurrentPage(1);
   };
 
-  const handleAddCourse = () => {
-    if (editingIndex !== null) {
-      const updatedCourses = [...courses];
-      updatedCourses[editingIndex] = currentCourse;
-      setCourses(updatedCourses);
-      onChange(updatedCourses);
-      setEditingIndex(null);
-    } else {
-      const updatedCourses = [...courses, currentCourse];
-      setCourses(updatedCourses);
-      onChange(updatedCourses);
+  const handleRowClick = (course: CourseTableData) => {
+    setSelectedCourse(course);
+    setShowModal(true);
+  };
+
+  const handleConfirmSelection = () => {
+    if (selectedCourse) {
+      // Add selected course to value array
+      onChange([...value, selectedCourse]);
+      setShowModal(false);
+      setSelectedCourse(null);
     }
-    setCurrentCourse({
-      courseName: "",
-      language: "",
-      meetingType: "",
-      startDate: "",
-      description: "",
-      time: "",
-      duration: "",
-      location: "",
-      trainer: "",
-      fees: "",
-    });
-    setShowAddForm(false);
   };
 
-  const handleEditCourse = (index: number) => {
-    // Find the actual course index in the original array
-    const courseToEdit = filteredCourses[index];
-    const actualIndex = courses.findIndex(course =>
-        course.courseName === courseToEdit.courseName &&
-        course.language === courseToEdit.language &&
-        course.meetingType === courseToEdit.meetingType &&
-        course.startDate === courseToEdit.startDate
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
+  const getLabel = (options: Array<{ value: string; label: string }>, value: string) => {
+    return options.find(opt => opt.value === value)?.label || value;
+  };
+
+  if (loading) {
+    return (
+        <div className="flex items-center justify-center py-12">
+          <div className="text-gray-500">Loading courses...</div>
+        </div>
     );
-
-    setCurrentCourse(courses[actualIndex]);
-    setEditingIndex(actualIndex);
-    setShowAddForm(true);
-  };
-
-  const handleDeleteCourse = (index: number) => {
-    // Find the actual course index in the original array
-    const courseToDelete = filteredCourses[index];
-    const actualIndex = courses.findIndex(course =>
-        course.courseName === courseToDelete.courseName &&
-        course.language === courseToDelete.language &&
-        course.meetingType === courseToDelete.meetingType &&
-        course.startDate === courseToDelete.startDate
-    );
-
-    const updatedCourses = courses.filter((_, i) => i !== actualIndex);
-    setCourses(updatedCourses);
-    onChange(updatedCourses);
-  };
-
-  const handleCancel = () => {
-    setCurrentCourse({
-      courseName: "",
-      language: "",
-      meetingType: "",
-      startDate: "",
-      description: "",
-      time: "",
-      duration: "",
-      location: "",
-      trainer: "",
-      fees: "",
-    });
-    setEditingIndex(null);
-    setShowAddForm(false);
-  };
+  }
 
   return (
       <div className="space-y-6">
-        {/* Add Course Button */}
-        <div className="flex justify-end">
-          <button
-              type="button"
-              onClick={() => setShowAddForm(true)}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <span className="mr-2">+</span>
-            New Course
-          </button>
-        </div>
-
-        {/* Course Selection Filters */}
+        {/* Filters Section */}
         <div className="bg-gray-50 p-4 rounded-lg">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Course Names
+                Course Name
               </label>
               <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={filters.courseName}
                   onChange={(e) => handleFilterChange('courseName', e.target.value)}
               >
-                <option value="">Select Course</option>
+                <option value="">All Courses</option>
                 {courseNameOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
@@ -1392,16 +1394,17 @@ const CourseTableField: React.FC<{
                 ))}
               </select>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Language
               </label>
               <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={filters.language}
                   onChange={(e) => handleFilterChange('language', e.target.value)}
               >
-                <option value="">Select Language</option>
+                <option value="">All Languages</option>
                 {languageOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
@@ -1409,16 +1412,17 @@ const CourseTableField: React.FC<{
                 ))}
               </select>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Meeting Type
               </label>
               <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={filters.meetingType}
                   onChange={(e) => handleFilterChange('meetingType', e.target.value)}
               >
-                <option value="">Select Type</option>
+                <option value="">All Types</option>
                 {meetingTypeOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
@@ -1426,25 +1430,25 @@ const CourseTableField: React.FC<{
                 ))}
               </select>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Start Date
               </label>
               <input
                   type="date"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={filters.startDate}
                   onChange={(e) => handleFilterChange('startDate', e.target.value)}
               />
             </div>
           </div>
 
-          {/* Clear Filters Button */}
           <div className="flex justify-between items-center">
             <div className="text-sm text-gray-600">
               {filteredCourses.length === courses.length
-                  ? `Showing all ${courses.length} course${courses.length !== 1 ? 's' : ''}`
-                  : `Showing ${filteredCourses.length} of ${courses.length} course${courses.length !== 1 ? 's' : ''}`
+                  ? `Showing ${startIndex + 1}-${Math.min(endIndex, filteredCourses.length)} of ${courses.length} courses`
+                  : `Showing ${startIndex + 1}-${Math.min(endIndex, filteredCourses.length)} of ${filteredCourses.length} filtered courses (${courses.length} total)`
               }
             </div>
             {(filters.courseName || filters.language || filters.meetingType || filters.startDate) && (
@@ -1457,224 +1461,232 @@ const CourseTableField: React.FC<{
                 </button>
             )}
           </div>
-
-          {filteredCourses.length === 0 && courses.length > 0 && (
-              <div className="text-center py-8 text-gray-500">
-                No courses match the current filters
-              </div>
-          )}
-
-          {courses.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                No data available
-              </div>
-          )}
         </div>
 
-        {/* Course Table */}
-        {filteredCourses.length > 0 && (
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Course Name
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Language
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Meeting Type
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Start Date
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredCourses.map((course, index) => (
-                      <tr key={index} className="hover:bg-gray-50">
-                        <td className="px-4 py-4 text-sm text-gray-900">
-                          {courseNameOptions.find(opt => opt.value === course.courseName)?.label || course.courseName}
-                        </td>
-                        <td className="px-4 py-4 text-sm text-gray-900">
-                          {languageOptions.find(opt => opt.value === course.language)?.label || course.language}
-                        </td>
-                        <td className="px-4 py-4 text-sm text-gray-900">
-                          {meetingTypeOptions.find(opt => opt.value === course.meetingType)?.label || course.meetingType}
-                        </td>
-                        <td className="px-4 py-4 text-sm text-gray-900">
-                          {course.startDate}
-                        </td>
-                        <td className="px-4 py-4 text-sm">
-                          <div className="flex space-x-2">
-                            <button
-                                onClick={() => handleEditCourse(index)}
-                                className="text-blue-600 hover:text-blue-900 text-sm"
-                            >
-                              Edit
-                            </button>
-                            <button
-                                onClick={() => handleDeleteCourse(index)}
-                                className="text-red-600 hover:text-red-900 text-sm"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                  ))}
-                  </tbody>
-                </table>
+        {/* Table */}
+        {filteredCourses.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              No courses match the current filters
+            </div>
+        ) : (
+            <>
+              <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Course Name
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Language
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Meeting Type
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Start Date
+                      </th>
+                    </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                    {currentCourses.map((course, index) => (
+                        <tr
+                            key={index}
+                            onClick={() => handleRowClick(course)}
+                            className="hover:bg-blue-50 cursor-pointer transition-colors"
+                        >
+                          <td className="px-4 py-4 text-sm text-gray-900">
+                            {getLabel(courseNameOptions, course.courseName)}
+                          </td>
+                          <td className="px-4 py-4 text-sm text-gray-900">
+                            {getLabel(languageOptions, course.language)}
+                          </td>
+                          <td className="px-4 py-4 text-sm text-gray-900">
+                            {getLabel(meetingTypeOptions, course.meetingType)}
+                          </td>
+                          <td className="px-4 py-4 text-sm text-gray-900">
+                            {course.startDate}
+                          </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
 
-              {/* Course Details Section - Updated to show filtered results info */}
-              <div className="border-t border-gray-200 bg-gray-50 p-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 text-sm">
-                  <div>
-                    <span className="font-medium text-gray-700">Description:</span>
-                    <span className="ml-1 text-gray-600">---</span>
+              {/* Pagination */}
+              {totalPages > 1 && (
+                  <div className="flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-lg">
+                    <div className="text-sm text-gray-700">
+                      Page {currentPage} of {totalPages}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                          onClick={() => handlePageChange(currentPage - 1)}
+                          disabled={currentPage === 1}
+                          className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+
+                      {/* Page numbers */}
+                      <div className="flex space-x-1">
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                            <button
+                                key={page}
+                                onClick={() => handlePageChange(page)}
+                                className={`px-3 py-2 text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+                                    currentPage === page
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                                }`}
+                            >
+                              {page}
+                            </button>
+                        ))}
+                      </div>
+
+                      <button
+                          onClick={() => handlePageChange(currentPage + 1)}
+                          disabled={currentPage === totalPages}
+                          className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Time:</span>
-                    <span className="ml-1 text-gray-600">---</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Duration:</span>
-                    <span className="ml-1 text-gray-600">---</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Location:</span>
-                    <span className="ml-1 text-gray-600">---</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Trainer:</span>
-                    <span className="ml-1 text-gray-600">---</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Fees:</span>
-                    <span className="ml-1 text-gray-600">---</span>
-                  </div>
-                </div>
-                <div className="text-center text-xs text-gray-500 mt-2">
-                  {filteredCourses.length > 0
-                      ? `1 - ${filteredCourses.length} of ${filteredCourses.length} | Page 1`
-                      : '0 - 0 of 0 | Page 1'
-                  }
-                </div>
-              </div>
-            </div>
+              )}
+            </>
         )}
 
-        {/* Add/Edit Course Modal - No changes needed here */}
-        {showAddForm && (
-            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-              <div className="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
-                <div className="mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {editingIndex !== null ? "Edit Course" : "Add New Course"}
+        {/* Selection Modal */}
+        {showModal && selectedCourse && (
+            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+              <div className="relative mx-auto p-6 border w-full max-w-2xl shadow-lg rounded-lg bg-white">
+                {/* Modal Header */}
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    Confirm Course Selection
                   </h3>
+                  <button
+                      onClick={() => setShowModal(false)}
+                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Course Name *
-                    </label>
-                    <select
-                        value={currentCourse.courseName}
-                        onChange={(e) => setCurrentCourse({ ...currentCourse, courseName: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Select Course</option>
-                      {courseNameOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                      ))}
-                    </select>
+                {/* Course Details */}
+                <div className="space-y-4 mb-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">
+                        Course Name
+                      </label>
+                      <div className="text-sm text-gray-900 p-3 bg-gray-50 rounded-md">
+                        {getLabel(courseNameOptions, selectedCourse.courseName)}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">
+                        Language
+                      </label>
+                      <div className="text-sm text-gray-900 p-3 bg-gray-50 rounded-md">
+                        {getLabel(languageOptions, selectedCourse.language)}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">
+                        Meeting Type
+                      </label>
+                      <div className="text-sm text-gray-900 p-3 bg-gray-50 rounded-md">
+                        {getLabel(meetingTypeOptions, selectedCourse.meetingType)}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">
+                        Start Date
+                      </label>
+                      <div className="text-sm text-gray-900 p-3 bg-gray-50 rounded-md">
+                        {selectedCourse.startDate}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">
+                        Time
+                      </label>
+                      <div className="text-sm text-gray-900 p-3 bg-gray-50 rounded-md">
+                        {selectedCourse.time}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">
+                        Duration
+                      </label>
+                      <div className="text-sm text-gray-900 p-3 bg-gray-50 rounded-md">
+                        {selectedCourse.duration}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">
+                        Location
+                      </label>
+                      <div className="text-sm text-gray-900 p-3 bg-gray-50 rounded-md">
+                        {selectedCourse.location}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">
+                        Trainer
+                      </label>
+                      <div className="text-sm text-gray-900 p-3 bg-gray-50 rounded-md">
+                        {selectedCourse.trainer}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">
+                        Fees
+                      </label>
+                      <div className="text-sm text-gray-900 p-3 bg-gray-50 rounded-md font-semibold">
+                        {selectedCourse.fees}
+                      </div>
+                    </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Language *
-                    </label>
-                    <select
-                        value={currentCourse.language}
-                        onChange={(e) => setCurrentCourse({ ...currentCourse, language: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Select Language</option>
-                      {languageOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Meeting Type *
-                    </label>
-                    <select
-                        value={currentCourse.meetingType}
-                        onChange={(e) => setCurrentCourse({ ...currentCourse, meetingType: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Select Type</option>
-                      {meetingTypeOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Start Date *
-                    </label>
-                    <input
-                        type="date"
-                        value={currentCourse.startDate}
-                        onChange={(e) => setCurrentCourse({ ...currentCourse, startDate: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">
                       Description
                     </label>
-                    <textarea
-                        value={currentCourse.description}
-                        onChange={(e) => setCurrentCourse({ ...currentCourse, description: e.target.value })}
-                        rows={3}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                    <div className="text-sm text-gray-900 p-3 bg-gray-50 rounded-md">
+                      {selectedCourse.description}
+                    </div>
                   </div>
                 </div>
 
+                {/* Modal Actions */}
                 <div className="flex justify-end space-x-3">
                   <button
                       type="button"
-                      onClick={handleCancel}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      onClick={() => setShowModal(false)}
+                      className="px-6 py-2.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
                     Cancel
                   </button>
                   <button
                       type="button"
-                      onClick={handleAddCourse}
-                      disabled={!currentCourse.courseName || !currentCourse.language || !currentCourse.meetingType || !currentCourse.startDate}
-                      className="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={handleConfirmSelection}
+                      className="px-6 py-2.5 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
-                    {editingIndex !== null ? "Update Course" : "Add Course"}
+                    Confirm Selection
                   </button>
                 </div>
               </div>
@@ -1683,6 +1695,7 @@ const CourseTableField: React.FC<{
       </div>
   );
 };
+
 
 // Main ServiceRequestForm Component
 export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
