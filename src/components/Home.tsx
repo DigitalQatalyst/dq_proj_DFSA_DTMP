@@ -536,10 +536,9 @@ export const HomePage: React.FC = () => {
         {
           id: 'communities',
           title: 'Business Communities',
-          description:
-            'Connect with business networks and expand your professional connections',
+          description: 'Connect with business networks and expand your professional connections',
           icon: <Users />,
-          path: '/communities',
+          path: 'https://ujs.qxk.mybluehost.me/website_6ad02141/staging/7520/',
           gradientFrom: 'from-teal-600',
           gradientTo: 'to-teal-400',
           isActive: true,
@@ -691,9 +690,16 @@ export const HomePage: React.FC = () => {
   }, [])
 
   // Function to handle service click
+  // const handleServiceClick = (path: string) => {
+  //   navigate(path)
+  // }
   const handleServiceClick = (path: string) => {
-    navigate(path)
+  if (path.startsWith('http')) {
+    window.open(path, '_blank', 'noopener,noreferrer');
+  } else {
+    navigate(path);
   }
+}
 
   return (
     <div className="bg-white py-16">
