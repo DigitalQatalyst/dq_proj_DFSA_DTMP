@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ServiceRequestForm } from "../../components/Forms/FormPreview";
-import { collateraGuideSchema } from "../../components/Forms/form-schemas/CollateralUserGuide";
+import { collateralGuideSchema } from "../../components/Forms/form-schemas/CollateralUserGuide";
+
 
 function BookConsultationForEntrepreneurship() {
   const [formData, setFormData] = useState<any>({});
@@ -18,7 +19,7 @@ function BookConsultationForEntrepreneurship() {
   return (
     <div>
       <ServiceRequestForm
-        schema={collateraGuideSchema}
+        schema={collateralGuideSchema}
         onSubmit={handleSubmit}
         onSave={handleSave}
         initialData={formData}

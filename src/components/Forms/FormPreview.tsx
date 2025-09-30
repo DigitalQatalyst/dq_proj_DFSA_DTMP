@@ -35,7 +35,9 @@ import {
   CheckCircle,
   Eye,
   EyeOff,
+  FileText,
 } from "lucide-react";
+
 // Types
 export interface FormField {
   id: string;
@@ -70,7 +72,8 @@ export interface FormField {
     | "tags"
     | "signature"
     | "consent"
-    | "course-table";
+    | "course-table"
+    | "table";
   placeholder?: string;
   required?: boolean;
   validation?: {
@@ -84,11 +87,19 @@ export interface FormField {
     fileTypes?: string[];
     maxFileSize?: number;
     strength?: "weak" | "medium" | "strong";
+    required?: string;
   };
   options?: Array<{
     value: string;
     label: string;
+    assetName?: string;
+    assetNumber?: string;
   }>;
+  tableConfig?: {
+    columns: Array<{ key: string; label: string }>;
+    selectable?: boolean;
+    emptyMessage?: string;
+  };
   globalOptionSet?: string;
   conditionalLogic?: {
     dependsOn: string;
@@ -99,16 +110,23 @@ export interface FormField {
   currency?: string;
   searchEndpoint?: string;
 }
+
 export interface FormGroup {
   groupTitle: string;
   groupDescription?: string;
+  conditionalLogic?: {  // Add this for group-level conditional logic
+    dependsOn: string;
+    showWhen: string | string[];
+  };
   fields: FormField[];
 }
+
 export interface FormStep {
   stepTitle: string;
   stepDescription?: string;
   groups: FormGroup[];
 }
+
 export interface FormSchema {
   formId: string;
   formTitle: string;
@@ -120,6 +138,7 @@ export interface FormSchema {
   allowSaveAndContinue?: boolean;
   autoSaveInterval?: number;
 }
+
 export interface ServiceRequestFormProps {
   schema?: FormSchema;
   onSubmit?: (data: any) => Promise<void>;
@@ -133,16 +152,26 @@ export interface ServiceRequestFormProps {
 
 // Utility functions
 const validateField = (field: FormField, value: any): string | null => {
-  if (
-    field.required &&
-    (!value || (Array.isArray(value) && value.length === 0))
-  ) {
-    return `${field.label} is required`;
+  if (field.required) {
+    if (field.type === "table") {
+      if (!value || !Array.isArray(value) || value.length === 0) {
+        return field.validation?.required || `${field.label} is required`;
+      }
+    } else if (field.type === "checkbox-group" || field.type === "multiselect") {
+      if (!value || (Array.isArray(value) && value.length === 0)) {
+        return `${field.label} is required`;
+      }
+    } else {
+      if (!value || (typeof value === 'string' && value.trim() === '')) {
+        return `${field.label} is required`;
+      }
+    }
   }
+
   if (!value) return null;
+
   if (field.validation) {
-    const { pattern, message, minLength, maxLength, min, max } =
-      field.validation;
+    const { pattern, message, minLength, maxLength, min, max } = field.validation;
     if (pattern && !new RegExp(pattern).test(value)) {
       return message || `${field.label} format is invalid`;
     }
@@ -159,21 +188,24 @@ const validateField = (field: FormField, value: any): string | null => {
       return `${field.label} must not exceed ${max}`;
     }
   }
-  // Built-in validation
+
   if (field.type === "email" && value) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(value)) {
       return "Please enter a valid email address";
     }
   }
+
   if (field.type === "tel" && value) {
     const phoneRegex = /^[/+]?[1-9][\d]{0,15}$/;
     if (!phoneRegex.test(value.replace(/\s|-/g, ""))) {
       return "Please enter a valid phone number";
     }
   }
+
   return null;
 };
+
 const shouldShowSuccessState = (field: FormField): boolean => {
   const criticalFieldTypes = [
     "email",
@@ -182,9 +214,11 @@ const shouldShowSuccessState = (field: FormField): boolean => {
     "file",
     "multi-file",
     "image-upload",
+    "table",
   ];
   return criticalFieldTypes.includes(field.type);
 };
+
 const getPasswordStrength = (password: string) => {
   if (!password)
     return {
@@ -224,7 +258,7 @@ const getPasswordStrength = (password: string) => {
     ...strengthMap[score as keyof typeof strengthMap],
   };
 };
-// Simple global options fallback
+
 const getGlobalOptions = (optionSetId: string) => {
   const globalOptions: Record<
     string,
@@ -334,20 +368,18 @@ const getGlobalOptions = (optionSetId: string) => {
   };
   return globalOptions[optionSetId] || [];
 };
-// Schema validation helper
+
 const validateSchema = (schema: FormSchema | undefined): FormSchema => {
   if (!schema) {
     throw new Error(
       "ServiceRequestForm: No schema provided. A valid schema is required."
     );
   }
-  // Check required fields
   if (!schema.formId || !schema.formTitle) {
     throw new Error(
       "ServiceRequestForm: Invalid schema, missing required fields (formId or formTitle)."
     );
   }
-  // Validate groups/steps structure
   if (schema.multiStep) {
     if (
       !schema.steps ||
@@ -358,7 +390,6 @@ const validateSchema = (schema: FormSchema | undefined): FormSchema => {
         "ServiceRequestForm: Multi-step schema missing valid steps."
       );
     }
-    // Validate each step has groups with fields
     const hasValidSteps = schema.steps.every(
       (step) =>
         step.groups &&
@@ -385,7 +416,6 @@ const validateSchema = (schema: FormSchema | undefined): FormSchema => {
         "ServiceRequestForm: Single-step schema missing valid groups."
       );
     }
-    // Validate each group has fields
     const hasValidGroups = schema.groups.some(
       (group) =>
         group.fields && Array.isArray(group.fields) && group.fields.length > 0
@@ -398,9 +428,8 @@ const validateSchema = (schema: FormSchema | undefined): FormSchema => {
   }
   return schema;
 };
-// Simplified Custom Select Component
-// Replace the CustomSelect component (around line 344-424) with this version:
 
+// Custom Select Component
 const CustomSelect: React.FC<{
   id: string;
   value: string;
@@ -457,7 +486,6 @@ const CustomSelect: React.FC<{
   };
 
   const handleBlur = () => {
-    // Only trigger onBlur if user has actually interacted (selected something or closed dropdown)
     if (hasInteracted && !isOpen) {
       onBlur?.();
     }
@@ -524,114 +552,113 @@ const CustomSelect: React.FC<{
     </div>
   );
 };
-// const CustomSelect: React.FC<{
-//   id: string;
-//   value: string;
-//   onChange: (value: string) => void;
-//   onBlur?: () => void;
-//   options: Array<{
-//     value: string;
-//     label: string;
-//   }>;
-//   placeholder?: string;
-//   error?: boolean;
-//   success?: boolean;
-// }> = ({
-//   id,
-//   value,
-//   onChange,
-//   onBlur,
-//   options,
-//   placeholder = "Select an option",
-//   error = false,
-//   success = false,
-// }) => {
-//   const [isOpen, setIsOpen] = useState(false);
-//   const { refs, floatingStyles, context } = useFloating({
-//     open: isOpen,
-//     onOpenChange: setIsOpen,
-//     placement: "bottom-start",
-//     middleware: [offset(4), flip(), shift(), size()],
-//     whileElementsMounted: autoUpdate,
-//   });
-//   const click = useClick(context);
-//   const dismiss = useDismiss(context);
-//   const role = useRole(context, {
-//     role: "listbox",
-//   });
-//   const { getReferenceProps, getFloatingProps } = useInteractions([
-//     click,
-//     dismiss,
-//     role,
-//   ]);
-//   const selectedOption = options.find((opt) => opt.value === value);
-//   const getTriggerClasses = () => {
-//     const baseClasses =
-//       "w-full h-11 px-4 bg-white border rounded-md transition-all duration-200 focus:outline-none focus:ring-2";
-//     if (error) return `${baseClasses} border-red-500 focus:ring-red-500`;
-//     if (success) return `${baseClasses} border-green-500 focus:ring-green-500`;
-//     return `${baseClasses} border-gray-300 hover:border-gray-400 focus:ring-blue-500`;
-//   };
-//   return (
-//     <div className="relative">
-//       <button
-//         type="button"
-//         id={id}
-//         ref={refs.setReference}
-//         className={getTriggerClasses()}
-//         onBlur={onBlur}
-//         {...getReferenceProps()}
-//       >
-//         <div className="flex items-center justify-between h-full">
-//           <span
-//             className={`block truncate text-left ${
-//               selectedOption ? "text-gray-900" : "text-gray-500"
-//             }`}
-//           >
-//             {selectedOption ? selectedOption.label : placeholder}
-//           </span>
-//           <ChevronDown
-//             className={`w-4 h-4 text-gray-500 transition-transform ${
-//               isOpen ? "rotate-180" : ""
-//             }`}
-//           />
-//         </div>
-//       </button>
-//       {success && (
-//         <Check className="absolute right-10 top-1/2 transform -translate-y-1/2 w-4 h-4 text-green-500 pointer-events-none" />
-//       )}
-//       {isOpen &&
-//         createPortal(
-//           <FloatingFocusManager context={context} modal={false}>
-//             <div
-//               ref={refs.setFloating}
-//               className="rounded-lg bg-white shadow-lg ring-1 ring-gray-200 z-50 max-h-80 overflow-auto"
-//               style={floatingStyles}
-//               {...getFloatingProps()}
-//             >
-//               {options.map((option) => (
-//                 <div
-//                   key={option.value}
-//                   className={`px-3 py-2 text-sm cursor-pointer transition-colors ${
-//                     option.value === value
-//                       ? "bg-blue-50 border-l-2 border-blue-500"
-//                       : "hover:bg-gray-100"
-//                   }`}
-//                   onClick={() => {
-//                     onChange(option.value);
-//                     setIsOpen(false);
-//                   }}
-//                 >
-//                   {option.label}
-//                 </div>
-//               ))}
-//             </div>
-//           </FloatingFocusManager>,
-//           document.body
-//         )}
-//     </div>
-//   );
-// };
+
+// Asset Table Component
+interface AssetTableData {
+  assetName: string;
+  assetNumber: string;
+  selected?: boolean;
+}
+
+const AssetTableField: React.FC<{
+  value: AssetTableData[];
+  onChange: (value: AssetTableData[]) => void;
+  options?: Array<{ assetName: string; assetNumber: string }>;
+  error?: string;
+  emptyMessage?: string;
+}> = ({ value, onChange, options = [], error, emptyMessage = "There are no assets in your account." }) => {
+  const [selectedAssets, setSelectedAssets] = useState<AssetTableData[]>(value || []);
+
+  useEffect(() => {
+    setSelectedAssets(value || []);
+  }, [value]);
+
+  const handleCheckboxChange = (asset: AssetTableData, isChecked: boolean) => {
+    let newSelection: AssetTableData[];
+    
+    if (isChecked) {
+      newSelection = [...selectedAssets, { ...asset, selected: true }];
+    } else {
+      newSelection = selectedAssets.filter(item => 
+        item.assetNumber !== asset.assetNumber
+      );
+    }
+    
+    setSelectedAssets(newSelection);
+    onChange(newSelection);
+  };
+
+  const isAssetSelected = (assetNumber: string) => {
+    return selectedAssets.some(asset => asset.assetNumber === assetNumber);
+  };
+
+  return (
+    <div className="asset-table-container">
+      <div className="table-wrapper border border-gray-200 rounded-lg overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Select
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Asset Name
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Asset Number
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {options && options.length > 0 ? (
+              options.map((asset, index) => (
+                <tr 
+                  key={asset.assetNumber} 
+                  className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                >
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <input
+                      type="checkbox"
+                      checked={isAssetSelected(asset.assetNumber)}
+                      onChange={(e) => handleCheckboxChange(asset, e.target.checked)}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {asset.assetName}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {asset.assetNumber}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td 
+                  colSpan={3} 
+                  className="px-6 py-8 text-center text-sm text-gray-500"
+                >
+                  {emptyMessage}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      {error && (
+        <p className="mt-2 text-sm text-red-600" role="alert">
+          {error}
+        </p>
+      )}
+      {options && options.length > 0 && (
+        <div className="mt-3 text-sm text-gray-600">
+          {selectedAssets.length} asset(s) selected
+        </div>
+      )}
+    </div>
+  );
+};
+
 // Form Field Component
 const FormField: React.FC<{
   field: FormField;
@@ -649,7 +676,9 @@ const FormField: React.FC<{
     }
     return field.options || [];
   }, [field.globalOptionSet, field.options]);
+
   if (!isVisible) return null;
+
   const getFieldClasses = () => {
     const baseClasses =
       "w-full h-11 px-4 bg-white border rounded-md transition-all duration-200 focus:outline-none focus:ring-2";
@@ -659,11 +688,14 @@ const FormField: React.FC<{
     }
     return `${baseClasses} border-gray-300 hover:border-gray-400 focus:ring-blue-500`;
   };
+
   const handleBlur = () => {
     setHasBeenTouched(true);
     onBlur?.();
   };
+
   const fieldId = `field-${field.id}`;
+
   const renderField = () => {
     switch (field.type) {
       case "text":
@@ -854,7 +886,6 @@ const FormField: React.FC<{
             ))}
           </div>
         );
-
       case "checkbox-group": {
         const selectedValues = Array.isArray(value) ? value : [];
         return (
@@ -979,6 +1010,16 @@ const FormField: React.FC<{
             )}
           </div>
         );
+      case "table":
+        return (
+          <AssetTableField
+            value={value || []}
+            onChange={onChange}
+            options={field.options as Array<{ assetName: string; assetNumber: string }>}
+            error={error}
+            emptyMessage={field.tableConfig?.emptyMessage}
+          />
+        );
       case "course-table":
         return <CourseTableField value={value || []} onChange={onChange} />;
       default:
@@ -991,6 +1032,7 @@ const FormField: React.FC<{
         );
     }
   };
+
   return (
     <div className="space-y-2">
       {!["checkbox", "switch", "consent"].includes(field.type) && (
@@ -1089,8 +1131,6 @@ const ProgressIndicator: React.FC<{
 };
 
 // Error Summary
-// Replace the ErrorSummary component with this simplified version:
-
 const ErrorSummary: React.FC<{
   errors: Record<string, string>;
 }> = ({ errors }) => {
@@ -1114,42 +1154,6 @@ const ErrorSummary: React.FC<{
     </div>
   );
 };
-// const ErrorSummary: React.FC<{
-//   errors: Record<string, string>;
-//   onErrorClick: (fieldId: string) => void;
-// }> = ({ errors, onErrorClick }) => {
-//   const errorEntries = Object.entries(errors);
-//   if (errorEntries.length === 0) return null;
-//   return (
-//     <div
-//       className="bg-red-50 text-red-700 border border-red-200 rounded-lg p-4 mb-6"
-//       role="alert"
-//     >
-//       <div className="flex items-start">
-//         <AlertCircle className="w-5 h-5 text-red-500 mr-3 flex-shrink-0 mt-0.5" />
-//         <div className="flex-1">
-//           <h3 className="text-sm font-semibold text-red-800 mb-2">
-//             Please correct {errorEntries.length} error
-//             {errorEntries.length !== 1 ? "s" : ""} to continue:
-//           </h3>
-//           <ul className="space-y-1">
-//             {errorEntries.map(([fieldId, error]) => (
-//               <li key={fieldId}>
-//                 <button
-//                   type="button"
-//                   onClick={() => onErrorClick(fieldId)}
-//                   className="text-sm text-red-700 hover:text-red-900 underline hover:no-underline"
-//                 >
-//                   {error}
-//                 </button>
-//               </li>
-//             ))}
-//           </ul>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
 
 // Success State
 const SuccessState: React.FC<{
@@ -1188,7 +1192,129 @@ const SuccessState: React.FC<{
   );
 };
 
-// Course Table Component (Add this before ServiceRequestForm component)
+// Form Preview Component
+// const FormPreview: React.FC<{
+//   formData: any;
+//   schema: FormSchema;
+//   onClose: () => void;
+// }> = ({ formData, schema, onClose }) => {
+//   const formatValue = (field: FormField, value: any): string => {
+//     if (!value) return "Not provided";
+
+//     switch (field.type) {
+//       case "checkbox-group":
+//       case "multiselect":
+//         return Array.isArray(value) ? value.join(", ") : String(value);
+//       case "radio":
+//       case "select":
+//         const options = field.globalOptionSet 
+//           ? getGlobalOptions(field.globalOptionSet)
+//           : field.options || [];
+//         const selectedOption = options.find(opt => opt.value === value);
+//         return selectedOption ? selectedOption.label : String(value);
+//       case "checkbox":
+//       case "consent":
+//         return value ? "Yes" : "No";
+//       case "file":
+//       case "image-upload":
+//         return value?.name || "File uploaded";
+//       case "table":
+//         return Array.isArray(value) 
+//           ? `${value.length} asset(s) selected` 
+//           : "No assets selected";
+//       case "currency":
+//         const currencySymbol = field.currency === "USD" ? "$" : field.currency || "$";
+//         return `${currencySymbol}${Number(value).toLocaleString()}`;
+//       default:
+//         return String(value);
+//     }
+//   };
+
+  // const getVisibleFields = (groups: FormGroup[]) => {
+  //   const visibleFields: { group: FormGroup; field: FormField; value: any }[] = [];
+    
+  //   groups.forEach(group => {
+  //     group.fields.forEach(field => {
+  //       if (field.conditionalLogic) {
+  //         const { dependsOn, showWhen } = field.conditionalLogic;
+  //         const dependentValue = formData[dependsOn];
+  //         const isVisible = Array.isArray(showWhen)
+  //           ? showWhen.includes(dependentValue)
+  //           : dependentValue === showWhen;
+  //         if (!isVisible) return;
+  //       }
+        
+  //       const value = formData[field.id];
+  //       if (value !== undefined && value !== null && value !== "") {
+  //         visibleFields.push({ group, field, value });
+  //       }
+  //     });
+  //   });
+    
+  //   return visibleFields;
+  // };
+
+  // const allGroups = schema.multiStep
+  //   ? schema.steps?.flatMap(step => step.groups) || []
+  //   : schema.groups || [];
+
+  // const visibleFields = getVisibleFields(allGroups);
+
+  // return (
+  //   <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  //     <div className="relative top-20 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white">
+  //       <div className="flex justify-between items-center mb-6">
+  //         <h2 className="text-xl font-bold text-gray-900">Form Preview</h2>
+  //         <button
+  //           onClick={onClose}
+  //           className="text-gray-400 hover:text-gray-600"
+  //         >
+  //           <X className="w-6 h-6" />
+  //         </button>
+  //       </div>
+
+  //       <div className="space-y-6 max-h-96 overflow-y-auto">
+  //         {visibleFields.length === 0 ? (
+  //           <div className="text-center py-8 text-gray-500">
+  //             No data to preview
+  //           </div>
+  //         ) : (
+  //           visibleFields.map(({ group, field, value }, index) => (
+  //             <div key={index} className="border-b border-gray-200 pb-4">
+  //               <h3 className="text-sm font-semibold text-blue-600 mb-2">
+  //                 {group.groupTitle}
+  //               </h3>
+  //               <div className="grid grid-cols-3 gap-4">
+  //                 <div className="col-span-1">
+  //                   <p className="text-sm font-medium text-gray-700">
+  //                     {field.label}
+  //                   </p>
+  //                 </div>
+  //                 <div className="col-span-2">
+  //                   <p className="text-sm text-gray-900">
+  //                     {formatValue(field, value)}
+  //                   </p>
+  //                 </div>
+  //               </div>
+  //             </div>
+  //           ))
+  //         )}
+  //       </div>
+
+  //       <div className="mt-6 flex justify-end">
+  //         <button
+  //           onClick={onClose}
+  //           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+  //         >
+  //           Close
+  //         </button>
+  //       </div>
+  //     </div>
+  //   </div>
+  // );
+// };
+
+// Course Table Component
 interface CourseTableData {
   courseName: string;
   language: string;
@@ -1222,7 +1348,6 @@ const CourseTableField: React.FC<{
     fees: "",
   });
 
-  // Filter states
   const [filters, setFilters] = useState({
     courseName: "",
     language: "",
@@ -1256,7 +1381,6 @@ const CourseTableField: React.FC<{
     { value: "hybrid", label: "Hybrid" },
   ];
 
-  // Filter courses based on current filter values
   const filteredCourses = courses.filter((course) => {
     return (
         (!filters.courseName || course.courseName === filters.courseName) &&
@@ -1266,7 +1390,6 @@ const CourseTableField: React.FC<{
     );
   });
 
-  // Handle filter changes
   const handleFilterChange = (filterKey: string, value: string) => {
     setFilters(prev => ({
       ...prev,
@@ -1274,7 +1397,6 @@ const CourseTableField: React.FC<{
     }));
   };
 
-  // Clear all filters
   const clearFilters = () => {
     setFilters({
       courseName: "",
@@ -1312,7 +1434,6 @@ const CourseTableField: React.FC<{
   };
 
   const handleEditCourse = (index: number) => {
-    // Find the actual course index in the original array
     const courseToEdit = filteredCourses[index];
     const actualIndex = courses.findIndex(course =>
         course.courseName === courseToEdit.courseName &&
@@ -1327,7 +1448,6 @@ const CourseTableField: React.FC<{
   };
 
   const handleDeleteCourse = (index: number) => {
-    // Find the actual course index in the original array
     const courseToDelete = filteredCourses[index];
     const actualIndex = courses.findIndex(course =>
         course.courseName === courseToDelete.courseName &&
@@ -1360,7 +1480,6 @@ const CourseTableField: React.FC<{
 
   return (
       <div className="space-y-6">
-        {/* Add Course Button */}
         <div className="flex justify-end">
           <button
               type="button"
@@ -1372,7 +1491,6 @@ const CourseTableField: React.FC<{
           </button>
         </div>
 
-        {/* Course Selection Filters */}
         <div className="bg-gray-50 p-4 rounded-lg">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
             <div>
@@ -1439,7 +1557,6 @@ const CourseTableField: React.FC<{
             </div>
           </div>
 
-          {/* Clear Filters Button */}
           <div className="flex justify-between items-center">
             <div className="text-sm text-gray-600">
               {filteredCourses.length === courses.length
@@ -1471,7 +1588,6 @@ const CourseTableField: React.FC<{
           )}
         </div>
 
-        {/* Course Table */}
         {filteredCourses.length > 0 && (
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
               <div className="overflow-x-auto">
@@ -1532,7 +1648,6 @@ const CourseTableField: React.FC<{
                 </table>
               </div>
 
-              {/* Course Details Section - Updated to show filtered results info */}
               <div className="border-t border-gray-200 bg-gray-50 p-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 text-sm">
                   <div>
@@ -1570,7 +1685,6 @@ const CourseTableField: React.FC<{
             </div>
         )}
 
-        {/* Add/Edit Course Modal - No changes needed here */}
         {showAddForm && (
             <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
               <div className="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
@@ -1692,7 +1806,6 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
   initialData = {},
   "data-id": dataId,
 }) => {
-  // Validate and use schema with fallback
   const schema = useMemo(
     () => validateSchema(providedSchema),
     [providedSchema]
@@ -1705,12 +1818,13 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [referenceId, setReferenceId] = useState<string>();
   const [collapsedSections, setCollapsedSections] = useState<Set<number>>(
     new Set()
   );
   const formRef = useRef<HTMLDivElement>(null);
-  // Check for mobile viewport
+
   useEffect(() => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 768;
@@ -1732,7 +1846,7 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, [currentStep, schema]);
-  // Initialize form data with default values
+
   useEffect(() => {
     const defaults: any = {};
     const allGroups = schema.multiStep
@@ -1752,6 +1866,7 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
       }));
     }
   }, [schema, formData]);
+
   const handleFieldChange = useCallback(
     (fieldId: string, value: any) => {
       setFormData((prev) => ({
@@ -1770,7 +1885,7 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
     },
     [errors]
   );
-  //new handlefieldblur function
+
   const handleFieldBlur = (fieldId: string) => {
     const allGroups = schema.multiStep
       ? schema.steps?.flatMap((step) => step.groups) || []
@@ -1781,8 +1896,6 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
 
     if (field) {
       const fieldValue = formData[fieldId];
-      // Only validate on blur if field has a value
-      // This prevents "required" errors from showing when just tabbing through
       if (
         fieldValue &&
         (typeof fieldValue !== "string" || fieldValue.trim() !== "")
@@ -1798,23 +1911,6 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
     }
   };
 
-  // const handleFieldBlur = (fieldId: string) => {
-  //   const allGroups = schema.multiStep
-  //     ? schema.steps?.flatMap((step) => step.groups) || []
-  //     : schema.groups || [];
-  //   const field = allGroups
-  //     .flatMap((group) => group.fields)
-  //     .find((f) => f.id === fieldId);
-  //   if (field) {
-  //     const error = validateField(field, formData[fieldId]);
-  //     if (error) {
-  //       setErrors((prev) => ({
-  //         ...prev,
-  //         [fieldId]: error,
-  //       }));
-  //     }
-  //   }
-  // };
   const validateStep = (stepIndex?: number): boolean => {
     const currentGroups = schema.multiStep
       ? schema.steps?.[stepIndex ?? currentStep]?.groups || []
@@ -1841,6 +1937,7 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
     setErrors(stepErrors);
     return isValid;
   };
+
   const handleNext = () => {
     if (validateStep()) {
       setCompletedSteps((prev) => new Set([...prev, currentStep]));
@@ -1849,19 +1946,20 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
         behavior: "smooth",
       });
     } else {
-      // Scroll to top when validation fails
       formRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "start",
       });
     }
   };
+
   const handleBack = () => {
     setCurrentStep((prev) => prev - 1);
     formRef.current?.scrollIntoView({
       behavior: "smooth",
     });
   };
+
   const handleStepClick = (stepIndex: number) => {
     if (completedSteps.has(stepIndex)) {
       setCurrentStep(stepIndex);
@@ -1870,6 +1968,7 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
       });
     }
   };
+
   const handleSaveAndClose = async () => {
     setIsSaving(true);
     try {
@@ -1882,6 +1981,7 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
       setIsSaving(false);
     }
   };
+
   const toggleSection = (sectionIndex: number) => {
     setCollapsedSections((prev) => {
       const newCollapsed = new Set(prev);
@@ -1893,6 +1993,7 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
       return newCollapsed;
     });
   };
+
   const handleSubmit = async () => {
     if (!validateStep()) return;
     setIsSubmitting(true);
@@ -1909,16 +2010,7 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
       setIsSubmitting(false);
     }
   };
-  // const handleErrorClick = (fieldId: string) => {
-  //   const element = document.querySelector(`#field-${fieldId}`);
-  //   if (element) {
-  //     element.scrollIntoView({
-  //       behavior: "smooth",
-  //       block: "center",
-  //     });
-  //     setTimeout(() => (element as HTMLElement).focus(), 300);
-  //   }
-  // };
+
   const currentGroups = schema.multiStep
     ? schema.steps?.[currentStep]?.groups || []
     : schema.groups || [];
@@ -1926,6 +2018,7 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
   const isLastStep = schema.multiStep
     ? currentStep === (schema.steps?.length || 1) - 1
     : true;
+
   if (showSuccess) {
     return (
       <div className="min-h-screen bg-gray-50" data-id={dataId}>
@@ -1940,279 +2033,303 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
       </div>
     );
   }
+
   return (
-    <div className="min-h-screen bg-gray-50" ref={formRef} data-id={dataId}>
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-6 sm:py-8">
-         {/* Title Above Progress Indicator */}
-    {schema.formTitle && (
-      <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-        {schema.formTitle}
-      </h2>
-    )}
-        {/* Progress Indicator for Multi-step */}
-        {schema.multiStep && schema.steps && (
-          <ProgressIndicator
-            steps={schema.steps}
-            currentStep={currentStep}
-            completedSteps={completedSteps}
-            onStepClick={handleStepClick}
-          />
-        )}
-        {/* Form Container */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8">
-          {/* Step Header for Multi-step */}
-          {schema.multiStep && currentStepData && (
-            <div className="mb-8">
-              <h1 className="text-xl font-bold text-gray-900 mb-2">
-                Step {currentStep + 1}: {currentStepData.stepTitle}
-              </h1>
-              {currentStepData.stepDescription && (
-                <p className="text-sm text-gray-600 mt-1">
-                  {currentStepData.stepDescription}
-                </p>
-              )}
-            </div>
+    <>
+      <div className="min-h-screen bg-gray-50" ref={formRef} data-id={dataId}>
+        <div className="max-w-12xl mx-auto px-4 sm:px-8 lg:px-12 py-6 sm:py-8">
+          {schema.formTitle && (
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+              {schema.formTitle}
+            </h2>
           )}
-          {/* Form Title for Single-step */}
-          {!schema.multiStep && (
-            <div className="mb-8">
-              <h1 className="text-xl font-bold text-gray-900 mb-2">
-                {schema.formTitle}
-              </h1>
-              {schema.formDescription && (
-                <p className="text-sm text-gray-600 mt-1">
-                  {schema.formDescription}
-                </p>
-              )}
-            </div>
+
+          {schema.multiStep && schema.steps && (
+            <ProgressIndicator
+              steps={schema.steps}
+              currentStep={currentStep}
+              completedSteps={completedSteps}
+              onStepClick={handleStepClick}
+            />
           )}
-          {/* Error Summary */}
-          <ErrorSummary errors={errors} />
-          {/* Form Sections */}
-          <div className="space-y-10">
-            {currentGroups.map((group, index) => {
-              const isCollapsed = isMobile && collapsedSections.has(index);
-              return (
-                <div
-                  key={index}
-                  className="rounded-lg border border-gray-200 bg-white"
-                >
-                  {/* Section Header */}
-                  <div className="px-8 py-6 pb-0">
-                    {isMobile ? (
-                      <button
-                        type="button"
-                        onClick={() => toggleSection(index)}
-                        className="w-full flex items-center justify-between py-3 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md"
-                      >
+
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8">
+            {schema.multiStep && currentStepData && (
+              <div className="mb-8">
+                <h1 className="text-xl font-bold text-gray-900 mb-2">
+                  Step {currentStep + 1}: {currentStepData.stepTitle}
+                </h1>
+                {currentStepData.stepDescription && (
+                  <p className="text-sm text-gray-600 mt-1">
+                    {currentStepData.stepDescription}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {!schema.multiStep && (
+              <div className="mb-8">
+                <h1 className="text-xl font-bold text-gray-900 mb-2">
+                  {schema.formTitle}
+                </h1>
+                {schema.formDescription && (
+                  <p className="text-sm text-gray-600 mt-1">
+                    {schema.formDescription}
+                  </p>
+                )}
+              </div>
+            )}
+
+            <ErrorSummary errors={errors} />
+
+            <div className="space-y-10">
+              {currentGroups.map((group, index) => {
+                const isCollapsed = isMobile && collapsedSections.has(index);
+                return (
+                  <div
+                    key={index}
+                    className="rounded-lg border border-gray-200 bg-white"
+                  >
+                    <div className="px-8 py-6 pb-0">
+                      {isMobile ? (
+                        <button
+                          type="button"
+                          onClick={() => toggleSection(index)}
+                          className="w-full flex items-center justify-between py-3 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md"
+                        >
+                          <h3 className="text-sm font-semibold text-blue-600">
+                            {group.groupTitle}
+                          </h3>
+                          {isCollapsed ? (
+                            <ChevronDown className="w-5 h-5 text-gray-500" />
+                          ) : (
+                            <ChevronUp className="w-5 h-5 text-gray-500" />
+                          )}
+                        </button>
+                      ) : (
                         <h3 className="text-sm font-semibold text-blue-600">
                           {group.groupTitle}
                         </h3>
-                        {isCollapsed ? (
-                          <ChevronDown className="w-5 h-5 text-gray-500" />
-                        ) : (
-                          <ChevronUp className="w-5 h-5 text-gray-500" />
-                        )}
-                      </button>
-                    ) : (
-                      <h3 className="text-sm font-semibold text-blue-600">
-                        {group.groupTitle}
-                      </h3>
-                    )}
-                  </div>
-                  {/* Section Divider */}
-                  {/* <div className="px-8">
-                    <div className="mt-2" />
-                  </div> */}
-                  {/* Fields */}
-                  <div
-                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                      isCollapsed
-                        ? "max-h-0 opacity-0"
-                        : "max-h-none opacity-100"
-                    }`}
-                  >
-                    <div className="px-8 pb-6 mt-4 space-y-4">
-                      {group.fields.map((field) => {
-                        const isVisible = field.conditionalLogic
-                          ? (() => {
-                              const { dependsOn, showWhen } =
-                                field.conditionalLogic;
-                              const dependentValue = formData[dependsOn];
-                              return Array.isArray(showWhen)
-                                ? showWhen.includes(dependentValue)
-                                : dependentValue === showWhen;
-                            })()
-                          : true;
-                        if (!isVisible) return null;
-                        // Handle name fields with 2-column layout
-                        const nextField =
-                          group.fields[group.fields.indexOf(field) + 1];
-                        const isNextFieldLastName =
-                          nextField?.id === "lastName";
-                        if (field.id === "firstName" && isNextFieldLastName) {
+                      )}
+                    </div>
+
+                    <div
+                      className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                        isCollapsed
+                          ? "max-h-0 opacity-0"
+                          : "max-h-none opacity-100"
+                      }`}
+                    >
+                      <div className="px-8 pb-6 mt-4 space-y-4">
+                        {group.fields.map((field) => {
+                          const isVisible = field.conditionalLogic
+                            ? (() => {
+                                const { dependsOn, showWhen } =
+                                  field.conditionalLogic;
+                                const dependentValue = formData[dependsOn];
+                                return Array.isArray(showWhen)
+                                  ? showWhen.includes(dependentValue)
+                                  : dependentValue === showWhen;
+                              })()
+                            : true;
+                          if (!isVisible) return null;
+
+                          const nextField =
+                            group.fields[group.fields.indexOf(field) + 1];
+                          const isNextFieldLastName =
+                            nextField?.id === "lastName";
+                          if (field.id === "firstName" && isNextFieldLastName) {
+                            return (
+                              <div
+                                key={field.id}
+                                className="grid grid-cols-1 sm:grid-cols-2 gap-6"
+                              >
+                                <FormField
+                                  field={field}
+                                  value={formData[field.id]}
+                                  onChange={(value) =>
+                                    handleFieldChange(field.id, value)
+                                  }
+                                  onBlur={() => handleFieldBlur(field.id)}
+                                  error={errors[field.id]}
+                                  isVisible={true}
+                                />
+                                <FormField
+                                  field={nextField}
+                                  value={formData[nextField.id]}
+                                  onChange={(value) =>
+                                    handleFieldChange(nextField.id, value)
+                                  }
+                                  onBlur={() => handleFieldBlur(nextField.id)}
+                                  error={errors[nextField.id]}
+                                  isVisible={true}
+                                />
+                              </div>
+                            );
+                          }
+                          if (field.id === "lastName") {
+                            const prevField =
+                              group.fields[group.fields.indexOf(field) - 1];
+                            if (prevField?.id === "firstName") return null;
+                          }
                           return (
-                            <div
+                            <FormField
                               key={field.id}
-                              className="grid grid-cols-1 sm:grid-cols-2 gap-6"
-                            >
-                              <FormField
-                                field={field}
-                                value={formData[field.id]}
-                                onChange={(value) =>
-                                  handleFieldChange(field.id, value)
-                                }
-                                onBlur={() => handleFieldBlur(field.id)}
-                                error={errors[field.id]}
-                                isVisible={true}
-                              />
-                              <FormField
-                                field={nextField}
-                                value={formData[nextField.id]}
-                                onChange={(value) =>
-                                  handleFieldChange(nextField.id, value)
-                                }
-                                onBlur={() => handleFieldBlur(nextField.id)}
-                                error={errors[nextField.id]}
-                                isVisible={true}
-                              />
-                            </div>
+                              field={field}
+                              value={formData[field.id]}
+                              onChange={(value) =>
+                                handleFieldChange(field.id, value)
+                              }
+                              onBlur={() => handleFieldBlur(field.id)}
+                              error={errors[field.id]}
+                              isVisible={true}
+                            />
                           );
-                        }
-                        // Skip lastName if it was already rendered with firstName
-                        if (field.id === "lastName") {
-                          const prevField =
-                            group.fields[group.fields.indexOf(field) - 1];
-                          if (prevField?.id === "firstName") return null;
-                        }
-                        return (
-                          <FormField
-                            key={field.id}
-                            field={field}
-                            value={formData[field.id]}
-                            onChange={(value) =>
-                              handleFieldChange(field.id, value)
-                            }
-                            onBlur={() => handleFieldBlur(field.id)}
-                            error={errors[field.id]}
-                            isVisible={true}
-                          />
-                        );
-                      })}
+                        })}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-          {/* Form Actions Footer */}
-          <div className="pt-8 mt-1">
-            <div
-              className={`flex gap-4 ${
-                isMobile
-                  ? "flex-col space-y-2"
-                  : "flex-row justify-between items-center"
-              }`}
-            >
-              {/* Secondary Actions */}
+                );
+              })}
+            </div>
+
+            <div className="pt-8 mt-1">
               <div
-                className={`flex gap-3 ${
-                  isMobile ? "flex-col space-y-2" : "flex-row"
+                className={`flex gap-4 ${
+                  isMobile
+                    ? "flex-col space-y-2"
+                    : "flex-row justify-between items-center"
                 }`}
               >
-                {schema.multiStep && currentStep > 0 && (
-                  <button
-                    type="button"
-                    onClick={handleBack}
-                    className={`inline-flex items-center justify-center min-h-12 px-6 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 ${
-                      isMobile ? "w-full" : "w-full sm:w-auto"
-                    }`}
-                  >
-                    <ChevronLeft className="w-4 h-4 mr-2" />
-                    Back
-                  </button>
-                )}
-                {schema.allowSaveAndContinue && (
-                  <button
-                    type="button"
-                    onClick={handleSaveAndClose}
-                    disabled={isSaving}
-                    className={`inline-flex items-center justify-center min-h-12 px-6 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 ${
-                      isMobile ? "w-full" : "w-full sm:w-auto"
-                    }`}
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    {isSaving ? "Saving..." : "Save & Close"}
-                  </button>
-                )}
-              </div>
-              {/* Primary Action */}
-              <div className={isMobile ? "order-first" : ""}>
-                {isLastStep ? (
-                  <button
-                    type="button"
-                    onClick={handleSubmit}
-                    disabled={isSubmitting}
-                    className={`inline-flex items-center justify-center min-h-12 px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-base font-semibold text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm ${
-                      isMobile ? "w-full" : "w-full sm:w-auto"
-                    }`}
-                  >
-                    <Send className="w-4 h-4 mr-2" />
-                    {isSubmitting ? "Submitting..." : "Submit Request"}
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    className={`inline-flex items-center justify-center min-h-12 px-6 py-3 bg-blue-600 text-base font-semibold text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm ${
-                      isMobile ? "w-full" : "w-full sm:w-auto"
-                    }`}
-                  >
-                    Next
-                    <ChevronRight className="w-4 h-4 ml-2" />
-                  </button>
-                )}
+                <div
+                  className={`flex gap-3 ${
+                    isMobile ? "flex-col space-y-2" : "flex-row"
+                  }`}
+                >
+                  {schema.multiStep && currentStep > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleBack}
+                      className={`inline-flex items-center justify-center min-h-12 px-6 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 ${
+                        isMobile ? "w-full" : "w-full sm:w-auto"
+                      }`}
+                    >
+                      <ChevronLeft className="w-4 h-4 mr-2" />
+                      Back
+                    </button>
+                  )}
+                  {schema.allowSaveAndContinue && (
+                    <button
+                      type="button"
+                      onClick={handleSaveAndClose}
+                      disabled={isSaving}
+                      className={`inline-flex items-center justify-center min-h-12 px-6 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 ${
+                        isMobile ? "w-full" : "w-full sm:w-auto"
+                      }`}
+                    >
+                      <Save className="w-4 h-4 mr-2" />
+                      {isSaving ? "Saving..." : "Save & Close"}
+                    </button>
+                  )}
+                  {isLastStep && (
+                    <button
+                      type="button"
+                      onClick={() => setShowPreview(true)}
+                      className={`inline-flex items-center justify-center min-h-12 px-6 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 ${
+                        isMobile ? "w-full" : "w-full sm:w-auto"
+                      }`}
+                    >
+                      <FileText className="w-4 h-4 mr-2" />
+                      Preview
+                    </button>
+                  )}
+                </div>
+
+                <div className={isMobile ? "order-first" : ""}>
+                  {isLastStep ? (
+                    <button
+                      type="button"
+                      onClick={handleSubmit}
+                      disabled={isSubmitting}
+                      className={`inline-flex items-center justify-center min-h-12 px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-base font-semibold text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm ${
+                        isMobile ? "w-full" : "w-full sm:w-auto"
+                      }`}
+                    >
+                      <Send className="w-4 h-4 mr-2" />
+                      {isSubmitting ? "Submitting..." : "Submit Request"}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleNext}
+                      className={`inline-flex items-center justify-center min-h-12 px-6 py-3 bg-blue-600 text-base font-semibold text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm ${
+                        isMobile ? "w-full" : "w-full sm:w-auto"
+                      }`}
+                    >
+                      Next
+                      <ChevronRight className="w-4 h-4 ml-2" />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
+
+          {isMobile && (
+            <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-xl z-50 space-y-2">
+              {isLastStep ? (
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className="w-full inline-flex items-center justify-center min-h-12 px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-base font-semibold text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
+                >
+                  <Send className="w-4 h-4 mr-2" />
+                  {isSubmitting ? "Submitting..." : "Submit Request"}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  className="w-full inline-flex items-center justify-center min-h-12 px-6 py-3 bg-blue-600 text-base font-semibold text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm"
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4 ml-2" />
+                </button>
+              )}
+              {schema.allowSaveAndContinue && (
+                <button
+                  type="button"
+                  onClick={handleSaveAndClose}
+                  disabled={isSaving}
+                  className="w-full inline-flex items-center justify-center min-h-12 px-4 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  {isSaving ? "Saving..." : "Save & Close"}
+                </button>
+              )}
+              {isLastStep && (
+                <button
+                  type="button"
+                  onClick={() => setShowPreview(true)}
+                  className="w-full inline-flex items-center justify-center min-h-12 px-4 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  Preview
+                </button>
+              )}
+            </div>
+          )}
         </div>
-        {/* Sticky Mobile Footer */}
-        {isMobile && (
-          <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-xl z-50 space-y-2">
-            {isLastStep ? (
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="w-full inline-flex items-center justify-center min-h-12 px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-base font-semibold text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
-              >
-                <Send className="w-4 h-4 mr-2" />
-                {isSubmitting ? "Submitting..." : "Submit Request"}
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleNext}
-                className="w-full inline-flex items-center justify-center min-h-12 px-6 py-3 bg-blue-600 text-base font-semibold text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm"
-              >
-                Next
-                <ChevronRight className="w-4 h-4 ml-2" />
-              </button>
-            )}
-            {schema.allowSaveAndContinue && (
-              <button
-                type="button"
-                onClick={handleSaveAndClose}
-                disabled={isSaving}
-                className="w-full inline-flex items-center justify-center min-h-12 px-4 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-              >
-                <Save className="w-4 h-4 mr-2" />
-                {isSaving ? "Saving..." : "Save & Close"}
-              </button>
-            )}
-          </div>
-        )}
       </div>
-    </div>
+
+      {showPreview && (
+        <FormPreview
+          formData={formData}
+          schema={schema}
+          onClose={() => setShowPreview(false)}
+        />
+      )}
+    </>
   );
 };
