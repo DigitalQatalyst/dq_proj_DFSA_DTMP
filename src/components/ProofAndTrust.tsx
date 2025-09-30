@@ -634,7 +634,7 @@ const ProofAndTrust: React.FC = () => {
         <HorizontalScrollReveal direction="left" className="text-center mb-10 relative z-10">
           <h2 className="text-3xl font-bold text-gray-900 mb-3 relative inline-block">
             Powered by Strategic Partnerships
-            <span className="absolute -bottom-1 left-0 w-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-600 animate-expand-line"></span>
+            {/* <span className="absolute -bottom-1 left-0 w-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-600 animate-expand-line"></span> */}
           </h2>
           <div className="relative">
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">

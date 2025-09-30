@@ -488,7 +488,7 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
         <FadeInUpOnScroll className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-3 relative inline-block">
             Stay Ahead with Expert Insights
-            <span className="absolute left-0 bottom-0 w-full h-1 bg-gradient-to-r from-blue-500 to-teal-400 transform origin-left"></span>
+            {/* <span className="absolute left-0 bottom-0 w-full h-1 bg-gradient-to-r from-blue-500 to-teal-400 transform origin-left"></span> */}
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
             Access the latest news, events, and resources to help your business
