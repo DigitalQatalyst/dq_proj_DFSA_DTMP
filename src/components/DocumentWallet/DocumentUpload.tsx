@@ -81,52 +81,30 @@ export function DocumentUpload({ onClose, onUpload, categories }: { onClose: () 
     };
     // Upload file to API and save metadata to Dataverse
     const uploadToAzure = async () => {
-        console.log('Starting upload process...');
-        console.log('File to upload:', file);
-        console.log('Form data:', formData);
-        
         try {
             setIsUploading(true);
-            setUploadProgress(10);
-            
+            // Simulate progress updates
+            const progressInterval = setInterval(() => {
+                setUploadProgress((prev) => {
+                    if (prev >= 95) {
+                        clearInterval(progressInterval);
+                        return 95;
+                    }
+                    return prev + 5;
+                });
+            }, 200);
             // Prepare multipart form data and call serverless API
             const form = new FormData();
             form.append('file', file);
-            
-            console.log('FormData prepared, making API call...');
-            setUploadProgress(30);
-            
-            // Use different endpoints based on environment
-            const isDevelopment = (import.meta as any).env.DEV;
-            const apiUrl = isDevelopment ? 'http://localhost:3001/api/storage/upload/upload' : '/api/storage/upload/upload';
-            
-            const response = await fetch(apiUrl, {
+            const response = await fetch('/api/storage/upload/upload', {
                 method: 'POST',
                 body: form,
-                // Add explicit headers for CORS
-                headers: {
-                    // Don't set Content-Type for FormData - browser will set it with boundary
-                },
             });
-            
-            setUploadProgress(60);
-            
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ error: 'Upload failed' }));
-                throw new Error(errorData.error || `Upload failed with status ${response.status}`);
+                throw new Error('Upload failed');
             }
-            
             const result = await response.json();
-            console.log('Upload result:', result);
-            
-            setUploadProgress(80);
-            
-            // Handle both single and multiple file uploads
             const fileUrl = (result?.urls && result.urls[0]) || result?.url;
-            
-            if (!fileUrl) {
-                throw new Error('No file URL returned from upload');
-            }
             // Create document metadata in Dataverse
             const newDocument = {
                 name: formData.name,
@@ -148,10 +126,9 @@ export function DocumentUpload({ onClose, onUpload, categories }: { onClose: () 
             };
             // Save metadata to Dataverse
             await createDocument(newDocument as any);
-            
             // Complete the progress
+            clearInterval(progressInterval);
             setUploadProgress(100);
-            
             // Wait a moment to show the 100% completion state
             setTimeout(() => {
                 setIsUploading(false);
@@ -159,27 +136,10 @@ export function DocumentUpload({ onClose, onUpload, categories }: { onClose: () 
             }, 500);
         } catch (error) {
             console.error('Error uploading document:', error);
-            console.error('Error details:', {
-                message: error instanceof Error ? error.message : 'Unknown error',
-                stack: error instanceof Error ? error.stack : 'No stack trace',
-                type: typeof error,
-                error: error
-            });
-            
-            let errorMessage = 'Unknown error';
-            if (error instanceof Error) {
-                if (error.message === 'Failed to fetch') {
-                    errorMessage = 'Network error - check if API server is running on localhost:3001';
-                } else {
-                    errorMessage = error.message;
-                }
-            }
-            
             setIsUploading(false);
-            setUploadProgress(0);
             setErrors({
                 ...errors,
-                submit: `Failed to upload document: ${errorMessage}. Please try again.`,
+                submit: 'Failed to upload document. Please try again.',
             });
         }
     };
