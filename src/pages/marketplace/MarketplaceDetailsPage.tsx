@@ -1,6 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import { BookmarkIcon, StarIcon, ChevronRightIcon, HomeIcon } from "lucide-react";
+import {
+  BookmarkIcon,
+  StarIcon,
+  ChevronRightIcon,
+  HomeIcon,
+} from "lucide-react";
 import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
 import RequiredDocumentsTab from "../../components/marketplace/details/tabs/RequiredDocumentsTab";
@@ -263,6 +268,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   // Extract display properties based on marketplace type
   const itemTitle = item.title;
   const itemDescription = item.description;
+  const serviceApplication = item.serviceApplication;
   const provider = item.provider;
   const primaryAction = config.primaryCTA;
   const secondaryAction = config.secondaryCTA;
@@ -298,6 +304,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             itemDescription={itemDescription}
             marketplaceType={marketplaceType}
             item={item}
+            serviceApplication={serviceApplication}
             config={config}
             highlights={highlights}
           />
@@ -309,14 +316,25 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       case "learning_outcomes":
         return <LearningOutcomesTab outcomes={highlights} />;
       case "eligibility_terms":
-        return <EligibilityTermsTab item={item} providerName={item.provider?.name || "Service Provider"} />;
+        return (
+          <EligibilityTermsTab
+            item={item}
+            providerName={item.provider?.name || "Service Provider"}
+          />
+        );
       case "application_process":
         return <ApplicationProcessTab process={item.applicationProcess} />;
       case "required_documents":
         return <RequiredDocumentsTab documents={item.requiredDocuments} />;
 
       case "provider":
-        return <ProviderTab provider={provider} marketplaceType={marketplaceType} item={item} />;
+        return (
+          <ProviderTab
+            provider={provider}
+            marketplaceType={marketplaceType}
+            item={item}
+          />
+        );
       // Add other tab cases as needed
       default:
         if (tab.renderContent) {

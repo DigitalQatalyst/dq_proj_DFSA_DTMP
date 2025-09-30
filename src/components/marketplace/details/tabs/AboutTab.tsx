@@ -1,6 +1,7 @@
 import React from "react";
 
 export interface AboutTabProps {
+  serviceApplication: string;
   itemDescription: string;
   marketplaceType: "courses" | "financial" | "non-financial";
   item: any;
@@ -9,6 +10,7 @@ export interface AboutTabProps {
 }
 
 const AboutTab: React.FC<AboutTabProps> = ({
+  serviceApplication,
   itemDescription,
   marketplaceType,
   item,
@@ -23,14 +25,8 @@ const AboutTab: React.FC<AboutTabProps> = ({
       </p>
       <div className="prose max-w-none">
         <p className="text-gray-700 mb-5">{itemDescription}</p>
-        {marketplaceType === "courses" && (
-          <p className="text-gray-700">
-            This course is designed to accommodate {item.businessStage}{" "}
-            businesses, with a focus on practical applications that you can
-            implement immediately. Our experienced instructors bring real-world
-            expertise to help you navigate the challenges of modern business
-            environments.
-          </p>
+        {serviceApplication && (
+          <p className="text-gray-700">{serviceApplication}</p>
         )}
         {marketplaceType === "financial" && (
           <p className="text-gray-700">

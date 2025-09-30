@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 // GraphQL Query for Products
 const GET_PRODUCTS = gql`
@@ -27,7 +27,12 @@ const GET_PRODUCTS = gql`
           RegistrationValidity
           Cost
           Steps
-          TermsOfService
+          KeyTermsOfService
+          AdditionalTermsOfService
+          Logo {
+            name
+            source
+          }
           RequiredDocuments {
             id
             name
@@ -83,18 +88,22 @@ const GET_PRODUCT = gql`
         BusinessStage
         Nationality
         LegalStructure
-        CustomerType
         Industry
         ProcessingTime
-        RegistrationValidity
         Cost
-        Steps
-        TermsOfService
         RequiredDocuments {
           id
           name
           source
+          tags {
+            id
+          }
         }
+        KeyHighlights
+        ServiceApplication
+        Eligibility
+        KeyTermsOfService
+        AdditionalTermsOfService
         EmpowermentandLeadership
         RelatedServices {
           id

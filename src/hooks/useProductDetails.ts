@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client/react";
 import { GET_PRODUCT } from "../services/marketplaceQueries";
-import { getFallbackItemDetails, getFallbackItems } from "../utils/fallbackData";
+import {
+  getFallbackItemDetails,
+  getFallbackItems,
+} from "../utils/fallbackData";
 
 export interface UseProductDetailsArgs {
   itemId?: string;
@@ -16,7 +19,11 @@ export interface ProductItem {
   [key: string]: any;
 }
 
-export function useProductDetails({ itemId, marketplaceType, shouldTakeAction }: UseProductDetailsArgs) {
+export function useProductDetails({
+  itemId,
+  marketplaceType,
+  shouldTakeAction,
+}: UseProductDetailsArgs) {
   const [item, setItem] = useState<ProductItem | null>(null);
   const [relatedItems, setRelatedItems] = useState<any[]>([]);
 
@@ -38,17 +45,38 @@ export function useProductDetails({ itemId, marketplaceType, shouldTakeAction }:
       price: cf.Cost,
       processingTime: cf.ProcessingTime,
       amount: cf.Cost,
-      details: Array.isArray(cf.Steps) ? cf.Steps : cf.TermsOfService ? [cf.TermsOfService] : [],
-      requiredDocuments: Array.isArray(cf.RequiredDocuments)
-        ? cf.RequiredDocuments
-            .map((d: any) => (typeof d === "string" ? d : d?.name || d?.source || ""))
-            .filter(Boolean)
+      details: Array.isArray(cf.Steps)
+        ? cf.Steps
+        : cf.TermsOfService
+        ? [cf.TermsOfService]
         : [],
-      keyTerms: Array.isArray(cf.TermsOfService) ? cf.TermsOfService.join(", ") : cf.TermsOfService,
+      requiredDocuments: Array.isArray(cf.RequiredDocuments)
+        ? cf.RequiredDocuments.map((d: any) =>
+            typeof d === "string" ? d : d?.name || d?.source || ""
+          ).filter(Boolean)
+        : [],
+      // Prefer new fields for terms when available
+      keyTerms:
+        (Array.isArray(cf.KeyTermsOfService)
+          ? cf.KeyTermsOfService.join(", ")
+          : cf.KeyTermsOfService) ||
+        (Array.isArray(cf.TermsOfService)
+          ? cf.TermsOfService.join(", ")
+          : cf.TermsOfService),
+      additionalTerms: Array.isArray(cf.AdditionalTermsOfService)
+        ? cf.AdditionalTermsOfService
+        : cf.AdditionalTermsOfService
+        ? [cf.AdditionalTermsOfService]
+        : undefined,
       tags: [cf.Industry, cf.CustomerType, cf.BusinessStage].filter(Boolean),
       provider: {
         name: "Service Provider",
-        logoUrl: "/image.png",
+        logoUrl:
+          (Array.isArray(cf.Logo) &&
+            cf.Logo.length > 0 &&
+            (cf.Logo[0] as any)?.source) ||
+          (cf.Logo as any)?.source ||
+          "/image.png",
       },
       providerLocation: "UAE",
     } as any;
@@ -60,7 +88,10 @@ export function useProductDetails({ itemId, marketplaceType, shouldTakeAction }:
 
     if (!product) {
       // fallback path if no product in response
-      const fallback = getFallbackItemDetails(marketplaceType, itemId || "fallback-1");
+      const fallback = getFallbackItemDetails(
+        marketplaceType,
+        itemId || "fallback-1"
+      );
       if (fallback) {
         setItem(fallback);
         setRelatedItems(getFallbackItems(marketplaceType));
@@ -72,7 +103,10 @@ export function useProductDetails({ itemId, marketplaceType, shouldTakeAction }:
     if (!mapped) return;
 
     // merge with fallback to fill gaps
-    const fallbackForItem = getFallbackItemDetails(marketplaceType, itemId || "fallback-1");
+    const fallbackForItem = getFallbackItemDetails(
+      marketplaceType,
+      itemId || "fallback-1"
+    );
     const merged: any = { ...(fallbackForItem || {}), ...mapped };
     if (fallbackForItem) {
       for (const key of Object.keys(fallbackForItem)) {
@@ -118,8 +152,9 @@ export function useProductDetails({ itemId, marketplaceType, shouldTakeAction }:
         title: x.title || x.name || "Related Service",
         description: x.description || "",
         provider: {
-          name: x.provider?.name || (merged.provider?.name || "Service Provider"),
-          logoUrl: x.provider?.logoUrl || (merged.provider?.logoUrl || "/mzn_logo.png"),
+          name: x.provider?.name || merged.provider?.name || "Service Provider",
+          logoUrl:
+            x.provider?.logoUrl || merged.provider?.logoUrl || "/mzn_logo.png",
         },
         tags: Array.isArray(x.tags) ? x.tags : [],
       }));
@@ -127,7 +162,9 @@ export function useProductDetails({ itemId, marketplaceType, shouldTakeAction }:
 
     if (shouldTakeAction) {
       setTimeout(() => {
-        document.getElementById("action-section")?.scrollIntoView({ behavior: "smooth" });
+        document
+          .getElementById("action-section")
+          ?.scrollIntoView({ behavior: "smooth" });
       }, 100);
     }
   }, [data, itemId, marketplaceType, shouldTakeAction]);

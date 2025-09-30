@@ -1,19 +1,18 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-import { FilterSidebar, FilterConfig } from './FilterSidebar';
-import { MarketplaceGrid } from './MarketplaceGrid';
-import { SearchBar } from '../SearchBar';
-import { FilterIcon, XIcon, HomeIcon, ChevronRightIcon } from 'lucide-react';
-import { ErrorDisplay, CourseCardSkeleton } from '../SkeletonLoader';
-import { getMarketplaceConfig } from '../../utils/marketplaceConfiguration';
-import { MarketplaceComparison } from './MarketplaceComparison';
-import { Header } from '../Header';
-import { Footer } from '../Footer';
-import { getFallbackItems } from '../../utils/fallbackData';
-import { useQuery } from '@apollo/client/react';
-import { GET_PRODUCTS, GET_FACETS } from '../../services/marketplaceQueries.ts';
-
+import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { FilterSidebar, FilterConfig } from "./FilterSidebar";
+import { MarketplaceGrid } from "./MarketplaceGrid";
+import { SearchBar } from "../SearchBar";
+import { FilterIcon, XIcon, HomeIcon, ChevronRightIcon } from "lucide-react";
+import { ErrorDisplay, CourseCardSkeleton } from "../SkeletonLoader";
+import { getMarketplaceConfig } from "../../utils/marketplaceConfiguration";
+import { MarketplaceComparison } from "./MarketplaceComparison";
+import { Header } from "../Header";
+import { Footer } from "../Footer";
+import { getFallbackItems } from "../../utils/fallbackData";
+import { useQuery } from "@apollo/client/react";
+import { GET_PRODUCTS, GET_FACETS } from "../../services/marketplaceQueries.ts";
 
 // Type for comparison items
 interface ComparisonItem {
@@ -56,7 +55,10 @@ interface ProductCustomFields {
   RegistrationValidity?: string;
   Cost?: number;
   Steps?: string;
-  TermsOfService?: string;
+  KeyTermsOfService?: string;
+  AdditionalTermsOfService?: string;
+  ServiceApplication?: string;
+  Eligibility?: string;
   RequiredDocuments?: string;
   RelatedServices?: RelatedService[];
 }
@@ -94,7 +96,7 @@ interface GetProductsVariables {
 }
 
 export interface MarketplacePageProps {
-  marketplaceType: 'courses' | 'financial' | 'non-financial';
+  marketplaceType: "courses" | "financial" | "non-financial";
   title: string;
   description: string;
   promoCards?: any[];
@@ -112,7 +114,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   // State for items and filtering
   const [items, setItems] = useState<any[]>([]);
   const [filteredItems, setFilteredItems] = useState<any[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<Record<string, string>>({});
   // Filter sidebar visibility - should be visible on desktop, hidden on mobile by default
   const [showFilters, setShowFilters] = useState(false);
@@ -144,15 +146,15 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
   // Log facetData and productData for debugging
   useEffect(() => {
-    console.log('facetData:', facetData);
-    console.log('facetLoading:', facetLoading);
-    console.log('facetError:', facetError);
+    console.log("facetData:", facetData);
+    console.log("facetLoading:", facetLoading);
+    console.log("facetError:", facetError);
   }, [facetData, facetLoading, facetError]);
 
   useEffect(() => {
-    console.log('productData:', productData);
-    console.log('productLoading:', productLoading);
-    console.log('productError:', productError);
+    console.log("productData:", productData);
+    console.log("productLoading:", productLoading);
+    console.log("productError:", productError);
   }, [productData, productLoading, productError]);
 
   // Load filter configurations based on marketplace type
@@ -162,7 +164,12 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
         if (facetData) {
           const filterOptions: FilterConfig[] = facetData.facets.items
             .filter((facet) =>
-              ['service-category', 'business-stage', 'provided-by', 'pricing-model'].includes(facet.code)
+              [
+                "service-category",
+                "business-stage",
+                "provided-by",
+                "pricing-model",
+              ].includes(facet.code)
             )
             .map((facet) => ({
               id: facet.code,
@@ -172,19 +179,19 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 name: value.name,
               })),
             }));
-          console.log('filterOptions:', filterOptions); // Log filterOptions for debugging
+          console.log("filterOptions:", filterOptions); // Log filterOptions for debugging
           setFilterConfig(filterOptions);
 
           // Initialize empty filters based on the configuration
           const initialFilters: Record<string, string> = {};
           filterOptions.forEach((config) => {
-            initialFilters[config.id] = '';
+            initialFilters[config.id] = "";
           });
           setFilters(initialFilters);
         }
       } catch (err) {
-        console.error('Error processing filter options:', err);
-        setError('Failed to load filter options');
+        console.error("Error processing filter options:", err);
+        setError("Failed to load filter options");
       }
     };
 
@@ -201,15 +208,17 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
         if (productData) {
           let filteredServices = productData.products.items;
 
-          if (marketplaceType === 'financial') {
-            filteredServices = productData.products.items.filter((product) =>
-              product.facetValues.some((fv) => fv.id === '66') &&
-              !product.facetValues.some((fv) => fv.id === '67')
+          if (marketplaceType === "financial") {
+            filteredServices = productData.products.items.filter(
+              (product) =>
+                product.facetValues.some((fv) => fv.id === "66") &&
+                !product.facetValues.some((fv) => fv.id === "67")
             );
-          } else if (marketplaceType === 'non-financial') {
-            filteredServices = productData.products.items.filter((product) =>
-              product.facetValues.some((fv) => fv.id === '67') &&
-              !product.facetValues.some((fv) => fv.id === '66')
+          } else if (marketplaceType === "non-financial") {
+            filteredServices = productData.products.items.filter(
+              (product) =>
+                product.facetValues.some((fv) => fv.id === "67") &&
+                !product.facetValues.some((fv) => fv.id === "66")
             );
           }
 
@@ -222,9 +231,9 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             createdAt: product.createdAt,
             facetValues: product.facetValues,
             provider: {
-              name: product.customFields?.Industry || 'Unknown Provider',
-              logoUrl: '/mzn_logo.png',
-              description: 'No provider description available',
+              name: product.customFields?.Industry || "Unknown Provider",
+              logoUrl: "/mzn_logo.png",
+              description: "No provider description available",
             },
             ...product.customFields,
           }));
@@ -235,34 +244,40 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               const selectedValue = filters[facetCode];
               if (!selectedValue) return true;
               return (
-                product.facetValues.some((facetValue: any) => facetValue.code === selectedValue) ||
-                (facetCode === 'pricing-model' &&
-                  selectedValue === 'one-time-fee' &&
+                product.facetValues.some(
+                  (facetValue: any) => facetValue.code === selectedValue
+                ) ||
+                (facetCode === "pricing-model" &&
+                  selectedValue === "one-time-fee" &&
                   product.Cost &&
                   product.Cost > 0) ||
-                (facetCode === 'business-stage' &&
+                (facetCode === "business-stage" &&
                   product.BusinessStage &&
                   selectedValue === product.BusinessStage)
               );
             });
 
             const matchesSearch =
-              searchQuery.trim() === '' ||
+              searchQuery.trim() === "" ||
               product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
               product.facetValues.some((facetValue: any) =>
-                facetValue.name.toLowerCase().includes(searchQuery.toLowerCase())
+                facetValue.name
+                  .toLowerCase()
+                  .includes(searchQuery.toLowerCase())
               );
 
             return matchesAllFacets && matchesSearch;
           });
 
           // Log filters and filteredItems for debugging
-          console.log('filters:', filters);
-          console.log('filteredItems:', filtered);
+          console.log("filters:", filters);
+          console.log("filteredItems:", filtered);
 
           // Use fetched data if available, otherwise use fallback data
           const finalItems =
-            mappedItems.length > 0 ? mappedItems : getFallbackItems(marketplaceType);
+            mappedItems.length > 0
+              ? mappedItems
+              : getFallbackItems(marketplaceType);
           const finalFilteredItems =
             filtered.length > 0 ? filtered : getFallbackItems(marketplaceType);
 
@@ -285,21 +300,24 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   }, [productData, filters, searchQuery, marketplaceType]);
 
   // Handle filter changes
-  const handleFilterChange = useCallback((filterType: string, value: string) => {
-    setFilters((prev) => ({
-      ...prev,
-      [filterType]: value === prev[filterType] ? '' : value,
-    }));
-  }, []);
+  const handleFilterChange = useCallback(
+    (filterType: string, value: string) => {
+      setFilters((prev) => ({
+        ...prev,
+        [filterType]: value === prev[filterType] ? "" : value,
+      }));
+    },
+    []
+  );
 
   // Reset all filters
   const resetFilters = useCallback(() => {
     const emptyFilters: Record<string, string> = {};
     filterConfig.forEach((config) => {
-      emptyFilters[config.id] = '';
+      emptyFilters[config.id] = "";
     });
     setFilters(emptyFilters);
-    setSearchQuery('');
+    setSearchQuery("");
   }, [filterConfig]);
 
   // Toggle sidebar visibility (only on mobile)
@@ -310,14 +328,19 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   // Toggle bookmark for an item
   const toggleBookmark = useCallback((itemId: string) => {
     setBookmarkedItems((prev) =>
-      prev.includes(itemId) ? prev.filter((id) => id !== itemId) : [...prev, itemId]
+      prev.includes(itemId)
+        ? prev.filter((id) => id !== itemId)
+        : [...prev, itemId]
     );
   }, []);
 
   // Add an item to comparison
   const handleAddToComparison = useCallback(
     (item: any) => {
-      if (compareItems.length < 3 && !compareItems.some((c) => c.id === item.id)) {
+      if (
+        compareItems.length < 3 &&
+        !compareItems.some((c) => c.id === item.id)
+      ) {
         setCompareItems((prev) => [...prev, item]);
       }
     },
@@ -337,7 +360,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
+      <Header
+        toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+        sidebarOpen={sidebarOpen}
+      />
       <div className="container mx-auto px-4 py-8 flex-grow">
         {/* Breadcrumbs */}
         <nav className="flex mb-4" aria-label="Breadcrumb">
@@ -354,15 +380,22 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             <li aria-current="page">
               <div className="flex items-center">
                 <ChevronRightIcon size={16} className="text-gray-400" />
-                <span className="ml-1 text-gray-500 md:ml-2">{config.itemNamePlural}</span>
+                <span className="ml-1 text-gray-500 md:ml-2">
+                  {config.itemNamePlural}
+                </span>
               </div>
             </li>
           </ol>
         </nav>
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">{config.title}</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">
+          {config.title}
+        </h1>
         <p className="text-gray-600 mb-6">{config.description}</p>
         <div className="mb-6">
-          <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+          <SearchBar
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+          />
         </div>
         {/* Comparison bar */}
         {compareItems.length > 0 && (
@@ -416,9 +449,9 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 aria-controls="filter-sidebar"
               >
                 <FilterIcon size={18} />
-                {showFilters ? 'Hide Filters' : 'Show Filters'}
+                {showFilters ? "Hide Filters" : "Show Filters"}
               </button>
-              {Object.values(filters).some((f) => f !== '') && (
+              {Object.values(filters).some((f) => f !== "") && (
                 <button
                   onClick={resetFilters}
                   className="ml-2 text-blue-600 text-sm font-medium whitespace-nowrap px-3 py-2"
@@ -431,7 +464,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           {/* Filter sidebar - mobile/tablet */}
           <div
             className={`fixed inset-0 bg-gray-800 bg-opacity-75 z-30 transition-opacity duration-300 xl:hidden ${
-              showFilters ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              showFilters ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
             onClick={toggleFilters}
             aria-hidden={!showFilters}
@@ -439,7 +472,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             <div
               id="filter-sidebar"
               className={`fixed inset-y-0 left-0 w-full max-w-sm bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
-                showFilters ? 'translate-x-0' : '-translate-x-full'
+                showFilters ? "translate-x-0" : "-translate-x-full"
               }`}
               onClick={(e) => e.stopPropagation()}
               role="dialog"
@@ -474,7 +507,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             <div className="bg-white rounded-lg shadow p-4 sticky top-4">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-semibold">Filters</h2>
-                {Object.values(filters).some((f) => f !== '') && (
+                {Object.values(filters).some((f) => f !== "") && (
                   <button
                     onClick={resetFilters}
                     className="text-blue-600 text-sm font-medium"
@@ -502,7 +535,12 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               </div>
             ) : error || facetError || productError ? (
               <ErrorDisplay
-                message={error || facetError?.message || productError?.message || `Failed to load ${marketplaceType}`}
+                message={
+                  error ||
+                  facetError?.message ||
+                  productError?.message ||
+                  `Failed to load ${marketplaceType}`
+                }
                 onRetry={retryFetch}
               />
             ) : (
