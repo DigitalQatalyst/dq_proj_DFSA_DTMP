@@ -10,7 +10,7 @@ const client = new ApolloClient({
   link: new HttpLink({
     uri: "https://90va0q4bccgp.share.zrok.io/services-api",
     // Avoid ngrok browser warning interstitials from breaking preflight
-    headers: { "ngrok-skip-browser-warning": "true" },
+    headers: { skip_zrok_interstitial: "1" },
     // Ensure CORS mode
     fetchOptions: { mode: "cors" },
   }),
