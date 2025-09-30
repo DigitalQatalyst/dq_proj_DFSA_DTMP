@@ -76,18 +76,51 @@ export function AppRouter() {
           />
           <Route path="/discover-abudhabi" element={<DiscoverAbuDhabi />} />
           {/** Forms routes */}
-          <Route path="/forms/needs-assessment" element={<NeedsAssessmentForm />} />
-          <Route path="/forms/request-for-membership" element={<RequestForMembership />} />
-          <Route path="/forms/request-for-funding" element={<RequestForFunding />} />
-          <Route path="/forms/book-consultation" element={<BookConsultationForEntrepreneurship />} />
+          <Route
+            path="/forms/needs-assessment"
+            element={<NeedsAssessmentForm />}
+          />
+          <Route
+            path="/forms/request-for-membership"
+            element={<RequestForMembership />}
+          />
+          <Route
+            path="/forms/request-for-funding"
+            element={<RequestForFunding />}
+          />
+          <Route
+            path="/forms/book-consultation"
+            element={<BookConsultationForEntrepreneurship />}
+          />
           <Route path="/forms/cancel-loan" element={<CancelLoan />} />
-          <Route path="/forms/collateral-user-guide" element={<CollateralUserGuide />} />
-          <Route path="/forms/disburse-approved-loan" element={<DisburseApprovedLoan />} />
-          <Route path="/forms/facilitate-communication" element={<FacilitateCommunication />} />
-          <Route path="/forms/reallocation-of-loan-disbursement" element={<ReallocationOfLoanDisbursement />} />
-          <Route path="/forms/request-to-amend-existing-loan-details" element={<RequestToAmendExistingLoanDetails />} />
-          <Route path="/forms/training-in-entrepreneurship" element={<TrainingInEntrepreneurship />} />
-          <Route path="/forms/issue-support-letter" element={<IssueSupportLetter />} />
+          <Route
+            path="/forms/collateral-user-guide"
+            element={<CollateralUserGuide />}
+          />
+          <Route
+            path="/forms/disburse-approved-loan"
+            element={<DisburseApprovedLoan />}
+          />
+          <Route
+            path="/forms/facilitate-communication"
+            element={<FacilitateCommunication />}
+          />
+          <Route
+            path="/forms/reallocation-of-loan-disbursement"
+            element={<ReallocationOfLoanDisbursement />}
+          />
+          <Route
+            path="/forms/request-to-amend-existing-loan-details"
+            element={<RequestToAmendExistingLoanDetails />}
+          />
+          <Route
+            path="/forms/training-in-entrepreneurship"
+            element={<TrainingInEntrepreneurship />}
+          />
+          <Route
+            path="/forms/issue-support-letter"
+            element={<IssueSupportLetter />}
+          />
           <Route path="/404" element={<NotFound />} />
 
           <Route path="*" element={<Navigate to="/404" replace />} />

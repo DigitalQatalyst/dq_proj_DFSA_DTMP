@@ -6,22 +6,108 @@ import { MarketplaceGrid } from "./MarketplaceGrid";
 import { SearchBar } from "../SearchBar";
 import { FilterIcon, XIcon, HomeIcon, ChevronRightIcon } from "lucide-react";
 import { ErrorDisplay, CourseCardSkeleton } from "../SkeletonLoader";
-import {
-  fetchMarketplaceItems,
-  fetchMarketplaceFilters,
-} from "../../services/marketplace";
-import { getMarketplaceConfig } from "../../utils/marketplaceConfig";
+import { getMarketplaceConfig } from "../../utils/marketplaceConfiguration";
 import { MarketplaceComparison } from "./MarketplaceComparison";
 import { Header } from "../Header";
 import { Footer } from "../Footer";
-import { getFallbackItems } from "../../utils/fallbackData";
-import KnowledgeHubGrid from "./KnowledgeHubGrid";
+import { useQuery } from "@apollo/client/react";
+import { GET_PRODUCTS, GET_FACETS } from "../../services/marketplaceQueries.ts";
+
 // Type for comparison items
 interface ComparisonItem {
   id: string;
   title: string;
   [key: string]: any;
 }
+
+// Types for GET_FACETS query
+interface FacetValue {
+  id: string;
+  name: string;
+  code: string;
+}
+
+interface Facet {
+  id: string;
+  name: string;
+  code: string;
+  values: FacetValue[];
+}
+
+interface GetFacetsData {
+  facets: {
+    items: Facet[];
+  };
+}
+
+// Types for GET_PRODUCTS query
+interface Asset {
+  name: string;
+}
+
+interface Logo {
+  name: string;
+  source: string;
+}
+
+interface RequiredDocument {
+  id: string;
+  customFields: any;
+}
+
+interface RelatedService {
+  id: string;
+}
+
+interface ProductCustomFields {
+  Logo?: Logo;
+  CustomerType?: string;
+  BusinessStage?: string;
+  Nationality?: string;
+  LegalStructure?: string;
+  Industry?: string;
+  ProcessingTime?: string;
+  RegistrationValidity?: string;
+  Cost?: number;
+  Steps?: string;
+  KeyTermsOfService?: string;
+  RequiredDocuments?: RequiredDocument[];
+  EmpowermentandLeadership?: string;
+  RelatedServices?: RelatedService[];
+}
+
+interface ProductFacetValue {
+  facet: {
+    id: string;
+    name: string;
+    code: string;
+  };
+  id: string;
+  name: string;
+  code: string;
+}
+
+interface Product {
+  id: string;
+  assets: Asset[];
+  name: string;
+  slug: string;
+  description: string;
+  facetValues: ProductFacetValue[];
+  customFields: ProductCustomFields;
+}
+
+interface GetProductsData {
+  products: {
+    items: Product[];
+    totalItems: number;
+  };
+}
+
+interface GetProductsVariables {
+  take: number;
+}
+
 export interface MarketplacePageProps {
   marketplaceType: "courses" | "financial" | "non-financial" | "knowledge-hub";
   title: string;
@@ -82,43 +168,95 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   }, [marketplaceType, config]);
   // Fetch items based on marketplace type, filters, and search query
   useEffect(() => {
-    if (marketplaceType !== "knowledge-hub") {
-      const loadItems = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-          const itemsData = await fetchMarketplaceItems(
-            marketplaceType,
-            filters,
-            searchQuery
-          );
-          // Use fetched data if available, otherwise use fallback data
-          const finalItems =
-            itemsData && itemsData.length > 0
-              ? itemsData
-              : getFallbackItems(marketplaceType);
-          setItems(finalItems);
-          setFilteredItems(finalItems);
-          setLoading(false);
-        } catch (err) {
-          console.error(`Error fetching ${marketplaceType} items:`, err);
-          setError(`Failed to load ${marketplaceType}`);
-          // Use fallback data when API fails
-          const fallbackItems = getFallbackItems(marketplaceType);
-          setItems(fallbackItems);
-          setFilteredItems(fallbackItems);
+    const loadItems = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        if (productData) {
+          let filteredServices = productData.products.items;
+
+          if (marketplaceType === "financial") {
+            filteredServices = productData.products.items.filter(
+              (product) =>
+                product.facetValues.some((fv) => fv.id === "66") &&
+                !product.facetValues.some((fv) => fv.id === "67")
+            );
+          } else if (marketplaceType === "non-financial") {
+            filteredServices = productData.products.items.filter(
+              (product) =>
+                product.facetValues.some((fv) => fv.id === "67") &&
+                !product.facetValues.some((fv) => fv.id === "66")
+            );
+          }
+
+          // Map product data to match expected MarketplaceItem structure
+          const mappedItems = filteredServices.map((product) => ({
+            id: product.id,
+            title: product.name,
+            slug: product.slug,
+            description: product.description,
+            facetValues: product.facetValues,
+            provider: {
+              name: product.customFields?.Industry || "Unknown Provider",
+              logoUrl: product.customFields?.Logo?.source || "/mzn_logo.png",
+              description: "No provider description available",
+            },
+            ...product.customFields,
+          }));
+
+          // Apply filters and search query
+          const filtered = mappedItems.filter((product: any) => {
+            const matchesAllFacets = Object.keys(filters).every((facetCode) => {
+              const selectedValue = filters[facetCode];
+              if (!selectedValue) return true;
+              return (
+                product.facetValues.some(
+                  (facetValue: any) => facetValue.code === selectedValue
+                ) ||
+                (facetCode === "pricing-model" &&
+                  selectedValue === "one-time-fee" &&
+                  product.Cost &&
+                  product.Cost > 0) ||
+                (facetCode === "business-stage" &&
+                  product.BusinessStage &&
+                  selectedValue === product.BusinessStage)
+              );
+            });
+
+            const matchesSearch =
+              searchQuery.trim() === "" ||
+              product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              product.facetValues.some((facetValue: any) =>
+                facetValue.name
+                  .toLowerCase()
+                  .includes(searchQuery.toLowerCase())
+              );
+
+            return matchesAllFacets && matchesSearch;
+          });
+
+          // Log filters and filteredItems for debugging
+          console.log("filters:", filters);
+          console.log("filteredItems:", filtered);
+
+          // Set items and filteredItems to backend data
+          setItems(mappedItems);
+          setFilteredItems(filtered);
           setLoading(false);
         }
-      };
-      loadItems();
-    } else {
-      // For knowledge-hub, directly use fallback data without API calls
-      const fallbackItems = getFallbackItems(marketplaceType);
-      setItems(fallbackItems);
-      setFilteredItems(fallbackItems);
-      setLoading(false);
-    }
-  }, [marketplaceType, filters, searchQuery]);
+      } catch (err) {
+        console.error(`Error processing ${marketplaceType} items:`, err);
+        setError(`Failed to load ${marketplaceType}`);
+        setItems([]);
+        setFilteredItems([]);
+        setLoading(false);
+      }
+    };
+
+    loadItems();
+  }, [productData, filters, searchQuery, marketplaceType]);
+
   // Handle filter changes
   const handleFilterChange = useCallback(
     (filterType: string, value: string) => {
@@ -438,18 +576,20 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   <CourseCardSkeleton key={idx} />
                 ))}
               </div>
-            ) : error && marketplaceType !== "knowledge-hub" ? (
-              <ErrorDisplay message={error} onRetry={retryFetch} />
-            ) : marketplaceType === "knowledge-hub" ? (
-              <KnowledgeHubGrid
-                bookmarkedItems={bookmarkedItems}
-                onToggleBookmark={toggleBookmark}
-                onAddToComparison={handleAddToComparison}
-                searchQuery={searchQuery}
-                activeFilters={activeFilters}
-                onFilterChange={handleKnowledgeHubFilterChange}
-                onClearFilters={clearKnowledgeHubFilters}
+            ) : error || facetError || productError ? (
+              <ErrorDisplay
+                message={
+                  error ||
+                  facetError?.message ||
+                  productError?.message ||
+                  `Failed to load ${marketplaceType}`
+                }
+                onRetry={retryFetch}
               />
+            ) : filteredItems.length === 0 ? (
+              <div className="text-center text-gray-600 py-8">
+                No service available
+              </div>
             ) : (
               <MarketplaceGrid
                 items={filteredItems}
