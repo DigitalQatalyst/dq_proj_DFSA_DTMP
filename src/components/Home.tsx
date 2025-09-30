@@ -243,10 +243,10 @@ export const HomePage: React.FC = () => {
         title: 'Knowledge Hub',
         description: 'Stay updated with the latest business news and industry insights',
         icon: <Newspaper />,
-        path: '/news',
+        path: '/marketplace/knowledge-hub',
         gradientFrom: 'from-amber-600',
         gradientTo: 'to-amber-400',
-        isActive: false
+        isActive: true
       }, {
         id: 'law',
         title: 'Legal & Compliance',

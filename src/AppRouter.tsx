@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { App } from "./App";
 import { CourseType } from "./utils/mockData";
 import { AuthProvider } from "./components/Header";
 import { MarketplaceRouter } from "./pages/marketplace/MarketplaceRouter";
+import { App } from './App';
 import MarketplaceDetailsPage from "./pages/marketplace/MarketplaceDetailsPage";
 import DashboardRouter from "./pages/dashboard/DashboardRouter";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -33,6 +33,7 @@ export function AppRouter() {
       setCompareCourses((prev) => [...prev, course]);
     }
   };
+
 
   const client = new ApolloClient({
     link: new HttpLink({
