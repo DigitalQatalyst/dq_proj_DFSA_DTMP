@@ -18,6 +18,21 @@ const normalizeEligibility = (val: any): string | undefined => {
   return undefined;
 };
 
+// Extract a human-readable document name without extension
+const normalizeDocumentName = (raw: string): string => {
+  if (!raw) return "";
+  // Remove query/hash
+  let s = raw.split("#")[0].split("?")[0];
+  // Extract basename from URL or path
+  const parts = s.split(/[/\\]/);
+  s = parts[parts.length - 1] || s;
+  // If there's no dot or it's a hidden file like ".env", just return trimmed
+  if (!/\./.test(s.replace(/^\.+/, ""))) return s.trim();
+  // Strip last extension
+  s = s.replace(/\.[^.\/\\]+$/, "");
+  return s.trim();
+};
+
 export interface UseProductDetailsArgs {
   itemId?: string;
   marketplaceType: "courses" | "financial" | "non-financial";
@@ -108,9 +123,13 @@ export function useProductDetails({
         ? [cf.KeyHighlights]
         : [],
       requiredDocuments: Array.isArray(cf.RequiredDocuments)
-        ? cf.RequiredDocuments.map((d: any) =>
-            typeof d === "string" ? d : d?.name || d?.source || ""
-          ).filter(Boolean)
+        ? cf.RequiredDocuments
+            .map((d: any) => {
+              if (typeof d === "string") return normalizeDocumentName(d);
+              const raw = d?.name || d?.source || "";
+              return normalizeDocumentName(raw);
+            })
+            .filter((s: string) => !!s)
         : [],
       // Prefer new fields for terms when available
       keyTerms:
