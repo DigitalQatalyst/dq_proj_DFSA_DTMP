@@ -165,6 +165,22 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       onAddToComparison(item);
     }
   };
+  const handlePrimaryAction = () => {
+    let url: string | undefined = (item as any)?.formUrl?.trim();
+    if (!url) {
+      url = "/forms/request-for-membership";
+    }
+    // External absolute URL: redirect
+    if (/^https?:\/\//i.test(url)) {
+      window.location.href = url;
+      return;
+    }
+    // Internal relative path: ensure it is prefixed with /forms/
+    if (!url.startsWith("/forms")) {
+      url = `/forms/${url.replace(/^\/+/, "")}`;
+    }
+    navigate(url);
+  };
   const retryFetch = () => {
     if (itemId) {
       try {
@@ -269,6 +285,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const itemTitle = item.title;
   const itemDescription = item.description;
   const serviceApplication = item.serviceApplication;
+  const logoUrl = item.customFields?.Logo?.source;
   const provider = item.provider;
   const primaryAction = config.primaryCTA;
   const secondaryAction = config.secondaryCTA;
@@ -409,7 +426,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               {/* Provider */}
               <div className="flex items-center mb-3">
                 <img
-                  src={provider.logoUrl || "/image.png"}
+                  src={"/image.png"}
                   alt={`${provider.name} logo`}
                   className="h-10 w-10 object-contain mr-3 rounded-md"
                 />
@@ -531,6 +548,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   detailItems={detailItems}
                   highlights={highlights}
                   primaryAction={primaryAction}
+                  onPrimaryAction={handlePrimaryAction}
                   onAddToComparison={handleAddToComparison}
                   onCloseFloating={() => setIsFloatingCardVisible(false)}
                 />
@@ -546,6 +564,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                     detailItems={detailItems}
                     highlights={highlights}
                     primaryAction={primaryAction}
+                    onPrimaryAction={handlePrimaryAction}
                     onAddToComparison={handleAddToComparison}
                     onCloseFloating={() => setIsFloatingCardVisible(false)}
                   />
@@ -562,6 +581,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             detailItems={detailItems}
             highlights={highlights}
             primaryAction={primaryAction}
+            onPrimaryAction={handlePrimaryAction}
             onAddToComparison={handleAddToComparison}
             onCloseFloating={() => setIsFloatingCardVisible(false)}
           />
@@ -596,7 +616,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                     >
                       <div className="flex items-center mb-3">
                         <img
-                          src={relatedItem.provider.logoUrl || "/image.png"}
+                          src={"/image.png"}
                           alt={relatedItem.provider.name}
                           className="h-8 w-8 object-contain mr-2 rounded"
                         />
@@ -651,12 +671,12 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   {item.duration || item.serviceType || ""}
                 </div>
               </div>
-              <Link
-                to={"/forms/request-for-membership"}
+              <button
+                onClick={handlePrimaryAction}
                 className="flex-1 px-4 py-3 text-white font-bold rounded-md bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600 hover:from-teal-600 hover:via-blue-600 hover:to-purple-700 transition-colors shadow-md"
               >
                 {primaryAction}
-              </Link>
+              </button>
             </div>
           </div>
         )}

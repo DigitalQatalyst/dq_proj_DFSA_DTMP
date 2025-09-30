@@ -6,6 +6,18 @@ import {
   getFallbackItems,
 } from "../utils/fallbackData";
 
+// Normalize eligibility display to the first non-empty segment before a semicolon
+const normalizeEligibility = (val: any): string | undefined => {
+  if (Array.isArray(val)) {
+    const first = val.find((e: any) => typeof e === "string" && e.trim() !== "");
+    return first ? String(first).split(";")[0].trim() : undefined;
+  }
+  if (typeof val === "string") {
+    return val.split(";")[0].trim();
+  }
+  return undefined;
+};
+
 export interface UseProductDetailsArgs {
   itemId?: string;
   marketplaceType: "courses" | "financial" | "non-financial";
@@ -35,6 +47,28 @@ export function useProductDetails({
   const mapProductToItem = (product: any): ProductItem | null => {
     if (!product) return null;
     const cf = (product as any).customFields || {};
+    // Resolve provider logo strictly from CustomFields.Logo.source
+    const logoFromCFArray = Array.isArray(cf.Logo)
+      ? (cf.Logo[0] as any)?.source
+      : undefined;
+    const logoFromCFObject = !Array.isArray(cf.Logo)
+      ? (cf.Logo as any)?.source
+      : undefined;
+    const toAbsolute = (url?: string) => {
+      if (!url) return undefined;
+      if (/^https?:\/\//i.test(url)) return url;
+      const base = (import.meta as any)?.env?.VITE_ASSETS_BASE_URL || "";
+      if (base) {
+        const trimmedBase = String(base).replace(/\/$/, "");
+        return `${trimmedBase}${url}`;
+      }
+      return url; // fallback: hope it's valid as-is
+    };
+    const resolvedLogo =
+      toAbsolute(logoFromCFArray) ||
+      toAbsolute(logoFromCFObject) ||
+      "/image.png";
+
     return {
       id: product.id,
       title: product.name,
@@ -45,10 +79,33 @@ export function useProductDetails({
       price: cf.Cost,
       processingTime: cf.ProcessingTime,
       amount: cf.Cost,
-      details: Array.isArray(cf.Steps)
+      interestRate: cf.InterestRate,
+      serviceApplication: cf.ServiceApplication,
+      // URL/path to the application form
+      formUrl: typeof cf.formUrl === "string" ? cf.formUrl.trim() : undefined,
+      // Eligibility mapping for EligibilityTermsTab
+      eligibilityCriteria: Array.isArray(cf.Eligibility)
+        ? cf.Eligibility.filter((e: any) => typeof e === "string" && e.trim() !== "")
+        : undefined,
+      eligibility: normalizeEligibility(cf.Eligibility),
+      // Highlights/details mapping
+      // Prefer KeyHighlights when present; otherwise fall back to Steps or TermsOfService
+      details: Array.isArray(cf.KeyHighlights)
+        ? cf.KeyHighlights
+        : typeof cf.KeyHighlights === "string" && cf.KeyHighlights.trim() !== ""
+        ? [cf.KeyHighlights]
+        : Array.isArray(cf.Steps)
         ? cf.Steps
-        : cf.TermsOfService
+        : typeof cf.Steps === "string" && cf.Steps.trim() !== ""
+        ? [cf.Steps]
+        : typeof cf.TermsOfService === "string" && cf.TermsOfService.trim() !== ""
         ? [cf.TermsOfService]
+        : [],
+      // Expose learning outcomes specifically for course views
+      learningOutcomes: Array.isArray(cf.KeyHighlights)
+        ? cf.KeyHighlights
+        : typeof cf.KeyHighlights === "string" && cf.KeyHighlights.trim() !== ""
+        ? [cf.KeyHighlights]
         : [],
       requiredDocuments: Array.isArray(cf.RequiredDocuments)
         ? cf.RequiredDocuments.map((d: any) =>
@@ -71,12 +128,7 @@ export function useProductDetails({
       tags: [cf.Industry, cf.CustomerType, cf.BusinessStage].filter(Boolean),
       provider: {
         name: "Service Provider",
-        logoUrl:
-          (Array.isArray(cf.Logo) &&
-            cf.Logo.length > 0 &&
-            (cf.Logo[0] as any)?.source) ||
-          (cf.Logo as any)?.source ||
-          "/image.png",
+        logoUrl: resolvedLogo,
       },
       providerLocation: "UAE",
     } as any;
@@ -126,6 +178,9 @@ export function useProductDetails({
       };
     }
 
+    // Ensure eligibility is shortened even if it came from fallback
+    merged.eligibility = normalizeEligibility(merged.eligibility) ?? merged.eligibility;
+
     setItem(merged);
 
     const rs = product?.customFields?.RelatedServices;
@@ -136,7 +191,7 @@ export function useProductDetails({
           description: x.description || "",
           provider: {
             name: merged.provider?.name,
-            logoUrl: merged.provider?.logoUrl,
+            logoUrl: merged.provider?.logoUrl || "/mzn_logo.png",
           },
           tags: [],
         }))

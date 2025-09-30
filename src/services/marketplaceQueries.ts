@@ -79,9 +79,7 @@ const GET_PRODUCT = gql`
   query GetProduct($id: ID!) {
     product(id: $id) {
       id
-      assets {
-        name
-      }
+
       name
       slug
       description
@@ -110,7 +108,7 @@ const GET_PRODUCT = gql`
         Eligibility
         KeyTermsOfService
         AdditionalTermsOfService
-        EmpowermentandLeadership
+        formUrl
         RelatedServices {
           id
           name

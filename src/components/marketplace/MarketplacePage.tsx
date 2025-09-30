@@ -12,6 +12,7 @@ import { Header } from "../Header";
 import { Footer } from "../Footer";
 import { useQuery } from "@apollo/client/react";
 import { GET_PRODUCTS, GET_FACETS } from "../../services/marketplaceQueries.ts";
+import { fetchMarketplaceFilters } from "../../services/marketplace";
 
 // Type for comparison items
 interface ComparisonItem {
@@ -140,6 +141,15 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   // Loading and error states
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Apollo queries for products and facets
+  const {
+    data: productData,
+    error: productError,
+  } = useQuery<GetProductsData>(GET_PRODUCTS);
+  const {
+    data: facetData,
+    error: facetError,
+  } = useQuery<GetFacetsData>(GET_FACETS);
   // Load filter configurations based on marketplace type
   useEffect(() => {
     const loadFilterOptions = async () => {
