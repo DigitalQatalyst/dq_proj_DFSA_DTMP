@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, Children } from 'react';
+import React, { useEffect, useState, useRef, Children } from "react";
 // Hook to detect when an element is visible in viewport
 export function useInView<T extends HTMLElement = HTMLDivElement>(
   options: IntersectionObserverInit & { triggerOnce?: boolean } = {}
@@ -19,10 +19,11 @@ export function useInView<T extends HTMLElement = HTMLDivElement>(
     }, 1000);
 
     // Use IntersectionObserver when available
-    if (typeof IntersectionObserver !== 'undefined') {
+    if (typeof IntersectionObserver !== "undefined") {
       const observer = new IntersectionObserver(([entry]) => {
         if (entry.isIntersecting) {
-          const shouldUpdate = !triggerOnce || (triggerOnce && !wasInView.current);
+          const shouldUpdate =
+            !triggerOnce || (triggerOnce && !wasInView.current);
           if (shouldUpdate) {
             setIsInView(true);
             wasInView.current = true;
@@ -50,20 +51,29 @@ export function useInView<T extends HTMLElement = HTMLDivElement>(
   return [ref, isInView];
 }
 // Hook for counting up animation
-export function useCountUp(end: number, duration = 2000, startOnView = true): [React.RefObject<HTMLElement>, number] {
+export function useCountUp(
+  end: number,
+  duration = 2000,
+  startOnView = true
+): [React.RefObject<HTMLElement>, number] {
   const [count, setCount] = useState(0);
   const [ref, isInView] = useInView({
-    threshold: 0.3
+    threshold: 0.3,
   });
   const startedRef = useRef(false);
-  
+
   useEffect(() => {
-    if ((startOnView && isInView && !startedRef.current) || (!startOnView && !startedRef.current)) {
+    if (
+      (startOnView && isInView && !startedRef.current) ||
+      (!startOnView && !startedRef.current)
+    ) {
       startedRef.current = true;
       let startTimestamp: number | null = null;
       const step = (timestamp: number) => {
         if (!startTimestamp) startTimestamp = timestamp;
-        const progress = startTimestamp ? Math.min((timestamp - startTimestamp) / duration, 1) : 0;
+        const progress = startTimestamp
+          ? Math.min((timestamp - startTimestamp) / duration, 1)
+          : 0;
         setCount(Math.floor(progress * end));
         if (progress < 1) {
           window.requestAnimationFrame(step);
@@ -72,14 +82,14 @@ export function useCountUp(end: number, duration = 2000, startOnView = true): [R
       window.requestAnimationFrame(step);
     }
   }, [end, duration, isInView, startOnView]);
-  
+
   return [ref, count];
 }
 // Animated text component for word-by-word animation
 // 🔄 Drop-in replacement for AnimatedText
 export const AnimatedText = ({
   text,
-  className = '',
+  className = "",
   delay = 0.1,
   duration = 0.5,
   once = true,
@@ -96,11 +106,11 @@ export const AnimatedText = ({
   wordSpacing?: string;
   gap?: string;
 }) => {
-  const words = text.split(' ');
+  const words = text.split(" ");
   const [ref, isInView] = useInView({
     triggerOnce: once,
     threshold: 0.1,
-    rootMargin: '0px 0px -20% 0px',
+    rootMargin: "0px 0px -20% 0px",
   });
 
   const [hasAnimated, setHasAnimated] = React.useState(false);
@@ -112,7 +122,8 @@ export const AnimatedText = ({
     return () => clearTimeout(timer);
   }, []);
 
-  const shouldAnimate = forceShow || (once ? isInView && !hasAnimated : isInView);
+  const shouldAnimate =
+    forceShow || (once ? isInView && !hasAnimated : isInView);
 
   React.useEffect(() => {
     if (isInView && !hasAnimated && once) setHasAnimated(true);
@@ -124,10 +135,15 @@ export const AnimatedText = ({
     : undefined;
 
   return (
-    <span ref={ref as React.RefObject<HTMLSpanElement>} className={className} style={wrapperStyle}>
+    <span
+      ref={ref as React.RefObject<HTMLSpanElement>}
+      className={className}
+      style={wrapperStyle}
+    >
       {words.map((word, i) => {
         // If using gap (margin between words), apply it to all but the last word
-        const marginRight = !wordSpacing && gap && i < words.length - 1 ? gap : undefined;
+        const marginRight =
+          !wordSpacing && gap && i < words.length - 1 ? gap : undefined;
 
         return (
           <span
@@ -135,7 +151,7 @@ export const AnimatedText = ({
             className="inline-block"
             style={{
               opacity: shouldAnimate ? 1 : 0,
-              transform: shouldAnimate ? 'translateY(0)' : 'translateY(20px)',
+              transform: shouldAnimate ? "translateY(0)" : "translateY(20px)",
               transition: `opacity ${duration}s ease-out, transform ${duration}s ease-out`,
               transitionDelay: `${delay * i}s`,
               marginRight,
@@ -152,10 +168,10 @@ export const AnimatedText = ({
 // Animated element that fades and slides up when scrolled into view
 export function FadeInUpOnScroll({
   children,
-  className = '',
+  className = "",
   delay = 0,
   threshold = 0.1,
-  once = true
+  once = true,
 }: {
   children: React.ReactNode;
   className?: string;
@@ -165,7 +181,7 @@ export function FadeInUpOnScroll({
 }) {
   const [ref, isInView] = useInView({
     threshold,
-    triggerOnce: once
+    triggerOnce: once,
   });
   const [hasAnimated, setHasAnimated] = useState(false);
   // Always default to showing content after a short delay
@@ -174,46 +190,61 @@ export function FadeInUpOnScroll({
     const timer = setTimeout(() => setForceShow(true), 1000);
     return () => clearTimeout(timer);
   }, []);
-  const shouldAnimate = forceShow || (once ? isInView && !hasAnimated : isInView);
+  const shouldAnimate =
+    forceShow || (once ? isInView && !hasAnimated : isInView);
   useEffect(() => {
     if (isInView && !hasAnimated && once) {
       setHasAnimated(true);
     }
   }, [isInView, hasAnimated, once]);
-  return <div ref={ref} className={className} style={{
-    opacity: shouldAnimate ? 1 : 0,
-    transform: shouldAnimate ? 'translateY(0)' : 'translateY(30px)',
-    transition: `opacity 0.8s ease-out, transform 0.8s ease-out`,
-    transitionDelay: `${delay}s`
-  }}>
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: shouldAnimate ? 1 : 0,
+        transform: shouldAnimate ? "translateY(0)" : "translateY(30px)",
+        transition: `opacity 0.8s ease-out, transform 0.8s ease-out`,
+        transitionDelay: `${delay}s`,
+      }}
+    >
       {children}
-    </div>;
-};
+    </div>
+  );
+}
 // Staggered animation for a list of items
 export const StaggeredFadeIn = ({
   children,
   staggerDelay = 0.1,
-  className = '',
+  className = "",
   threshold = 0.1,
-  once = true
+  once = true,
 }) => {
-  return <div className={className}>
-      {Children.map(children, (child, index) => <FadeInUpOnScroll delay={index * staggerDelay} threshold={threshold} once={once}>
+  return (
+    <div className={className}>
+      {Children.map(children, (child, index) => (
+        <FadeInUpOnScroll
+          delay={index * staggerDelay}
+          threshold={threshold}
+          once={once}
+        >
           {child}
-        </FadeInUpOnScroll>)}
-    </div>;
+        </FadeInUpOnScroll>
+      ))}
+    </div>
+  );
 };
 // Horizontal scroll animation
 export const HorizontalScrollReveal = ({
   children,
-  className = '',
-  direction = 'left',
+  className = "",
+  direction = "left",
   distance = 100,
   threshold = 0.1,
-  once = true
+  once = true,
 }) => {
   const [ref, isInView] = useInView({
-    threshold
+    threshold,
   });
   const [hasAnimated, setHasAnimated] = useState(false);
   // Always default to showing content after a short delay
@@ -222,31 +253,46 @@ export const HorizontalScrollReveal = ({
     const timer = setTimeout(() => setForceShow(true), 1000);
     return () => clearTimeout(timer);
   }, []);
-  const shouldAnimate = forceShow || (once ? isInView && !hasAnimated : isInView);
+  const shouldAnimate =
+    forceShow || (once ? isInView && !hasAnimated : isInView);
   useEffect(() => {
     if (isInView && !hasAnimated && once) {
       setHasAnimated(true);
     }
   }, [isInView, hasAnimated, once]);
-  return <div ref={ref} className={className} style={{
-    opacity: shouldAnimate ? 1 : 0,
-    transform: shouldAnimate ? 'translateX(0)' : `translateX(${direction === 'left' ? distance : -distance}px)`,
-    transition: 'opacity 0.8s ease-out, transform 0.8s ease-out'
-  }}>
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: shouldAnimate ? 1 : 0,
+        transform: shouldAnimate
+          ? "translateX(0)"
+          : `translateX(${direction === "left" ? distance : -distance}px)`,
+        transition: "opacity 0.8s ease-out, transform 0.8s ease-out",
+      }}
+    >
       {children}
-    </div>;
+    </div>
+  );
 };
 // Auto-scrolling marquee component
 export const AutoScrollMarquee = ({
   children,
   speed = 30,
   pauseOnHover = true,
-  className = ''
+  className = "",
 }) => {
-  return <div className={`overflow-hidden ${className}`}>
-      <div className={`inline-flex whitespace-nowrap ${pauseOnHover ? 'hover:animation-pause' : ''}`} style={{
-      animation: `scroll-x ${speed}s linear infinite`
-    }}>
+  return (
+    <div className={`overflow-hidden ${className}`}>
+      <div
+        className={`inline-flex whitespace-nowrap ${
+          pauseOnHover ? "hover:animation-pause" : ""
+        }`}
+        style={{
+          animation: `scroll-x ${speed}s linear infinite`,
+        }}
+      >
         {children}
         {children} {/* Duplicate content for seamless looping */}
       </div>
@@ -263,33 +309,32 @@ export const AutoScrollMarquee = ({
           animation-play-state: paused;
         }
       `}</style>
-    </div>;
+    </div>
+  );
 };
 // Animated counter component
 export const AnimatedCounter: React.FC<{
   value: number;
   duration?: number;
   className?: string;
-}> = ({
-  value,
-  duration = 2000,
-  className = ''
-}) => {
+}> = ({ value, duration = 2000, className = "" }) => {
   const [ref, count] = useCountUp(value, duration);
-  return <span ref={ref} className={className}>
+  return (
+    <span ref={ref} className={className}>
       {count}
-    </span>;
+    </span>
+  );
 };
 // Typing animation effect
 export const TypingAnimation = ({
   text,
   speed = 50,
-  className = '',
-  delay = 0
+  className = "",
+  delay = 0,
 }) => {
-  const [displayedText, setDisplayedText] = useState('');
+  const [displayedText, setDisplayedText] = useState("");
   const [ref, isInView] = useInView({
-    threshold: 0.5
+    threshold: 0.5,
   });
   const hasStartedRef = useRef(false);
   // Fallback to show full text if animation doesn't trigger
@@ -318,7 +363,9 @@ export const TypingAnimation = ({
       return () => clearTimeout(timer);
     }
   }, [isInView, text, speed, delay]);
-  return <span ref={ref} className={className}>
+  return (
+    <span ref={ref} className={className}>
       {displayedText}
-    </span>;
+    </span>
+  );
 };

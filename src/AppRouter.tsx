@@ -1,14 +1,16 @@
-import { useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { App } from './App';
-import { CourseType } from './utils/mockData';
-import { AuthProvider } from './components/Header';
-import { MarketplaceRouter } from './pages/marketplace/MarketplaceRouter';
-import MarketplaceDetailsPage from './pages/marketplace/MarketplaceDetailsPage';
-import DashboardRouter from './pages/dashboard/DashboardRouter';
-import ProtectedRoute from './components/ProtectedRoute';
-import { DiscoverAbuDhabi } from './pages/discoverAbuDhabi';
-import NotFound from './pages/NotFound';
+import { useState } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { CourseType } from "./utils/mockData";
+import { AuthProvider } from "./components/Header";
+import { MarketplaceRouter } from "./pages/marketplace/MarketplaceRouter";
+import { App } from "./App";
+import MarketplaceDetailsPage from "./pages/marketplace/MarketplaceDetailsPage";
+import DashboardRouter from "./pages/dashboard/DashboardRouter";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { DiscoverAbuDhabi } from "./pages/discoverAbuDhabi";
+import NotFound from "./pages/NotFound";
+import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
+import { ApolloProvider } from "@apollo/client/react";
 import KfBot from "./bot/KfBot";
 
 export function AppRouter() {
@@ -32,19 +34,48 @@ export function AppRouter() {
     }
   };
 
-  return <BrowserRouter>
+  const client = new ApolloClient({
+    link: new HttpLink({
+      uri: "https://9609a7336af8.ngrok-free.app/services-api",
+    }), // <-- Use HttpLink
+    cache: new InMemoryCache(),
+  });
+
+  return (
+    <ApolloProvider client={client}>
+      <BrowserRouter>
         <AuthProvider>
-        <KfBot />
+          <KfBot />
           <Routes>
             <Route path="/" element={<App />} />
             <Route path="/courses" element={<App />} />
-            <Route path="/courses/:itemId" element={<MarketplaceDetailsPage marketplaceType="courses" bookmarkedItems={bookmarkedCourses} onToggleBookmark={toggleBookmark} onAddToComparison={handleAddToComparison} />} />
+            <Route
+              path="/courses/:itemId"
+              element={
+                <MarketplaceDetailsPage
+                  marketplaceType="courses"
+                  bookmarkedItems={bookmarkedCourses}
+                  onToggleBookmark={toggleBookmark}
+                  onAddToComparison={handleAddToComparison}
+                />
+              }
+            />
             <Route path="/marketplace/*" element={<MarketplaceRouter />} />
-            <Route path="/dashboard/*" element={<ProtectedRoute><DashboardRouter /></ProtectedRoute>} />
+            <Route
+              path="/dashboard/*"
+              element={
+                // <ProtectedRoute>
+                <DashboardRouter />
+                // </ProtectedRoute>
+              }
+            />
             <Route path="/discover-abudhabi" element={<DiscoverAbuDhabi />} />
             <Route path="/404" element={<NotFound />} />
+
             <Route path="*" element={<Navigate to="/404" replace />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>
-  };
+    </ApolloProvider>
+  );
+}

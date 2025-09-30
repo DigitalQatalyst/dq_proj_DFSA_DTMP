@@ -1,15 +1,15 @@
-import React, { Component } from 'react';
 /**
  * Generic Step Component
  *
- * This component renders a generic step in the multi-step form.
+ * This component renders a generic step in the multistep form.
  * It displays sections and fields based on the step configuration.
  *
  * @module onboarding-form/steps/GenericStep
  */
 
-import { Step, FormData, ErrorsState, TouchedFields } from '../types/formData';
-import { FieldRenderer } from '../components/FieldRenderer';
+import {ErrorsState, FormData, Step, TouchedFields} from '../types/formData';
+import {FieldRenderer} from '../components/FieldRenderer';
+
 /**
  * Props for the GenericStep component
  */
@@ -21,17 +21,17 @@ interface GenericStepProps {
     onChange: (fieldName: string, value: any) => void; // Handler for field changes
     validateField: (fieldName: string, value: any) => boolean | null; // Field validation function
 }
+
 /**
  * Component for rendering a generic form step
  */
 export const GenericStep: React.FC<GenericStepProps> = ({
-    stepData,
-    formData,
-    errors,
-    touchedFields,
-    onChange,
-    validateField,
-}) => {
+                                                            stepData, formData,
+                                                            errors,
+                                                            touchedFields,
+                                                            onChange,
+                                                            validateField,
+                                                        }) => {
     return (
         <div className="space-y-8">
             {/* Step Header */}
