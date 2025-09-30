@@ -35,9 +35,15 @@ export function AppRouter() {
   };
 
   const client = new ApolloClient({
-    link: new HttpLink({ uri: 'https://b0e4e435962f.ngrok-free.app/services-api' }), // <-- Use HttpLink
-    cache: new InMemoryCache(),
-  });
+  link: new HttpLink({
+    uri: "https://90va0q4bccgp.share.zrok.io/services-api",
+    // Avoid ngrok browser warning interstitials from breaking preflight
+    headers: { skip_zrok_interstitial: "1" },
+    // Ensure CORS mode
+    fetchOptions: { mode: "cors" },
+  }),
+  cache: new InMemoryCache(),
+});
 
   return <ApolloProvider client={client}>
       <BrowserRouter>

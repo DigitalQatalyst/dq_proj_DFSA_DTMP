@@ -70,7 +70,7 @@ interface ProductCustomFields {
   RegistrationValidity?: string;
   Cost?: number;
   Steps?: string;
-  TermsOfService?: string;
+  KeyTermsOfService?: string;
   RequiredDocuments?: RequiredDocument[];
   EmpowermentandLeadership?: string;
   RelatedServices?: RelatedService[];

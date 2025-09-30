@@ -36,7 +36,7 @@ const GET_PRODUCTS = gql`
           RegistrationValidity
           Cost
           Steps
-          TermsOfService
+          KeyTermsOfService
           RequiredDocuments {
             id
             customFields
