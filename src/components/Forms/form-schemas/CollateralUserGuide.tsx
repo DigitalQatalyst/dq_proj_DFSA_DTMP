@@ -107,24 +107,22 @@ export const collateralReleaseValidationSchema = yup.object({
     .required('Please select how you want to provide the asset details'),
 
   // Conditional validation based on asset selection
-  assetName: yup.string().when('assetSelection', {
-    is: 'manual',
-    then: yup
-      .string()
-      .required('Asset name is required')
-      .min(2, 'Asset name must be at least 2 characters'),
-    otherwise: yup.string().optional(),
-  }),
+  assetName: yup.string().when('assetSelection', ([assetSelection], schema) =>
+    assetSelection === 'manual'
+      ? schema
+          .required('Asset name is required')
+          .min(2, 'Asset name must be at least 2 characters')
+      : schema.optional()
+  ),
 
-  assetNumber: yup.string().when('assetSelection', {
-    is: 'manual',
-    then: yup
-      .string()
-      .required('Asset number is required')
-      .matches(/^[a-zA-Z0-9-]+$/, 'Asset number must be alphanumeric')
-      .min(4, 'Asset number must be at least 4 characters'),
-    otherwise: yup.string().optional(),
-  }),
+  assetNumber: yup.string().when('assetSelection', ([assetSelection], schema) =>
+    assetSelection === 'manual'
+      ? schema
+          .required('Asset number is required')
+          .matches(/^[a-zA-Z0-9-]+$/, 'Asset number must be alphanumeric')
+          .min(4, 'Asset number must be at least 4 characters')
+      : schema.optional()
+  ),
 
   additionalDetails: yup
     .string()
@@ -134,25 +132,27 @@ export const collateralReleaseValidationSchema = yup.object({
   // Table Validation: Ensure at least one asset is selected
   assetTableSelection: yup
     .array()
-    .when('assetSelection', {
-      is: 'select',
-      then: yup
-        .array()
-        .min(1, 'Please select at least one asset from the table')
-        .required('Asset selection from the table is required'),
-    }),
+    .when('assetSelection', ([assetSelection], schema) =>
+      assetSelection === 'select'
+        ? schema
+            .min(1, 'Please select at least one asset from the table')
+            .required('Asset selection from the table is required')
+        : schema.optional()
+    ),
 
   // File Upload Validation
   cancellationLetter: yup
     .mixed()
     .required('Collateral release letter is required')
-    .test('fileType', 'Unsupported file type', value => {
+    .test('fileType', 'Unsupported file type', (value) => {
       if (!value) return false;
+      const file = value as File;
       return ['application/pdf', 'image/jpeg', 'image/png', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
-        .includes(value.type);
+        .includes(file.type);
     })
-    .test('fileSize', 'File is too large (max 5MB)', value => {
+    .test('fileSize', 'File is too large (max 5MB)', (value) => {
       if (!value) return false;
-      return value.size <= 5 * 1024 * 1024; // Max size 5MB
+      const file = value as File;
+      return file.size <= 5 * 1024 * 1024; // Max size 5MB
     }),
 });

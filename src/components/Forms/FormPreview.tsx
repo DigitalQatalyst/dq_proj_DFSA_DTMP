@@ -674,6 +674,7 @@ const FormField: React.FC<{
 }> = ({ field, value, onChange, error, isVisible, onBlur }) => {
   const [hasBeenTouched, setHasBeenTouched] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [fileError, setFileError] = useState<string | null>(null);
   const fieldOptions = useMemo(() => {
     if (field.globalOptionSet) {
       return getGlobalOptions(field.globalOptionSet);
@@ -1055,8 +1056,6 @@ const FormField: React.FC<{
           return null;
         };
 
-        const [fileError, setFileError] = useState<string | null>(null);
-
         return (
           <div className="space-y-4">
             <div className="flex items-center justify-center w-full">
@@ -1363,126 +1362,128 @@ const SuccessState: React.FC<{
 };
 
 // Form Preview Component
-// const FormPreview: React.FC<{
-//   formData: any;
-//   schema: FormSchema;
-//   onClose: () => void;
-// }> = ({ formData, schema, onClose }) => {
-//   const formatValue = (field: FormField, value: any): string => {
-//     if (!value) return "Not provided";
+const FormPreview: React.FC<{
+  formData: any;
+  schema: FormSchema;
+  onClose: () => void;
+}> = ({ formData, schema, onClose }) => {
+  const formatValue = (field: FormField, value: any): string => {
+    if (!value) return "Not provided";
 
-//     switch (field.type) {
-//       case "checkbox-group":
-//       case "multiselect":
-//         return Array.isArray(value) ? value.join(", ") : String(value);
-//       case "radio":
-//       case "select":
-//         const options = field.globalOptionSet 
-//           ? getGlobalOptions(field.globalOptionSet)
-//           : field.options || [];
-//         const selectedOption = options.find(opt => opt.value === value);
-//         return selectedOption ? selectedOption.label : String(value);
-//       case "checkbox":
-//       case "consent":
-//         return value ? "Yes" : "No";
-//       case "file":
-//       case "image-upload":
-//         return value?.name || "File uploaded";
-//       case "table":
-//         return Array.isArray(value) 
-//           ? `${value.length} asset(s) selected` 
-//           : "No assets selected";
-//       case "currency":
-//         const currencySymbol = field.currency === "USD" ? "$" : field.currency || "$";
-//         return `${currencySymbol}${Number(value).toLocaleString()}`;
-//       default:
-//         return String(value);
-//     }
-//   };
+    switch (field.type) {
+      case "checkbox-group":
+      case "multiselect":
+        return Array.isArray(value) ? value.join(", ") : String(value);
+      case "radio":
+      case "select": {
+        const options = field.globalOptionSet 
+          ? getGlobalOptions(field.globalOptionSet)
+          : field.options || [];
+        const selectedOption = options.find(opt => opt.value === value);
+        return selectedOption ? selectedOption.label : String(value);
+      }
+      case "checkbox":
+      case "consent":
+        return value ? "Yes" : "No";
+      case "file":
+      case "image-upload":
+        return value?.name || "File uploaded";
+      case "table":
+        return Array.isArray(value) 
+          ? `${value.length} asset(s) selected` 
+          : "No assets selected";
+      case "currency": {
+        const currencySymbol = field.currency === "USD" ? "$" : field.currency || "$";
+        return `${currencySymbol}${Number(value).toLocaleString()}`;
+      }
+      default:
+        return String(value);
+    }
+  };
 
-  // const getVisibleFields = (groups: FormGroup[]) => {
-  //   const visibleFields: { group: FormGroup; field: FormField; value: any }[] = [];
+  const getVisibleFields = (groups: FormGroup[]) => {
+    const visibleFields: { group: FormGroup; field: FormField; value: any }[] = [];
     
-  //   groups.forEach(group => {
-  //     group.fields.forEach(field => {
-  //       if (field.conditionalLogic) {
-  //         const { dependsOn, showWhen } = field.conditionalLogic;
-  //         const dependentValue = formData[dependsOn];
-  //         const isVisible = Array.isArray(showWhen)
-  //           ? showWhen.includes(dependentValue)
-  //           : dependentValue === showWhen;
-  //         if (!isVisible) return;
-  //       }
+    groups.forEach(group => {
+      group.fields.forEach(field => {
+        if (field.conditionalLogic) {
+          const { dependsOn, showWhen } = field.conditionalLogic;
+          const dependentValue = formData[dependsOn];
+          const isVisible = Array.isArray(showWhen)
+            ? showWhen.includes(dependentValue)
+            : dependentValue === showWhen;
+          if (!isVisible) return;
+        }
         
-  //       const value = formData[field.id];
-  //       if (value !== undefined && value !== null && value !== "") {
-  //         visibleFields.push({ group, field, value });
-  //       }
-  //     });
-  //   });
+        const value = formData[field.id];
+        if (value !== undefined && value !== null && value !== "") {
+          visibleFields.push({ group, field, value });
+        }
+      });
+    });
     
-  //   return visibleFields;
-  // };
+    return visibleFields;
+  };
 
-  // const allGroups = schema.multiStep
-  //   ? schema.steps?.flatMap(step => step.groups) || []
-  //   : schema.groups || [];
+  const allGroups = schema.multiStep
+    ? schema.steps?.flatMap(step => step.groups) || []
+    : schema.groups || [];
 
-  // const visibleFields = getVisibleFields(allGroups);
+  const visibleFields = getVisibleFields(allGroups);
 
-  // return (
-  //   <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-  //     <div className="relative top-20 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white">
-  //       <div className="flex justify-between items-center mb-6">
-  //         <h2 className="text-xl font-bold text-gray-900">Form Preview</h2>
-  //         <button
-  //           onClick={onClose}
-  //           className="text-gray-400 hover:text-gray-600"
-  //         >
-  //           <X className="w-6 h-6" />
-  //         </button>
-  //       </div>
+  return (
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div className="relative top-20 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold text-gray-900">Form Preview</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
 
-  //       <div className="space-y-6 max-h-96 overflow-y-auto">
-  //         {visibleFields.length === 0 ? (
-  //           <div className="text-center py-8 text-gray-500">
-  //             No data to preview
-  //           </div>
-  //         ) : (
-  //           visibleFields.map(({ group, field, value }, index) => (
-  //             <div key={index} className="border-b border-gray-200 pb-4">
-  //               <h3 className="text-sm font-semibold text-blue-600 mb-2">
-  //                 {group.groupTitle}
-  //               </h3>
-  //               <div className="grid grid-cols-3 gap-4">
-  //                 <div className="col-span-1">
-  //                   <p className="text-sm font-medium text-gray-700">
-  //                     {field.label}
-  //                   </p>
-  //                 </div>
-  //                 <div className="col-span-2">
-  //                   <p className="text-sm text-gray-900">
-  //                     {formatValue(field, value)}
-  //                   </p>
-  //                 </div>
-  //               </div>
-  //             </div>
-  //           ))
-  //         )}
-  //       </div>
+        <div className="space-y-6 max-h-96 overflow-y-auto">
+          {visibleFields.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              No data to preview
+            </div>
+          ) : (
+            visibleFields.map(({ group, field, value }, index) => (
+              <div key={index} className="border-b border-gray-200 pb-4">
+                <h3 className="text-sm font-semibold text-blue-600 mb-2">
+                  {group.groupTitle}
+                </h3>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="col-span-1">
+                    <p className="text-sm font-medium text-gray-700">
+                      {field.label}
+                    </p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-sm text-gray-900">
+                      {formatValue(field, value)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
 
-  //       <div className="mt-6 flex justify-end">
-  //         <button
-  //           onClick={onClose}
-  //           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-  //         >
-  //           Close
-  //         </button>
-  //       </div>
-  //     </div>
-  //   </div>
-  // );
-// };
+        <div className="mt-6 flex justify-end">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Course Table Component
 interface CourseTableData {
@@ -1663,17 +1664,6 @@ const CourseTableField: React.FC<{
           New Course
         </button>
       </div>
-      <div className="space-y-6">
-        <div className="flex justify-end">
-          <button
-              type="button"
-              onClick={() => setShowAddForm(true)}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <span className="mr-2">+</span>
-            New Course
-          </button>
-        </div>
 
       {/* Course Selection Filters */}
       <div className="bg-gray-50 p-4 rounded-lg">
@@ -1743,71 +1733,6 @@ const CourseTableField: React.FC<{
             />
           </div>
         </div>
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Course Names
-              </label>
-              <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                  value={filters.courseName}
-                  onChange={(e) => handleFilterChange('courseName', e.target.value)}
-              >
-                <option value="">Select Course</option>
-                {courseNameOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Language
-              </label>
-              <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                  value={filters.language}
-                  onChange={(e) => handleFilterChange('language', e.target.value)}
-              >
-                <option value="">Select Language</option>
-                {languageOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Meeting Type
-              </label>
-              <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                  value={filters.meetingType}
-                  onChange={(e) => handleFilterChange('meetingType', e.target.value)}
-              >
-                <option value="">Select Type</option>
-                {meetingTypeOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Start Date
-              </label>
-              <input
-                  type="date"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                  value={filters.startDate}
-                  onChange={(e) => handleFilterChange('startDate', e.target.value)}
-              />
-            </div>
-          </div>
 
         {/* Clear Filters Button */}
         <div className="flex justify-between items-center">
@@ -1833,23 +1758,6 @@ const CourseTableField: React.FC<{
             </button>
           )}
         </div>
-          <div className="flex justify-between items-center">
-            <div className="text-sm text-gray-600">
-              {filteredCourses.length === courses.length
-                  ? `Showing all ${courses.length} course${courses.length !== 1 ? 's' : ''}`
-                  : `Showing ${filteredCourses.length} of ${courses.length} course${courses.length !== 1 ? 's' : ''}`
-              }
-            </div>
-            {(filters.courseName || filters.language || filters.meetingType || filters.startDate) && (
-                <button
-                    type="button"
-                    onClick={clearFilters}
-                    className="text-sm text-blue-600 hover:text-blue-800 underline"
-                >
-                  Clear Filters
-                </button>
-            )}
-          </div>
 
         {filteredCourses.length === 0 && courses.length > 0 && (
           <div className="text-center py-8 text-gray-500">
@@ -1930,67 +1838,8 @@ const CourseTableField: React.FC<{
               </tbody>
             </table>
           </div>
-        {filteredCourses.length > 0 && (
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Course Name
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Language
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Meeting Type
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Start Date
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredCourses.map((course, index) => (
-                      <tr key={index} className="hover:bg-gray-50">
-                        <td className="px-4 py-4 text-sm text-gray-900">
-                          {courseNameOptions.find(opt => opt.value === course.courseName)?.label || course.courseName}
-                        </td>
-                        <td className="px-4 py-4 text-sm text-gray-900">
-                          {languageOptions.find(opt => opt.value === course.language)?.label || course.language}
-                        </td>
-                        <td className="px-4 py-4 text-sm text-gray-900">
-                          {meetingTypeOptions.find(opt => opt.value === course.meetingType)?.label || course.meetingType}
-                        </td>
-                        <td className="px-4 py-4 text-sm text-gray-900">
-                          {course.startDate}
-                        </td>
-                        <td className="px-4 py-4 text-sm">
-                          <div className="flex space-x-2">
-                            <button
-                                onClick={() => handleEditCourse(index)}
-                                className="text-blue-600 hover:text-blue-900 text-sm"
-                            >
-                              Edit
-                            </button>
-                            <button
-                                onClick={() => handleDeleteCourse(index)}
-                                className="text-red-600 hover:text-red-900 text-sm"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                  ))}
-                  </tbody>
-                </table>
-              </div>
 
-          {/* Course Details Section - Updated to show filtered results info */}
+          {/* Course Details Section */}
           <div className="border-t border-gray-200 bg-gray-50 p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 text-sm">
               <div>
@@ -2026,54 +1875,10 @@ const CourseTableField: React.FC<{
           </div>
         </div>
       )}
-              <div className="border-t border-gray-200 bg-gray-50 p-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 text-sm">
-                  <div>
-                    <span className="font-medium text-gray-700">Description:</span>
-                    <span className="ml-1 text-gray-600">---</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Time:</span>
-                    <span className="ml-1 text-gray-600">---</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Duration:</span>
-                    <span className="ml-1 text-gray-600">---</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Location:</span>
-                    <span className="ml-1 text-gray-600">---</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Trainer:</span>
-                    <span className="ml-1 text-gray-600">---</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Fees:</span>
-                    <span className="ml-1 text-gray-600">---</span>
-                  </div>
-                </div>
-                <div className="text-center text-xs text-gray-500 mt-2">
-                  {filteredCourses.length > 0
-                      ? `1 - ${filteredCourses.length} of ${filteredCourses.length} | Page 1`
-                      : '0 - 0 of 0 | Page 1'
-                  }
-                </div>
-              </div>
-            </div>
-        )}
 
-      {/* Add/Edit Course Modal - No changes needed here */}
+      {/* Add/Edit Course Modal */}
       {showAddForm && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                {editingIndex !== null ? "Edit Course" : "Add New Course"}
-              </h3>
-            </div>
-        {showAddForm && (
-            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
               <div className="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
                 <div className="mb-4">
                   <h3 className="text-lg font-semibold text-gray-900">
