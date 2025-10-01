@@ -7,33 +7,10 @@ interface EnquiryModalProps {
   onClose: () => void;
 }
 
-const SUBMIT_ENQUIRY = `
-  mutation SubmitEnquiry(
-    $firstName: String!
-    $lastName: String!
-    $email: String!
-    $phoneNumber: String!
-    $additionalMessage: String!
-    $serviceEnquiryType: String!
-  ) {
-    submitEnquiry(
-      firstName: $firstName
-      lastName: $lastName
-      email: $email
-      phoneNumber: $phoneNumber
-      additionalMessage: $additionalMessage
-      serviceEnquiryType: $serviceEnquiryType
-    ) {
-      success
-      message
-    }
-  }
-`;
-
 const ENQUIRY_TYPES = [
-  'Funding Request', 'Mentorship', 'Business Consultation', 'Event Registration',
-  'Legal or Compliance', 'Product/Service Inquiry', 'Technical Support',
-  'General Inquiry', 'Feedback/Suggestions', 'Partnership/Collaboration'
+  'General Inquiry',
+  'Product Inquiry',
+  'Support'
 ];
 
 const EnquiryModal: React.FC<EnquiryModalProps> = ({ 'data-id': dataId, isOpen, onClose }) => {
@@ -82,31 +59,23 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ 'data-id': dataId, isOpen, 
     setSubmitError(null);
 
     try {
-      const response = await fetch('https://90va0q4bccgp.share.zrok.io/services-api', {
+      const response = await fetch('https://kfrealexpressserver.vercel.app/api/v1/enquiry/create-enquiry', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'skip_zrok_interstitial': '1'  // Added to match index.tsx configuration
+          'Authorization': 'Bearer enquiry1234'
         },
-        mode: 'cors',  // Explicitly enable CORS
-        credentials: 'same-origin',  // Include cookies if needed
         body: JSON.stringify({
-          query: SUBMIT_ENQUIRY,
-          variables: {
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
-            phoneNumber: formData.phone,
-            additionalMessage: formData.message,
-            serviceEnquiryType: formData.enquiryType,
-          },
+          FirstName: formData.firstName,
+          LastName: formData.lastName,
+          Email: formData.email,
+          Phone: formData.phone,
+          EnquiryType: formData.enquiryType,
+          Message: formData.message
         }),
       });
 
-      const data = await response.json();
-      console.log(data);
-
-      if (data?.data?.submitEnquiry?.success) {
+      if (response.ok) {
         setIsSubmitted(true);
         setTimeout(() => {
           setIsSubmitted(false);
@@ -114,10 +83,12 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ 'data-id': dataId, isOpen, 
           setFormData({ firstName: '', lastName: '', email: '', phone: '', enquiryType: '', message: '' });
         }, 3000);
       } else {
-        throw new Error(data?.data?.submitEnquiry?.message || 'Submission failed');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Submission failed (${response.status})`);
       }
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : 'Network error. Please try again.');
+    } finally {
       setIsSubmitting(false);
     }
   };

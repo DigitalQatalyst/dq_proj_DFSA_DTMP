@@ -33,7 +33,7 @@ const testimonials: Testimonial[] = [
     rating: 5,
     videoThumbnail:
       'https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    videoUrl: 'https://samplelib.com/lib/preview/mp4/sample-5s.mp4',
+      videoUrl: '/videos/success-story-1.mp4',
     metric: 'AED 5M',
     metricLabel: 'Raised',
     metricColor: 'green',
@@ -73,7 +73,8 @@ const testimonials: Testimonial[] = [
     rating: 4,
     videoThumbnail:
       'https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    videoUrl: 'https://samplelib.com/lib/preview/mp4/sample-15s.mp4',
+    // videoUrl: 'https://samplelib.com/lib/preview/mp4/sample-15s.mp4',
+    videoUrl: '/videos/success-story-1.mp4',
     metric: '200%',
     metricLabel: 'Customer Growth',
     metricColor: 'green',
@@ -93,7 +94,8 @@ const testimonials: Testimonial[] = [
     rating: 4,
     videoThumbnail:
       'https://images.unsplash.com/photo-1497366811353-6870744d04b2?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    videoUrl: 'https://samplelib.com/lib/preview/mp4/sample-15s.mp4',
+    // videoUrl: 'https://samplelib.com/lib/preview/mp4/sample-15s.mp4',
+    videoUrl: '/videos/success-story-1.mp4',
     metric: 'AED 50M',
     metricLabel: 'Contract Value',
     metricColor: 'blue',
@@ -307,7 +309,7 @@ const TestimonialModal = ({
           <X size={20} />
         </button>
       </div>
-      <div className="p-6">
+      {/* <div className="p-6">
         <div className="flex items-center mb-4">
           <img src={testimonial.companyLogo} alt={testimonial.company} className="w-12 h-12 rounded-full object-cover mr-4" />
           <div>
@@ -345,7 +347,7 @@ const TestimonialModal = ({
             </button>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   </div>;
 };
