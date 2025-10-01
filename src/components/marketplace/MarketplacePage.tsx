@@ -105,10 +105,6 @@ interface GetProductsData {
   };
 }
 
-interface GetProductsVariables {
-  take: number;
-}
-
 export interface MarketplacePageProps {
   marketplaceType: "courses" | "financial" | "non-financial" | "knowledge-hub";
   title: string;
@@ -117,11 +113,8 @@ export interface MarketplacePageProps {
 }
 export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   marketplaceType,
-  title,
-  description,
   promoCards = [],
 }) => {
-  const navigate = useNavigate();
   const config = getMarketplaceConfig(marketplaceType);
   // State for items and filtering
   const [items, setItems] = useState<any[]>([]);
@@ -142,14 +135,20 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   // Apollo queries for products and facets
-  const {
-    data: productData,
-    error: productError,
-  } = useQuery<GetProductsData>(GET_PRODUCTS);
-  const {
-    data: facetData,
-    error: facetError,
-  } = useQuery<GetFacetsData>(GET_FACETS);
+  const { data: productData, error: productError } = useQuery<GetProductsData>(
+    GET_PRODUCTS,
+    {
+      fetchPolicy: "cache-first",
+    }
+  );
+
+  const { data: facetData, error: facetError } = useQuery<GetFacetsData>(
+    GET_FACETS,
+    {
+      fetchPolicy: "cache-first",
+    }
+  );
+
   // Load filter configurations based on marketplace type
   useEffect(() => {
     const loadFilterOptions = async () => {
