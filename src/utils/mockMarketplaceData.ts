@@ -14,7 +14,7 @@ export const mockKnowledgeHubItems = [
     provider: {
       name: 'Khalifa Fund',
       logoUrl:
-        'https://uploadthingy.s3.us-west-1.amazonaws.com/hFf47Y1ehebABQyP4p31yY/image.png',
+        'https://media.licdn.com/dms/image/v2/D4D0BAQEm7hh-vPHtNg/company-logo_200_200/B4DZj1W_mTIgAM-/0/1756463104605/khalifa_fund_logo?e=2147483647&v=beta&t=AtpC5HexpPIneFytzHCc6-wjOCF9u0ShL3s5GXPW8K8',
       description: 'Supporting entrepreneurs and SMEs in Abu Dhabi.',
     },
     tags: ['Strategy', 'Growth'],
@@ -37,7 +37,7 @@ export const mockKnowledgeHubItems = [
     popularity: 'Most Downloaded',
     provider: {
       name: 'Hub71',
-      logoUrl: 'https://hub71.com/wp-content/uploads/2023/05/hub71-logo-1.png',
+      logoUrl: 'https://images.squarespace-cdn.com/content/v1/5fff0c99a2d4904d72abb20d/1625579236225-0MJMS8XUPQT0T6GMLWJ4/Hub71-Logo-Membership.png?format=500w',
       description: "Abu Dhabi's global tech ecosystem for startups.",
     },
     tags: ['Technology', 'Digital'],
@@ -61,7 +61,7 @@ export const mockKnowledgeHubItems = [
     provider: {
       name: 'ADGM Academy',
       logoUrl:
-        'https://images.squarespace-cdn.com/content/v1/5cc0e1e9a0cd27177a2dd7ec/1556171141973-2BKLJ7QWZM0RN9Y1DKBY/ADGM+Academy.png',
+        'https://pbs.twimg.com/profile_images/1923014879880867840/7gwy4szr_400x400.jpg',
       description: 'The knowledge arm of Abu Dhabi Global Market.',
     },
     tags: ['Finance', 'Funding'],
@@ -84,7 +84,7 @@ export const mockKnowledgeHubItems = [
     provider: {
       name: 'NYU Abu Dhabi',
       logoUrl:
-        'https://nyuad.nyu.edu/content/dam/nyuad/departments/public-affairs/logos/NYUAD-logo-color.png',
+        'https://www.adghw.com/media/q0hfwpol/nyu_.png',
       description:
         'A degree-granting research university with a liberal arts and science college.',
     },
@@ -97,7 +97,7 @@ export const mockKnowledgeHubItems = [
   },
   {
     id: '5',
-    title: 'Abu Dhabi Business Forum 2023',
+    title: 'Abu Dhabi Business Forum 2025',
     description:
       'Join the largest business networking event in Abu Dhabi with industry leaders and government officials.',
     mediaType: 'Event',
@@ -109,14 +109,14 @@ export const mockKnowledgeHubItems = [
     provider: {
       name: 'Abu Dhabi Chamber of Commerce',
       logoUrl:
-        'https://upload.wikimedia.org/wikipedia/en/0/08/Abu_Dhabi_Chamber_Logo.png',
+        'https://www.abudhabichamber.ae/-/media/Project/ADCCIV2/ADCCI/Home-Page---General/logo-en.svg',
       description:
         'Supporting business growth and economic development in Abu Dhabi.',
     },
     tags: ['Event', 'Networking'],
     imageUrl:
       'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
-    date: 'June 15-16, 2023',
+    date: 'December 15-16, 2025',
     location: 'Abu Dhabi National Exhibition Centre',
   },
   {
@@ -133,7 +133,7 @@ export const mockKnowledgeHubItems = [
     provider: {
       name: 'Google for Startups',
       logoUrl:
-        'https://storage.googleapis.com/cms-storage-bucket/6e19fee6b47b36ca613f.png',
+        'https://upload.wikimedia.org/wikipedia/commons/8/8f/Logo_for_Google_for_Startups_page.png?20190214000754',
       description:
         "Google's program to help startups thrive across every corner of the world.",
     },
@@ -157,7 +157,7 @@ export const mockKnowledgeHubItems = [
     provider: {
       name: 'ADGM Academy',
       logoUrl:
-        'https://images.squarespace-cdn.com/content/v1/5cc0e1e9a0cd27177a2dd7ec/1556171141973-2BKLJ7QWZM0RN9Y1DKBY/ADGM+Academy.png',
+        'https://pbs.twimg.com/profile_images/1923014879880867840/7gwy4szr_400x400.jpg',
       description: 'The knowledge arm of Abu Dhabi Global Market.',
     },
     tags: ['Legal', 'Compliance'],
@@ -181,7 +181,7 @@ export const mockKnowledgeHubItems = [
     provider: {
       name: 'Khalifa Fund',
       logoUrl:
-        'https://uploadthingy.s3.us-west-1.amazonaws.com/hFf47Y1ehebABQyP4p31yY/image.png',
+        'https://media.licdn.com/dms/image/v2/D4D0BAQEm7hh-vPHtNg/company-logo_200_200/B4DZj1W_mTIgAM-/0/1756463104605/khalifa_fund_logo?e=2147483647&v=beta&t=AtpC5HexpPIneFytzHCc6-wjOCF9u0ShL3s5GXPW8K8',
       description: 'Supporting entrepreneurs and SMEs in Abu Dhabi.',
     },
     tags: ['Operations', 'Productivity'],
@@ -204,13 +204,13 @@ export const mockKnowledgeHubItems = [
     popularity: "Editor's Pick",
     provider: {
       name: 'Hub71',
-      logoUrl: 'https://hub71.com/wp-content/uploads/2023/05/hub71-logo-1.png',
+      logoUrl: 'https://images.squarespace-cdn.com/content/v1/5fff0c99a2d4904d72abb20d/1625579236225-0MJMS8XUPQT0T6GMLWJ4/Hub71-Logo-Membership.png?format=500w',
       description: "Abu Dhabi's global tech ecosystem for startups.",
     },
     tags: ['Innovation', 'Workshop'],
     imageUrl:
       'https://images.unsplash.com/photo-1540317580384-e5d43867caa6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
-    date: 'June 5-7, 2023',
+    date: 'November 5-7, 2025',
     location: 'Hub71, Abu Dhabi',
   },
   {
@@ -226,7 +226,7 @@ export const mockKnowledgeHubItems = [
     provider: {
       name: 'Khalifa Fund',
       logoUrl:
-        'https://uploadthingy.s3.us-west-1.amazonaws.com/hFf47Y1ehebABQyP4p31yY/image.png',
+        'https://media.licdn.com/dms/image/v2/D4D0BAQEm7hh-vPHtNg/company-logo_200_200/B4DZj1W_mTIgAM-/0/1756463104605/khalifa_fund_logo?e=2147483647&v=beta&t=AtpC5HexpPIneFytzHCc6-wjOCF9u0ShL3s5GXPW8K8',
       description: 'Supporting entrepreneurs and SMEs in Abu Dhabi.',
     },
     tags: ['Business Plan', 'Templates'],
@@ -249,7 +249,7 @@ export const mockKnowledgeHubItems = [
     popularity: 'Latest',
     provider: {
       name: 'Abu Dhabi Export Office',
-      logoUrl: 'https://www.adexporters.ae/sites/default/files/adex-logo.png',
+      logoUrl: 'https://s3-us-west-2.amazonaws.com/cbi-image-service-prd/modified/547f46e0-7e04-4593-bf55-94a77011b377.png?w=256',
       description:
         'Supporting Abu Dhabi-based companies to export their products globally.',
     },
@@ -280,6 +280,30 @@ export const mockKnowledgeHubItems = [
     imageUrl:
       'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
     date: 'April 28, 2023',
+  },
+  {
+    id: '13',
+    title: 'Marketing Strategy for SMEs',
+    description:
+      'Learn effective marketing strategies tailored for small and medium enterprises in the UAE market.',
+    mediaType: 'Video',
+    filterType: 'Videos',
+    businessStage: 'Growth',
+    domain: 'Marketing & Sales',
+    format: 'Recorded Media',
+    popularity: 'Trending',
+    provider: {
+      name: 'Google for Startups',
+      logoUrl:
+        'https://upload.wikimedia.org/wikipedia/commons/8/8f/Logo_for_Google_for_Startups_page.png?20190214000754',
+      description:
+        "Google's program to help startups thrive across every corner of the world.",
+    },
+    tags: ['Marketing', 'Strategy'],
+    imageUrl:
+      'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    date: 'April 5, 2023',
+    duration: '45 minutes',
   },
 ]
 
