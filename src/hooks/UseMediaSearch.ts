@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getFallbackKnowledgeHubItems } from '../utils/fallbackData'
+import { fetchKnowledgeHubItems } from '../services/knowledgeHub'
 import { mapApiItemToCardProps } from '../utils/mediaMappers'
 export interface MediaSearchParams {
   q?: string
@@ -15,6 +16,11 @@ export interface MediaSearchResult {
   nextCursor: string | null
   loadMore: () => void
   refetch: () => void
+  dataSource: 'live' | 'mock'
+  // Pagination controls
+  currentPage: number
+  setPage: (page: number) => void
+  totalPages: number | null
 }
 /**
  * Hook for searching and paginating through media items
@@ -31,6 +37,8 @@ export function useMediaSearch({
   const [hasMore, setHasMore] = useState<boolean>(true)
   const [nextCursor, setNextCursor] = useState<string | null>(cursor)
   const [currentPage, setCurrentPage] = useState<number>(1)
+  const [dataSource, setDataSource] = useState<'live' | 'mock'>('mock')
+  const [totalPages, setTotalPages] = useState<number | null>(null)
   // Simulated API call with pagination, search, and filtering
   const fetchItems = useCallback(
     async (reset: boolean = false) => {
@@ -38,15 +46,30 @@ export function useMediaSearch({
         // Start loading
         setIsLoading(true)
         setError(null)
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 500))
-        // Get all items from fallback data
-        const allItems = getFallbackKnowledgeHubItems()
+        // Try server first
+        try {
+          const page = reset ? 1 : currentPage
+          const serverItems = await fetchKnowledgeHubItems({ search: q, pageSize, page })
+          if (Array.isArray(serverItems) && serverItems.length > 0) {
+            // LIVE: trust server pagination and ordering
+            setDataSource('live')
+            setItems(serverItems.map(mapApiItemToCardProps))
+            setHasMore(serverItems.length === pageSize)
+            setNextCursor(serverItems.length === pageSize ? `page_${page + 1}` : null)
+            setTotalPages(null) // unknown without a count endpoint
+            setIsLoading(false)
+            return
+          }
+        } catch (e) {
+          // ignore and fallback
+        }
+        // MOCK: fallback to local dataset with client-side paging + sorting
+        setDataSource('mock')
+        let allItems: any[] = getFallbackKnowledgeHubItems()
         // Apply search filter if query exists
-        let filteredItems = allItems
         if (q) {
           const searchQuery = q.toLowerCase()
-          filteredItems = filteredItems.filter(
+          allItems = allItems.filter(
             (item) =>
               item.title.toLowerCase().includes(searchQuery) ||
               item.description.toLowerCase().includes(searchQuery) ||
@@ -60,31 +83,25 @@ export function useMediaSearch({
         }
         // Apply tag/type filters
         if (filters && filters.length > 0) {
-          filteredItems = filteredItems.filter((item) => {
+          allItems = allItems.filter((item) => {
             const itemTags = [...(item.tags || []), item.mediaType]
             return filters.some((filter) => itemTags.includes(filter))
           })
         }
-        // Calculate pagination
-        const totalItems = filteredItems.length
-        const startIndex = reset ? 0 : (currentPage - 1) * pageSize
-        const endIndex = reset ? pageSize : currentPage * pageSize
-        const paginatedItems = filteredItems.slice(startIndex, endIndex)
-        // Check if there are more items
-        const moreItems = endIndex < totalItems
-        // Generate a cursor (in a real API, this would come from the backend)
-        const cursor = moreItems ? `page_${currentPage + 1}` : null
-        // Update state
-        if (reset) {
-          setItems(paginatedItems.map(mapApiItemToCardProps))
-        } else {
-          setItems((prev) => [
-            ...prev,
-            ...paginatedItems.map(mapApiItemToCardProps),
-          ])
-        }
-        setHasMore(moreItems)
-        setNextCursor(cursor)
+        // Sort newest first using available date fields
+        const toDate = (it: any) => new Date(it.date || it.publishedAt || it.lastUpdated || 0).getTime()
+        allItems.sort((a, b) => (toDate(b) - toDate(a)))
+        // Calculate pagination for mock data
+        const totalItems = allItems.length
+        const total = Math.max(1, Math.ceil(totalItems / pageSize))
+        const page = reset ? 1 : currentPage
+        const startIndex = (page - 1) * pageSize
+        const endIndex = page * pageSize
+        const paginatedItems = allItems.slice(startIndex, endIndex)
+        setItems(paginatedItems.map(mapApiItemToCardProps))
+        setHasMore(page < total)
+        setNextCursor(page < total ? `page_${page + 1}` : null)
+        setTotalPages(total)
         setIsLoading(false)
       } catch (err) {
         setError(
@@ -97,23 +114,20 @@ export function useMediaSearch({
     },
     [q, filters, pageSize, currentPage],
   )
-  // Initial fetch
+  // Reset to page 1 when inputs change; fetching handled by currentPage effect
   useEffect(() => {
     setCurrentPage(1)
-    fetchItems(true)
   }, [q, filters, pageSize])
-  // Load more function
+  // Load more function (kept for compatibility; advances to next page)
   const loadMore = useCallback(() => {
     if (!isLoading && hasMore) {
       setCurrentPage((prev) => prev + 1)
     }
   }, [isLoading, hasMore])
-  // Load more when page changes
+  // Fetch whenever current page changes (forward or backward)
   useEffect(() => {
-    if (currentPage > 1) {
-      fetchItems(false)
-    }
-  }, [currentPage])
+    fetchItems(currentPage === 1)
+  }, [currentPage, fetchItems])
   // Refetch function
   const refetch = useCallback(() => {
     setCurrentPage(1)
@@ -127,5 +141,9 @@ export function useMediaSearch({
     nextCursor,
     loadMore,
     refetch,
+    dataSource,
+    currentPage,
+    setPage: setCurrentPage,
+    totalPages,
   }
 }

@@ -12,6 +12,7 @@ import NotFound from "./pages/NotFound";
 import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
 import KfBot from "./bot/KfBot";
+import MediaDetailPage from "./pages/media/MediaDetailPage";
 
 export function AppRouter() {
   const [bookmarkedCourses, setBookmarkedCourses] = useState<string[]>([]);
@@ -62,6 +63,7 @@ export function AppRouter() {
               }
             />
             <Route path="/marketplace/*" element={<MarketplaceRouter />} />
+            <Route path="/media/:type/:id" element={<MediaDetailPage />} />
             <Route
               path="/dashboard/*"
               element={
