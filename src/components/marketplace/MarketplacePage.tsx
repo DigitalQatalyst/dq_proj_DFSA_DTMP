@@ -171,14 +171,23 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   }, [productData, productLoading, productError]);
 
   // Load filter configurations based on marketplace type
+ // ...existing code...
   useEffect(() => {
     const loadFilterOptions = async () => {
       try {
         if (facetData) {
+          // Choose facet codes based on marketplace type
+          let facetCodes: string[] = [];
+          if (marketplaceType === 'financial') {
+            facetCodes = ['service-category', 'business-stage', 'provided-by', 'pricing-model'];
+          } else if (marketplaceType === 'non-financial') {
+            facetCodes = ['sector-tag-2', 'business-stage', 'provided-by', 'pricing-model'];
+          } else {
+            facetCodes = ['service-category', 'business-stage', 'provided-by', 'pricing-model'];
+          }
+
           const filterOptions: FilterConfig[] = facetData.facets.items
-            .filter((facet) =>
-              ['service-category', 'business-stage', 'provided-by', 'pricing-model'].includes(facet.code)
-            )
+            .filter((facet) => facetCodes.includes(facet.code))
             .map((facet) => ({
               id: facet.code,
               title: facet.name,
@@ -204,7 +213,8 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     };
 
     loadFilterOptions();
-  }, [facetData]);
+  }, [facetData, marketplaceType]);
+// ...existing code...
 
   // Fetch items based on marketplace type, filters, and search query
   useEffect(() => {

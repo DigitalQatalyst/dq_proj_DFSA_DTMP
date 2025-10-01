@@ -3,7 +3,7 @@ import { gql } from '@apollo/client';
 // GraphQL Query for Products
 const GET_PRODUCTS = gql`
   query getProducts {
-    products {
+    products(options:{sort:{id:DESC}}) {
       items {
         id
         assets {
@@ -54,7 +54,7 @@ const GET_PRODUCTS = gql`
 // GraphQL Query for Facets
 const GET_FACETS = gql`
   query GetFacets {
-    facets(options: { take: 100 }) {
+    facets {
       items {
         id
         name
