@@ -75,6 +75,7 @@ interface ProductCustomFields {
   RequiredDocuments?: RequiredDocument[];
   EmpowermentandLeadership?: string;
   RelatedServices?: RelatedService[];
+  formUrl?: string;
 }
 
 interface ProductFacetValue {
@@ -238,6 +239,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               logoUrl: product.customFields?.Logo?.source || "/mzn_logo.png",
               description: "No provider description available",
             },
+            formUrl: product.customFields?.formUrl || "/forms/request-for-membership", // <-- Add this line
             ...product.customFields,
           }));
 
