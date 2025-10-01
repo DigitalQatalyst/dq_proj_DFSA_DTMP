@@ -123,11 +123,11 @@ const ENABLE_GRAPH_USER_READ = (env.VITE_MSAL_ENABLE_GRAPH_FALLBACK || env.NEXT_
 const GRAPH_SCOPES: string[] = ENABLE_GRAPH_USER_READ ? ["User.Read"] : [];
 
 export const defaultLoginRequest = {
-  scopes: Array.from(new Set([...(API_SCOPES.length ? API_SCOPES : []), ...DEFAULT_OIDC_SCOPES, ...GRAPH_SCOPES])),
+  scopes: Array.from(new Set([...DEFAULT_OIDC_SCOPES, ...GRAPH_SCOPES])),
   authority: AUTHORITY_SIGNUP_SIGNIN,
 };
 
 export const signupRequest = {
-  scopes: Array.from(new Set([...(API_SCOPES.length ? API_SCOPES : []), ...DEFAULT_OIDC_SCOPES, ...GRAPH_SCOPES])),
+  scopes: Array.from(new Set([...DEFAULT_OIDC_SCOPES, ...GRAPH_SCOPES])),
   authority: AUTHORITY_SIGNUP,
 };
