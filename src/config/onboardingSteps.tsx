@@ -27,7 +27,7 @@ export const onboardingSteps = [
           {
             id: "registrationNumber",
             label: "Registration Number",
-            fieldName: "registrationNumber",
+            fieldName: "RegistrationNumber",
             required: true,
             minLength: 3,
             pattern: "^[a-zA-Z0-9-]+$",
@@ -38,28 +38,23 @@ export const onboardingSteps = [
           {
             id: "establishmentDate",
             label: "Establishment Date",
-            fieldName: "establishmentDate",
+            fieldName: "EstablishmentDate",
             required: true,
-            type: "text",
-            placeholder: "DD/MM/YYYY",
-            formatHint: "DD/MM/YYYY",
-            pattern: "^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\\d{4}$",
-            patternErrorMessage:
-              "Please enter a valid date in DD/MM/YYYY format",
+            type: "date",
             helpText: "The date your company was officially established",
           },
           {
             id: "businessSize",
             label: "Business Size",
-            fieldName: "businessSize",
+            fieldName: "BusinessSize",
             required: true,
             type: "select",
             options: [
               { value: "", label: "Select business size" },
-              { value: "micro", label: "Micro (1-9 employees)" },
-              { value: "small", label: "Small (10-49 employees)" },
-              { value: "medium", label: "Medium (50-249 employees)" },
-              { value: "large", label: "Large (250+ employees)" },
+              { value: "Micro", label: "Micro (1-9 employees)" },
+              { value: "Small", label: "Small (10-49 employees)" },
+              { value: "Medium", label: "Medium (50-249 employees)" },
+              { value: "Large", label: "Large (250+ employees)" },
             ],
             tooltip:
               "Business size determines eligibility for certain programs and support services",
@@ -81,7 +76,7 @@ export const onboardingSteps = [
           {
             id: "businessPitch",
             label: "Business Pitch",
-            fieldName: "businessPitch",
+            fieldName: "BusinessPitch",
             required: true,
             type: "textarea",
             placeholder: "Briefly describe what your business does",
@@ -92,7 +87,7 @@ export const onboardingSteps = [
           {
             id: "problemStatement",
             label: "Problem Statement",
-            fieldName: "problemStatement",
+            fieldName: "ProblemStatement",
             required: true,
             type: "textarea",
             placeholder: "What problem does your business solve?",
@@ -118,7 +113,7 @@ export const onboardingSteps = [
           {
             id: "address",
             label: "Address",
-            fieldName: "address",
+            fieldName: "Address",
             required: true,
             minLength: 5,
             helpText: "Your business street address",
@@ -126,7 +121,7 @@ export const onboardingSteps = [
           {
             id: "city",
             label: "City",
-            fieldName: "city",
+            fieldName: "City",
             required: true,
             pattern: "^[a-zA-Z\\s-]+$",
             patternErrorMessage:
@@ -136,7 +131,7 @@ export const onboardingSteps = [
           {
             id: "country",
             label: "Country",
-            fieldName: "country",
+            fieldName: "Country",
             required: true,
             type: "select",
             options: [
@@ -160,7 +155,7 @@ export const onboardingSteps = [
           {
             id: "website",
             label: "Website",
-            fieldName: "website",
+            fieldName: "Website",
             required: false,
             pattern:
               "^(https?:\\/\\/)?([\\da-z.-]+)\\.([a-z.]{2,6})([\\/\\w .-]*)*\\/?$",
@@ -185,7 +180,7 @@ export const onboardingSteps = [
           {
             id: "employeeCount",
             label: "Employee Count",
-            fieldName: "employeeCount",
+            fieldName: "EmployeeCount",
             required: true,
             type: "number",
             min: 1,
@@ -194,7 +189,7 @@ export const onboardingSteps = [
           {
             id: "founders",
             label: "Founders",
-            fieldName: "founders",
+            fieldName: "Founders",
             required: true,
             placeholder: "Names of founders, separated by commas",
             minLength: 3,
@@ -203,12 +198,10 @@ export const onboardingSteps = [
           {
             id: "foundingYear",
             label: "Founding Year",
-            fieldName: "foundingYear",
+            fieldName: "FoundingYear",
             required: true,
-            type: "number",
-            min: 1900,
-            max: new Date().getFullYear(),
-            helpText: "Year when your company was founded",
+            type: "date",
+            helpText: "Date when your company was founded",
           },
         ],
       },
@@ -227,7 +220,7 @@ export const onboardingSteps = [
           {
             id: "initialCapital",
             label: "Initial Capital (USD)",
-            fieldName: "initialCapital",
+            fieldName: "InitialCapitalUSD",
             required: true,
             type: "number",
             min: 0,
@@ -236,7 +229,7 @@ export const onboardingSteps = [
           {
             id: "fundingNeeds",
             label: "Funding Needs (USD)",
-            fieldName: "fundingNeeds",
+            fieldName: "FundingNeedsUSD",
             required: false,
             type: "number",
             min: 0,
@@ -250,15 +243,26 @@ export const onboardingSteps = [
         description: "What your business needs to grow",
         fields: [
           {
-            id: "needsList",
-            label: "Business Needs",
-            fieldName: "needsList",
+            id: "businessRequirements",
+            label: "Business Requirements",
+            fieldName: "BusinessRequirements",
             required: true,
             type: "textarea",
             placeholder:
-              "List your top business needs (e.g., marketing, technology, mentorship)",
+              "List your top business requirements (e.g., marketing, technology, mentorship)",
             minLength: 10,
-            helpText: "Describe what your business needs to succeed and grow",
+            helpText: "Describe what your business requires to succeed and grow",
+          },
+          {
+            id: "businessNeeds",
+            label: "Business Needs",
+            fieldName: "BusinessNeeds",
+            required: true,
+            type: "textarea",
+            placeholder:
+              "Describe your business needs for growth and scale",
+            minLength: 10,
+            helpText: "What does your business need to achieve its goals",
           },
         ],
       },

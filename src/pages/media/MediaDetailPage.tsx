@@ -24,6 +24,7 @@ import { Header } from '../../components/Header'
 import { Footer } from '../../components/Footer'
 import { MediaCard } from '../../components/Cards/MediaCard'
 import { getFallbackKnowledgeHubItems } from '../../utils/fallbackData'
+import { fetchKnowledgeHubItemById } from '../../services/knowledgeHub'
 import {
   getVideoDuration,
   VideoDurationInfo,
@@ -99,23 +100,35 @@ const MediaDetailPage: React.FC = () => {
       setLoading(true)
       setError(null)
       try {
-        // In a real app, this would be an API call
-        // For now, we'll use the fallback data
-        const allItems = getFallbackKnowledgeHubItems()
-        const foundItem = allItems.find((item) => item.id === id)
-        if (foundItem) {
-          setItem(foundItem)
-          // Get related items (same type, different ID)
-          const related = allItems
-            .filter(
-              (item) =>
-                item.id !== id &&
-                item.mediaType.toLowerCase().replace(/\s+/g, '-') === type,
-            )
-            .slice(0, 3) // Only take the first 3
-          setRelatedItems(related)
+        // Try server first
+        let serverItem: any | null = null
+        try {
+          if (id) {
+            serverItem = await fetchKnowledgeHubItemById(id)
+          }
+        } catch (e) {
+          // ignore and fallback
+        }
+        if (serverItem) {
+          setItem(serverItem)
+          setRelatedItems([]) // optional: can fetch related later
         } else {
-          setError('Media not found')
+          // Fallback to local mock data
+          const allItems = getFallbackKnowledgeHubItems()
+          const foundItem = allItems.find((x) => x.id === id)
+          if (foundItem) {
+            setItem(foundItem)
+            const related = allItems
+              .filter(
+                (x) =>
+                  x.id !== id &&
+                  x.mediaType.toLowerCase().replace(/\s+/g, '-') === type,
+              )
+              .slice(0, 3)
+            setRelatedItems(related)
+          } else {
+            setError('Media not found')
+          }
         }
       } catch (err) {
         console.error('Error fetching media details:', err)
@@ -515,54 +528,27 @@ const MediaDetailPage: React.FC = () => {
     switch (type.toLowerCase()) {
       case 'news':
       case 'blog':
+        // Prefer server-provided content/body; fallback to description
+        const hasHtml = typeof item.content === 'string' && /<\w+[^>]*>/.test(item.content)
         return (
           <div className="prose max-w-none">
-            <p className="text-lg text-gray-700 mb-6 leading-relaxed">
-              {item.description}
-            </p>
-            <p className="text-gray-700 mb-6 leading-relaxed">
-              Abu Dhabi's business landscape continues to evolve, offering
-              unprecedented opportunities for enterprises at every stage of
-              development. The recent initiatives announced by the government
-              are set to transform how businesses operate within the emirate.
-            </p>
             {item.imageUrl && (
               <div className="my-8">
-                <img
-                  src={item.imageUrl}
-                  alt={item.title}
-                  className="w-full rounded-lg shadow-md"
-                />
+                <img src={item.imageUrl} alt={item.title} className="w-full rounded-lg shadow-md" />
                 <p className="text-sm text-gray-500 mt-2 italic">
-                  Image: {item.title} - Courtesy of {item.provider.name}
+                  Image: {item.title} - Courtesy of {item.provider?.name}
                 </p>
               </div>
             )}
-            <h2 className="text-xl font-bold text-gray-900 mt-6 mb-4">
-              Key Developments
-            </h2>
-            <p className="text-gray-700 mb-6 leading-relaxed">
-              The new framework provides substantial benefits for businesses,
-              particularly in the areas of licensing, financing, and market
-              access. Companies can now leverage these advantages to accelerate
-              their growth trajectories.
-            </p>
-            <p className="text-gray-700 mb-6 leading-relaxed">
-              Industry experts predict that these changes will particularly
-              benefit SMEs and startups, creating a more dynamic ecosystem for
-              innovation and entrepreneurship.
-            </p>
-            <blockquote className="border-l-4 border-blue-500 pl-4 italic text-gray-700 my-6">
-              "These initiatives represent a significant step forward in Abu
-              Dhabi's economic diversification strategy. Businesses that take
-              advantage of these opportunities will be well-positioned for
-              success in the coming years." - Economic Analyst
-            </blockquote>
-            <p className="text-gray-700 leading-relaxed">
-              For more information on how these developments might affect your
-              business, contact the Abu Dhabi Department of Economic Development
-              or visit their official website.
-            </p>
+            {item.content ? (
+              hasHtml ? (
+                <div dangerouslySetInnerHTML={{ __html: item.content }} />
+              ) : (
+                <p className="text-lg text-gray-700 mb-6 leading-relaxed">{item.content}</p>
+              )
+            ) : (
+              <p className="text-lg text-gray-700 mb-6 leading-relaxed">{item.description}</p>
+            )}
           </div>
         )
       case 'video':

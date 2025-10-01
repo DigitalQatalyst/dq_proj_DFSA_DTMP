@@ -12,15 +12,15 @@ export function WelcomeStep({
     onToggleEdit
 }) {
     const companyStageInfo = profileConfig.companyStages.find(
-        stage => stage.id === formData.companyStage
+        stage => stage.label === formData.CompanyStage
     ) || profileConfig.companyStages[0];
 
     const welcomeFields = [
-        { id: 'tradeName', label: 'Company Name', fieldName: 'tradeName', required: true, minLength: 2 },
-        { id: 'industry', label: 'Industry', fieldName: 'industry', required: true },
-        { id: 'contactName', label: 'Contact Name', fieldName: 'contactName', required: true, minLength: 3, pattern: '^[a-zA-Z\\s.-]+$' },
-        { id: 'email', label: 'Email', fieldName: 'email', required: true, type: 'email' },
-        { id: 'phone', label: 'Phone', fieldName: 'phone', required: true, type: 'tel' },
+        { id: 'companyName', label: 'Company Name', fieldName: 'CompanyName', required: true, minLength: 2 },
+        { id: 'industry', label: 'Industry', fieldName: 'Industry', required: true },
+        { id: 'contactName', label: 'Contact Name', fieldName: 'ContactName', required: true, minLength: 3, pattern: '^[a-zA-Z\\s.-]+$' },
+        { id: 'email', label: 'Email', fieldName: 'Email', required: true, type: 'email' },
+        { id: 'phone', label: 'Phone', fieldName: 'Phone', required: true, type: 'tel' },
     ];
 
     return (
@@ -91,12 +91,12 @@ export function WelcomeStep({
                                 Company Stage
                             </label>
                             <select
-                                value={formData.companyStage || 'startup'}
-                                onChange={e => onInputChange('companyStage', e.target.value)}
+                                value={formData.CompanyStage || 'Startup'}
+                                onChange={e => onInputChange('CompanyStage', e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                             >
                                 {profileConfig.companyStages.map(stage => (
-                                    <option key={stage.id} value={stage.id}>
+                                    <option key={stage.id} value={stage.label}>
                                         {stage.label}
                                     </option>
                                 ))}
@@ -106,12 +106,12 @@ export function WelcomeStep({
                 ) : (
                     <div className="space-y-4">
                         {[
-                            { key: 'tradeName', label: 'Company Name' },
-                            { key: 'industry', label: 'Industry' },
-                            { key: 'companyStage', label: 'Company Stage', special: 'stage' },
-                            { key: 'contactName', label: 'Contact Name' },
-                            { key: 'email', label: 'Email' },
-                            { key: 'phone', label: 'Phone' },
+                            { key: 'CompanyName', label: 'Company Name' },
+                            { key: 'Industry', label: 'Industry' },
+                            { key: 'CompanyStage', label: 'Company Stage', special: 'stage' },
+                            { key: 'ContactName', label: 'Contact Name' },
+                            { key: 'Email', label: 'Email' },
+                            { key: 'Phone', label: 'Phone' },
                         ].map(item => (
                             <div key={item.key} className="flex justify-between">
                                 <span className="text-sm font-medium text-gray-500">{item.label}:</span>

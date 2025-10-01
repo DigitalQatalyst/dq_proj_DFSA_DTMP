@@ -1,7 +1,7 @@
 // Remove dependency on graphql-request and implement a simple mock client
 // import { GraphQLClient } from 'graphql-request'
 import { mockCourses } from "../../utils/mockData";
-import { getMarketplaceConfig } from "../../utils/marketplaceConfiguration";
+import { getMarketplaceConfig } from "../../utils/marketplaceConfig";
 
 // Create a simple mock GraphQL client since we don't have access to graphql-request
 const mockGraphQLClient = {
