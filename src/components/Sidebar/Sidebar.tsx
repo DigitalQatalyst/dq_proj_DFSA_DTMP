@@ -269,7 +269,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
         <div className="relative" ref={dropdownRef}>
           <button
-            className="w-full flex items-center justify-between text-left p-3 rounded-md hover:bg-gray-100 transition-colors"
+            className=" w-full flex items-center justify-between text-left p-3 rounded-md hover:bg-gray-100 transition-colors"
             onClick={() => setCompanyDropdownOpen(!companyDropdownOpen)}
           >
             <div className="flex-1 min-w-0">
@@ -365,10 +365,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
           const isActive = activeSection === item.id;
 
           const baseClasses = `flex items-center px-4 py-3 relative transition-colors ${isActive
-              ? "bg-blue-700 text-white"
-              : isDisabled
-                ? "text-gray-400 cursor-not-allowed"
-                : "text-gray-700 hover:bg-gray-200 cursor-pointer"
+            ? "bg-blue-700 text-white"
+            : isDisabled
+              ? "text-gray-400 cursor-not-allowed"
+              : "text-gray-700 hover:bg-gray-200 cursor-pointer"
             }`;
 
           const content = (
@@ -416,8 +416,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
                 <div
                   className={`overflow-hidden transition-all duration-300 ease-in-out ${formsDropdownOpen
-                      ? "max-h-96 opacity-100"
-                      : "max-h-0 opacity-0"
+                    ? "max-h-96 opacity-100"
+                    : "max-h-0 opacity-0"
                     }`}
                 >
                   <div className="transform transition-transform duration-300 ease-in-out max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
