@@ -67,6 +67,14 @@ const MediaDetailPage: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const audioUrlRef = useRef<string | null>(null)
   const audioInitializedRef = useRef(false)
+  // Registration modal state
+  const [showRegistrationModal, setShowRegistrationModal] = useState(false)
+  const [registrationData, setRegistrationData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    hearAboutUs: '',
+  })
   // Video player state
   const [videoAvailable, setVideoAvailable] = useState(true)
   const [videoLoading, setVideoLoading] = useState(true)
@@ -2092,7 +2100,9 @@ const MediaDetailPage: React.FC = () => {
                         </div>
                         {/* Enhanced Registration Button */}
                         <div className="mb-6">
-                          <button className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 px-8 rounded-lg shadow-lg transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex items-center justify-center">
+                          <button
+                            onClick={() => setShowRegistrationModal(true)}
+                            className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 px-8 rounded-lg shadow-lg transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex items-center justify-center">
                             <span className="mr-2">Register Now</span>
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -2379,6 +2389,179 @@ const MediaDetailPage: React.FC = () => {
         </div>
       </main>
       <Footer isLoggedIn={false} />
+
+      {/* Registration Modal */}
+      {showRegistrationModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Event Registration
+                </h2>
+                <button
+                  onClick={() => setShowRegistrationModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  // Handle form submission
+                  console.log('Registration data:', registrationData)
+                  alert('Registration submitted successfully!')
+                  setShowRegistrationModal(false)
+                  // Reset form
+                  setRegistrationData({
+                    fullName: '',
+                    email: '',
+                    phone: '',
+                    hearAboutUs: '',
+                  })
+                }}
+              >
+                <div className="space-y-4">
+                  {/* Full Name */}
+                  <div>
+                    <label
+                      htmlFor="fullName"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="fullName"
+                      required
+                      value={registrationData.fullName}
+                      onChange={(e) =>
+                        setRegistrationData({
+                          ...registrationData,
+                          fullName: e.target.value,
+                        })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label
+                      htmlFor="email"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Email Address <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      required
+                      value={registrationData.email}
+                      onChange={(e) =>
+                        setRegistrationData({
+                          ...registrationData,
+                          email: e.target.value,
+                        })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="your.email@example.com"
+                    />
+                  </div>
+
+                  {/* Phone */}
+                  <div>
+                    <label
+                      htmlFor="phone"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Phone Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      required
+                      value={registrationData.phone}
+                      onChange={(e) =>
+                        setRegistrationData({
+                          ...registrationData,
+                          phone: e.target.value,
+                        })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="+971 50 123 4567"
+                    />
+                  </div>
+
+                  {/* How did you hear about us */}
+                  <div>
+                    <label
+                      htmlFor="hearAboutUs"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      How did you hear about us? <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      id="hearAboutUs"
+                      required
+                      value={registrationData.hearAboutUs}
+                      onChange={(e) =>
+                        setRegistrationData({
+                          ...registrationData,
+                          hearAboutUs: e.target.value,
+                        })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">Select an option</option>
+                      <option value="social-media">Social Media</option>
+                      <option value="website">Website</option>
+                      <option value="email">Email</option>
+                      <option value="friend-colleague">Friend/Colleague</option>
+                      <option value="search-engine">Search Engine</option>
+                      <option value="event">Another Event</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Form Actions */}
+                <div className="flex gap-3 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowRegistrationModal(false)}
+                    className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-lg transition-all"
+                  >
+                    Complete Registration
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
