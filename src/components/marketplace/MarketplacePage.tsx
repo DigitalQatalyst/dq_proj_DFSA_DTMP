@@ -151,17 +151,41 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     error: facetError,
   } = useQuery<GetFacetsData>(GET_FACETS);
   // Load filter configurations based on marketplace type
+ // ...existing code...
   useEffect(() => {
     const loadFilterOptions = async () => {
       try {
-        const filterOptions = await fetchMarketplaceFilters(marketplaceType);
-        setFilterConfig(filterOptions);
-        // Initialize empty filters based on the configuration
-        const initialFilters: Record<string, string> = {};
-        filterOptions.forEach((config) => {
-          initialFilters[config.id] = "";
-        });
-        setFilters(initialFilters);
+        if (facetData) {
+          // Choose facet codes based on marketplace type
+          let facetCodes: string[] = [];
+          if (marketplaceType === 'financial') {
+            facetCodes = ['service-category', 'business-stage', 'provided-by', 'pricing-model'];
+          } else if (marketplaceType === 'non-financial') {
+            facetCodes = ['sector-tag-2', 'business-stage', 'provided-by', 'pricing-model'];
+          } else {
+            facetCodes = ['service-category', 'business-stage', 'provided-by', 'pricing-model'];
+          }
+
+          const filterOptions: FilterConfig[] = facetData.facets.items
+            .filter((facet) => facetCodes.includes(facet.code))
+            .map((facet) => ({
+              id: facet.code,
+              title: facet.name,
+              options: facet.values.map((value) => ({
+                id: value.code,
+                name: value.name,
+              })),
+            }));
+          console.log('filterOptions:', filterOptions); // Log filterOptions for debugging
+          setFilterConfig(filterOptions);
+
+          // Initialize empty filters based on the configuration
+          const initialFilters: Record<string, string> = {};
+          filterOptions.forEach((config) => {
+            initialFilters[config.id] = '';
+          });
+          setFilters(initialFilters);
+        }
       } catch (err) {
         console.error("Error fetching filter options:", err);
         // Use fallback filter config from marketplace config
@@ -175,7 +199,9 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
       }
     };
     loadFilterOptions();
-  }, [marketplaceType, config]);
+  }, [facetData, marketplaceType]);
+// ...existing code...
+
   // Fetch items based on marketplace type, filters, and search query
   useEffect(() => {
     const loadItems = async () => {
