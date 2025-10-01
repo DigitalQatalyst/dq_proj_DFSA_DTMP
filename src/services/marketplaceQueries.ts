@@ -1,12 +1,14 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 // GraphQL Query for Products
 const GET_PRODUCTS = gql`
-  query GetProducts($take: Int!) {
-    products(options: { take: $take }) {
+  query getProducts {
+    products(options:{sort:{id:DESC}}) {
       items {
         id
-        createdAt
+        assets {
+          name
+        }
         name
         slug
         description
@@ -21,22 +23,36 @@ const GET_PRODUCTS = gql`
           code
         }
         customFields {
-          Industry
+          Logo {
+            name
+            source
+          }
+          CustomerType
           BusinessStage
+          Nationality
+          LegalStructure
+          Industry
           ProcessingTime
           RegistrationValidity
           Cost
           Steps
-          TermsOfService
-          RequiredDocuments
-          RelatedServices {
+          KeyTermsOfService
+          AdditionalTermsOfService
+          Logo {
+            name
+            source
+          }
+          RequiredDocuments {
             id
             name
-            slug
+            source
           }
+          RelatedServices {
+            id
+          }
+         formUrl
         }
       }
-      totalItems
     }
   }
 `;
@@ -44,7 +60,7 @@ const GET_PRODUCTS = gql`
 // GraphQL Query for Facets
 const GET_FACETS = gql`
   query GetFacets {
-    facets(options: { take: 100 }) {
+    facets {
       items {
         id
         name
@@ -59,4 +75,50 @@ const GET_FACETS = gql`
   }
 `;
 
-export { GET_PRODUCTS, GET_FACETS };
+// GraphQL Query for a single Product by ID
+const GET_PRODUCT = gql`
+  query GetProduct($id: ID!) {
+    product(id: $id) {
+      id
+
+      name
+      slug
+      description
+      customFields {
+        Logo {
+          name
+          source
+        }
+        CustomerType
+        BusinessStage
+        Nationality
+        LegalStructure
+        Industry
+        ProcessingTime
+        Cost
+        RequiredDocuments {
+          id
+          name
+          source
+          tags {
+            id
+          }
+        }
+        KeyHighlights
+        ServiceApplication
+        Eligibility
+        KeyTermsOfService
+        AdditionalTermsOfService
+        formUrl
+        RelatedServices {
+          id
+          name
+          description
+          slug
+        }
+      }
+    }
+  }
+`;
+
+export { GET_PRODUCTS, GET_FACETS, GET_PRODUCT };

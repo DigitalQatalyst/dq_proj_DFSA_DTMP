@@ -6,7 +6,8 @@ import { NotificationsMenu } from "./notifications/NotificationsMenu";
 import { NotificationCenter } from "./notifications/NotificationCenter";
 import { mockNotifications } from "./utils/mockNotifications";
 import { useAuth } from "./context/AuthContext";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import EnquiryModal from "../EnquiryModal";
 
 interface HeaderProps {
   toggleSidebar?: () => void;
@@ -22,7 +23,10 @@ export function Header({
   const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
   const [showNotificationCenter, setShowNotificationCenter] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
+  const [isEnquiryModalOpen, setIsEnquiryModalOpen] = useState(false);
   const { user, login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Count unread notifications
   const unreadCount = mockNotifications.filter((notif) => !notif.read).length;
@@ -63,6 +67,16 @@ export function Header({
     console.log("Sign up clicked");
   };
 
+  // Toggle enquiry modal
+  const toggleEnquiryModal = () => {
+    setIsEnquiryModalOpen(!isEnquiryModalOpen);
+  };
+
+  // Close enquiry modal
+  const closeEnquiryModal = () => {
+    setIsEnquiryModalOpen(false);
+  };
+
   // Reset notification states when user logs out
   useEffect(() => {
     if (!user) {
@@ -71,33 +85,60 @@ export function Header({
     }
   }, [user]);
 
+  // Smooth scroll to partner CTA
+  const scrollToPartner = () => {
+    if (location.pathname !== "/") {
+      navigate({ pathname: "/", hash: "#partner" });
+      return;
+    }
+    if (window.location.hash !== "#partner") {
+      window.location.hash = "#partner";
+    }
+    const el = document.getElementById("cta-partner") || document.getElementById("contact");
+    if (el && typeof el.scrollIntoView === "function") {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   return (
     <>
-      {/* Always present spacer to prevent layout shift */}
-      <div className="h-16"></div>
       <header
-        className={`flex items-center w-full h-16 fixed top-0 left-0 right-0 z-40 transition-shadow duration-300 ${
+        className={`flex items-center w-full transition-all duration-300 ${
           isSticky
-            ? "shadow-lg backdrop-blur-sm bg-gradient-to-r from-teal-500/95 via-blue-500/95 to-purple-600/95"
-            : "bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600"
+            ? "fixed top-0 left-0 right-0 z-40 shadow-lg backdrop-blur-sm bg-gradient-to-r from-teal-500/95 via-blue-500/95 to-purple-600/95"
+            : "relative bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600"
         }`}
         data-id={dataId}
       >
         {/* Logo Section */}
         <Link
           to="/"
-          className="bg-gradient-to-r from-teal-600 to-teal-500 text-white py-2 px-4 flex items-center h-16"
+          className={`bg-gradient-to-r from-teal-600 to-teal-500 text-white py-2 px-4 flex items-center transition-all duration-300 ${
+            isSticky ? "h-12" : "h-16"
+          }`}
         >
-          <img src="/mzn_logo.svg" alt="MZN Logo" className="h-10" />
+          <img
+            src="/mzn_logo.svg"
+            alt="MZN Logo"
+            className={`transition-all duration-300 ${
+              isSticky ? "h-8" : "h-10"
+            }`}
+          />
         </Link>
         {/* Main Navigation */}
-        <div className="flex-1 flex justify-between items-center bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600 text-white px-4 h-16">
+        <div
+          className={`flex-1 flex justify-between items-center bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600 text-white px-4 transition-all duration-300 ${
+            isSticky ? "h-12" : "h-16"
+          }`}
+        >
           {/* Left Navigation - Desktop and Tablet */}
           <div className="hidden md:flex items-center space-x-8">
-            <ExploreDropdown isCompact={false} />
+            <ExploreDropdown isCompact={isSticky} />
             <Link
               to={"/discover-abudhabi"}
-              className="hover:text-gray-200 transition-colors duration-200 cursor-pointer"
+              className={`hover:text-gray-200 transition-colors duration-200 cursor-pointer ${
+                isSticky ? "text-sm" : ""
+              }`}
             >
               Discover AbuDhabi
             </Link>
@@ -114,19 +155,25 @@ export function Header({
                 {/* Desktop CTAs (≥1024px) */}
                 <div className="hidden lg:flex items-center space-x-3">
                   <button
-                    className="px-4 py-2 text-white border border-white/30 rounded-md hover:bg-white/10 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20"
-                    onClick={() => console.log("Become a Partner clicked")}
+                    className={`px-4 py-2 text-white border border-white/30 rounded-md hover:bg-white/10 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 ${
+                      isSticky ? "text-sm px-3 py-1.5" : ""
+                    }`}
+                    onClick={scrollToPartner}
                   >
                     Become a Partner
                   </button>
                   <button
-                    className="px-4 py-2 bg-white text-teal-700 rounded-md hover:bg-gray-100 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 font-medium"
-                    onClick={() => console.log("Make an Enquiry clicked")}
+                    className={`px-4 py-2 bg-white text-teal-700 rounded-md hover:bg-gray-100 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 font-medium ${
+                      isSticky ? "text-sm px-3 py-1.5" : ""
+                    }`}
+                    onClick={toggleEnquiryModal}
                   >
                     Make an Enquiry
                   </button>
                   <button
-                    className="px-4 py-2 text-white border border-white/50 rounded-md hover:bg-white hover:text-teal-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20"
+                    className={`px-4 py-2 text-white border border-white/50 rounded-md hover:bg-white hover:text-teal-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 ${
+                      isSticky ? "text-sm px-3 py-1.5" : ""
+                    }`}
                     onClick={handleSignIn}
                   >
                     Sign In
@@ -135,8 +182,10 @@ export function Header({
                 {/* Tablet Enquiry Button (768px - 1023px) */}
                 <div className="hidden md:flex lg:hidden items-center">
                   <button
-                    className="px-3 py-2 bg-white text-teal-700 rounded-md hover:bg-gray-100 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 font-medium text-sm"
-                    onClick={() => console.log("Make an Enquiry clicked")}
+                    className={`px-3 py-2 bg-white text-teal-700 rounded-md hover:bg-gray-100 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 font-medium ${
+                      isSticky ? "text-sm px-2 py-1.5" : "text-sm"
+                    }`}
+                    onClick={toggleEnquiryModal}
                   >
                     Enquiry
                   </button>
@@ -145,14 +194,26 @@ export function Header({
             )}
             {/* Mobile and Tablet Drawer - Show for screens <1024px */}
             <MobileDrawer
-              isCompact={false}
+              isCompact={isSticky}
               onSignIn={handleSignIn}
               onSignUp={handleSignUp}
               isSignedIn={!!user}
+              onEnquiry={toggleEnquiryModal}
+              onPartner={scrollToPartner}
             />
           </div>
         </div>
       </header>
+      {/* Spacer for sticky header */}
+      {isSticky && <div className="h-12"></div>}
+      
+      {/* Enquiry Modal */}
+      <EnquiryModal 
+        isOpen={isEnquiryModalOpen} 
+        onClose={closeEnquiryModal} 
+        data-id="enquiry-modal"
+      />
+      
       {/* Notifications Menu */}
       {showNotificationsMenu && user && (
         <NotificationsMenu

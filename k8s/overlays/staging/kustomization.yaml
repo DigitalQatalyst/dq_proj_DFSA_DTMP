@@ -1,0 +1,6 @@
+namespace: staging
+
+resources:
+  - ../../base
+  - deployment.yaml
+  - staging-ingress.yaml
