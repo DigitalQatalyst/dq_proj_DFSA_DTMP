@@ -10,7 +10,6 @@ interface UserProfile {
   givenName?: string;
   familyName?: string;
   picture?: string;
-  companyName?: string;
 }
 
 interface AuthContextType {
@@ -55,6 +54,18 @@ export function AuthProvider({
         const account = payload?.account;
         if (account) {
           instance.setActiveAccount(account);
+          // Log Entra token claims on successful auth/token events
+          const claims = (payload as any)?.idTokenClaims || (account as any)?.idTokenClaims;
+          if (claims) {
+            try {
+              // Collapsed group to keep console tidy
+              console.groupCollapsed('[Auth] Entra ID token claims');
+              console.log(claims);
+              console.groupEnd();
+            } catch {
+              console.log('[Auth] Entra ID token claims:', claims);
+            }
+          }
         }
       }
     });
@@ -62,6 +73,21 @@ export function AuthProvider({
       if (callbackId) instance.removeEventCallback(callbackId);
     };
   }, [instance]);
+
+  // Also log claims when an active account is present (e.g., on reload)
+  useEffect(() => {
+    const account = instance.getActiveAccount() || accounts[0];
+    const claims = (account as any)?.idTokenClaims;
+    if (claims) {
+      try {
+        console.groupCollapsed('[Auth] Entra ID token claims (initial)');
+        console.log(claims);
+        console.groupEnd();
+      } catch {
+        console.log('[Auth] Entra ID token claims (initial):', claims);
+      }
+    }
+  }, [instance, accounts]);
 
   const user: UserProfile | null = useMemo(() => {
     const account = instance.getActiveAccount() || accounts[0];
@@ -75,43 +101,13 @@ export function AuthProvider({
       claims?.preferred_username ||
       account.username ||
       '';
-    // Attempt to resolve company name from claims (supports custom attributes)
-    const resolveCompanyName = () => {
-      const overrideKey = viteEnv?.VITE_COMPANY_NAME_CLAIM || viteEnv?.NEXT_PUBLIC_COMPANY_NAME_CLAIM;
-      const tryKeys: string[] = [];
-      if (overrideKey && typeof overrideKey === 'string') tryKeys.push(overrideKey);
-      tryKeys.push(
-        'companyName',
-        'company_name',
-        'organization',
-        'org',
-        'tenantName',
-        'extension_companyName',
-        'extension_CompanyName',
-        'extension_company',
-        'extension_Company'
-      );
-      for (const k of tryKeys) {
-        const v = (claims as Record<string, unknown>)?.[k];
-        if (typeof v === 'string' && v.trim()) return v as string;
-      }
-      // Heuristic: find any extension_* claim that includes 'company'
-      const keys = Object.keys((claims || {}) as Record<string, unknown>);
-      const match = keys.find(
-        (k) => k.toLowerCase().startsWith('extension') && k.toLowerCase().includes('company')
-      );
-      const v = match ? (claims as Record<string, unknown>)[match] : undefined;
-      return typeof v === 'string' && v.trim() ? (v as string) : undefined;
-    };
-    const companyName = resolveCompanyName();
     return {
       id: account.localAccountId,
       name,
       email: emailOverride || email,
       givenName: claims?.given_name,
       familyName: claims?.family_name,
-      picture: undefined,
-      companyName
+      picture: undefined
     };
   }, [accounts, instance, emailOverride]);
 
