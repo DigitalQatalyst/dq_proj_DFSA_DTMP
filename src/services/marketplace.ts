@@ -2,7 +2,7 @@ import { request } from "./graphql/client";
 import { MARKETPLACE_QUERIES } from "./graphql/queries";
 import { FilterConfig } from "../components/marketplace/FilterSidebar";
 import { MarketplaceItem } from "../components/marketplace/MarketplaceGrid";
-import { getMarketplaceConfig } from "../utils/marketplaceConfig";
+import { getMarketplaceConfig } from "../utils/marketplaceConfiguration";
 
 /**
  * Fetches marketplace items based on marketplace type, filters, and search query

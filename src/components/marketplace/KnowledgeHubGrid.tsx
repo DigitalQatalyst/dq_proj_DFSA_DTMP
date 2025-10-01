@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { KnowledgeHubCard } from './KnowledgeHubCard'
 import { useMediaSearch } from '../../hooks/UseMediaSearch'
 interface KnowledgeHubGridProps {
@@ -20,7 +20,7 @@ export const KnowledgeHubGrid: React.FC<KnowledgeHubGridProps> = ({
   onClearFilters,
 }) => {
   // Use our custom hook for fetching and filtering media items
-  const { items, isLoading, error, hasMore, dataSource, currentPage, setPage, totalPages } = useMediaSearch({
+  const { items, isLoading, error, hasMore, loadMore } = useMediaSearch({
     q: searchQuery,
     filters: activeFilters,
     pageSize: 9, // Show 9 items per page
@@ -37,42 +37,23 @@ export const KnowledgeHubGrid: React.FC<KnowledgeHubGridProps> = ({
       onFilterChange(filter)
     }
   }
-  // Pagination helpers
-  const goPrev = () => setPage(Math.max(1, currentPage - 1))
-  const goNext = () => setPage(hasMore || (totalPages && currentPage < totalPages) ? currentPage + 1 : currentPage)
-  const pageNumbers = (() => {
-    if (!totalPages || totalPages <= 1) return [currentPage]
-    const maxButtons = 7
-    const pages: (number | string)[] = []
-    if (totalPages <= maxButtons) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i)
-      return pages
+  // Handle scroll to load more
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop >=
+          document.documentElement.offsetHeight - 100 &&
+        hasMore &&
+        !isLoading
+      ) {
+        loadMore()
+      }
     }
-    pages.push(1)
-    const left = Math.max(2, currentPage - 1)
-    const right = Math.min(totalPages - 1, currentPage + 1)
-    if (left > 2) pages.push('…')
-    for (let i = left; i <= right; i++) pages.push(i)
-    if (right < totalPages - 1) pages.push('…')
-    pages.push(totalPages)
-    return pages
-  })()
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [hasMore, isLoading, loadMore])
   return (
     <div>
-      {/* Data source badge */}
-      <div className="flex justify-end mb-3">
-        <span
-          className={
-            `inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ` +
-            (dataSource === 'live'
-              ? 'bg-green-50 text-green-700 border-green-200'
-              : 'bg-gray-50 text-gray-600 border-gray-200')
-          }
-          title={dataSource === 'live' ? 'Loaded from server' : 'Loaded from local mock data'}
-        >
-          {dataSource === 'live' ? 'Live Data' : 'Mock Data'}
-        </span>
-      </div>
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
           <p className="text-red-700">Error loading content: {error.message}</p>
@@ -114,57 +95,14 @@ export const KnowledgeHubGrid: React.FC<KnowledgeHubGridProps> = ({
           <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
-      {/* Pagination Controls */}
-      {!isLoading && items.length > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between mt-8 gap-3">
-          <div className="text-sm text-gray-600">
-            {dataSource === 'mock' && totalPages
-              ? `Page ${currentPage} of ${totalPages}`
-              : `Page ${currentPage}`}
-          </div>
-          <div className="inline-flex items-center gap-1">
-            <button
-              onClick={goPrev}
-              disabled={currentPage === 1}
-              className={`px-3 py-1.5 rounded border text-sm ${
-                currentPage === 1
-                  ? 'text-gray-400 border-gray-200 cursor-not-allowed'
-                  : 'text-gray-700 border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              Prev
-            </button>
-            {pageNumbers.map((p, idx) =>
-              typeof p === 'number' ? (
-                <button
-                  key={`p-${p}-${idx}`}
-                  onClick={() => setPage(p)}
-                  className={`px-3 py-1.5 rounded border text-sm ${
-                    p === currentPage
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'text-gray-700 border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  {p}
-                </button>
-              ) : (
-                <span key={`dots-${idx}`} className="px-2 text-gray-400">
-                  {p}
-                </span>
-              )
-            )}
-            <button
-              onClick={goNext}
-              disabled={!(hasMore || (totalPages && currentPage < totalPages))}
-              className={`px-3 py-1.5 rounded border text-sm ${
-                !(hasMore || (totalPages && currentPage < totalPages))
-                  ? 'text-gray-400 border-gray-200 cursor-not-allowed'
-                  : 'text-gray-700 border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              Next
-            </button>
-          </div>
+      {hasMore && !isLoading && items.length > 0 && (
+        <div className="flex justify-center mt-8">
+          <button
+            onClick={loadMore}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            Load More
+          </button>
         </div>
       )}
     </div>

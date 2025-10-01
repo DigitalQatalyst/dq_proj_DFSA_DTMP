@@ -62,7 +62,6 @@ export interface KnowledgeHubItemProps {
   onQuickView?: () => void
 }
 // Utility function to get the details href for an item
-// Match the media routing used in magic_patterns_media_marketplace
 const getDetailsHref = (item: KnowledgeHubItemProps['item']): string => {
   return `/media/${item.mediaType.toLowerCase().replace(/\s+/g, '-')}/${item.id}`
 }

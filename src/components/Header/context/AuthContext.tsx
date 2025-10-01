@@ -54,18 +54,6 @@ export function AuthProvider({
         const account = payload?.account;
         if (account) {
           instance.setActiveAccount(account);
-          // Log Entra token claims on successful auth/token events
-          const claims = (payload as any)?.idTokenClaims || (account as any)?.idTokenClaims;
-          if (claims) {
-            try {
-              // Collapsed group to keep console tidy
-              console.groupCollapsed('[Auth] Entra ID token claims');
-              console.log(claims);
-              console.groupEnd();
-            } catch {
-              console.log('[Auth] Entra ID token claims:', claims);
-            }
-          }
         }
       }
     });
@@ -73,21 +61,6 @@ export function AuthProvider({
       if (callbackId) instance.removeEventCallback(callbackId);
     };
   }, [instance]);
-
-  // Also log claims when an active account is present (e.g., on reload)
-  useEffect(() => {
-    const account = instance.getActiveAccount() || accounts[0];
-    const claims = (account as any)?.idTokenClaims;
-    if (claims) {
-      try {
-        console.groupCollapsed('[Auth] Entra ID token claims (initial)');
-        console.log(claims);
-        console.groupEnd();
-      } catch {
-        console.log('[Auth] Entra ID token claims (initial):', claims);
-      }
-    }
-  }, [instance, accounts]);
 
   const user: UserProfile | null = useMemo(() => {
     const account = instance.getActiveAccount() || accounts[0];
