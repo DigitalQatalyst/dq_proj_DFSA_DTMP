@@ -9,6 +9,7 @@ import DashboardRouter from "./pages/dashboard/DashboardRouter";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { DiscoverAbuDhabi } from "./pages/discoverAbuDhabi";
 import NotFound from "./pages/NotFound";
+import MediaDetailPage from "./pages/media/MediaDetailPage";
 import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
 import KfBot from "./bot/KfBot";
@@ -71,6 +72,7 @@ export function AppRouter() {
               }
             />
             <Route path="/discover-abudhabi" element={<DiscoverAbuDhabi />} />
+            <Route path="/media/:type/:id" element={<MediaDetailPage />} />
             <Route path="/404" element={<NotFound />} />
 
             <Route path="*" element={<Navigate to="/404" replace />} />
