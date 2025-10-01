@@ -547,20 +547,22 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   </div>
                 ))}
               </div>
-              {/* Mobile/Tablet Summary Card - only visible on mobile/tablet */}
-              <div className="lg:hidden mt-8">
-                <SummaryCard
-                  isFloating={false}
-                  summaryCardRef={summaryCardRef}
-                  config={config}
-                  detailItems={detailItems}
-                  highlights={highlights}
-                  primaryAction={primaryAction}
-                  onPrimaryAction={handlePrimaryAction}
-                  onAddToComparison={handleAddToComparison}
-                  onCloseFloating={() => setIsFloatingCardVisible(false)}
-                />
-              </div>
+              {/* Mobile/Tablet Summary Card - only visible on mobile/tablet; hidden while floating card is visible */}
+              {!isVisible && (
+                <div className="lg:hidden mt-8">
+                  <SummaryCard
+                    isFloating={false}
+                    summaryCardRef={summaryCardRef}
+                    config={config}
+                    detailItems={detailItems}
+                    highlights={highlights}
+                    primaryAction={primaryAction}
+                    onPrimaryAction={handlePrimaryAction}
+                    onAddToComparison={handleAddToComparison}
+                    onCloseFloating={() => setIsFloatingCardVisible(false)}
+                  />
+                </div>
+              )}
             </div>
             {/* Summary card column (~4 columns) - visible only on desktop */}
             <div className="hidden lg:block lg:col-span-4">
@@ -581,18 +583,20 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             </div>
           </div>
         </div>
-        {/* Floating card - visible when scrolled past hero section */}
+        {/* Floating card - visible when scrolled past hero section (mobile/tablet only) */}
         {isVisible && isFloatingCardVisible && (
-          <SummaryCard
-            isFloating={true}
-            config={config}
-            detailItems={detailItems}
-            highlights={highlights}
-            primaryAction={primaryAction}
-            onPrimaryAction={handlePrimaryAction}
-            onAddToComparison={handleAddToComparison}
-            onCloseFloating={() => setIsFloatingCardVisible(false)}
-          />
+          <div className="lg:hidden">
+            <SummaryCard
+              isFloating={true}
+              config={config}
+              detailItems={detailItems}
+              highlights={highlights}
+              primaryAction={primaryAction}
+              onPrimaryAction={handlePrimaryAction}
+              onAddToComparison={handleAddToComparison}
+              onCloseFloating={() => setIsFloatingCardVisible(false)}
+            />
+          </div>
         )}
         {/* Related Items */}
         <section className="bg-gray-50 py-10 border-t border-gray-200">
