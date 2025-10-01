@@ -24,7 +24,7 @@ const marketplaces = [{
   name: 'Media Marketplace',
   description: "News, articles, and updates on Abu Dhabi's business landscape with industry insights",
   icon: NewspaperIcon,
-  href: '/marketplace/media'
+  href: '/marketplace/knowledge-hub'
 }, {
   id: 'community',
   name: 'Community Marketplace',
