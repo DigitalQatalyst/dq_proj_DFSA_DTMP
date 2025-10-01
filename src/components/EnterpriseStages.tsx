@@ -500,7 +500,7 @@ const EnterpriseStages: React.FC = () => {
           ))}
         </div>
         {/* Scroll Controls - Desktop */}
-        <div className="hidden md:flex justify-end mb-4 space-x-2">
+        {/* <div className="hidden md:flex justify-end mb-4 space-x-2">
           <button
             onClick={scrollLeft}
             className="p-2 rounded-full bg-white shadow hover:bg-gray-100 transition-colors duration-300"
@@ -515,7 +515,7 @@ const EnterpriseStages: React.FC = () => {
           >
             <ChevronRight size={20} />
           </button>
-        </div>
+        </div> */}
         {/* Scrollable Container */}
         <div
           ref={scrollContainerRef}

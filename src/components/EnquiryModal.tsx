@@ -104,6 +104,7 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ 'data-id': dataId, isOpen, 
       });
 
       const data = await response.json();
+      console.log(data);
 
       if (data?.data?.submitEnquiry?.success) {
         setIsSubmitted(true);

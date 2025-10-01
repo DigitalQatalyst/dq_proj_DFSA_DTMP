@@ -212,7 +212,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
     <div
       className="relative w-full bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 overflow-hidden"
       style={{
-        backgroundImage: "linear-gradient(rgba(17, 24, 39, 0.7), rgba(17, 24, 39, 0.7)), url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=1470&auto=format&fit=crop')",
+        backgroundImage: "linear-gradient(rgba(17, 24, 39, 0.7), rgba(17, 24, 39, 0.7)), url('/heroImage.png')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         height: '100vh'
