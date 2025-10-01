@@ -1,6 +1,9 @@
-// hooks/useOnboardingForm.js
 import { useState, useEffect, useRef } from "react";
 import { validateFormField } from "../utils/validation";
+import {
+  saveOnboardingData,
+  saveOnboardingProgress,
+} from "../services/onboardingService";
 
 export function useOnboardingForm(steps, onComplete, isRevisit) {
   const [currentStep, setCurrentStep] = useState(0);
@@ -11,6 +14,8 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
   const [isEditingWelcome, setIsEditingWelcome] = useState(false);
   const [showStepsDropdown, setShowStepsDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const stepsDropdownRef: any = useRef(null);
 
@@ -31,21 +36,16 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
   // Load initial data
   useEffect(() => {
     const loadData = async () => {
-      // Azure B2C claims (in real app, this would come from auth context)
       const azureB2CClaims = {
-        tradeName: "FutureTech",
-        industry: "Information Technology",
-        companyStage: "growth",
-        contactName: "John Smith",
-        phone: "+971 50 123 4567",
-        email: "john.smith@futuretech.com",
+        CompanyName: "Test Company 4",
+        Industry: "Technology",
+        CompanyStage: "Startup",
+        ContactName: "John Doe",
+        Phone: "+971501234567",
+        Email: "contact@futuretech.com",
       };
-
-      // In real implementation, load from persistent storage
-      // For now, just use claims
       setFormData(azureB2CClaims);
     };
-
     loadData();
   }, []);
 
@@ -60,12 +60,10 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
       [fieldName]: true,
     }));
 
-    // Clear error if field becomes valid
     if (errors[fieldName]) {
       validateField(fieldName, value);
     }
 
-    // Track edited fields for Welcome step
     if (currentStep === 0 && isEditingWelcome) {
       setEditedFields((prev) => ({
         ...prev,
@@ -94,7 +92,6 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
   };
 
   const findFieldDefinition = (fieldName) => {
-    // Search through all steps to find field definition
     for (const step of steps) {
       if (step.sections) {
         for (const section of step.sections) {
@@ -107,7 +104,6 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
       }
     }
 
-    // Handle welcome step fields
     if (currentStep === 0) {
       const welcomeFields = getWelcomeFields();
       return welcomeFields.find((f) => f.fieldName === fieldName);
@@ -118,21 +114,21 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
 
   const getWelcomeFields = () => [
     {
-      fieldName: "tradeName",
+      fieldName: "CompanyName",
       label: "Company Name",
       required: true,
       minLength: 2,
     },
-    { fieldName: "industry", label: "Industry", required: true },
+    { fieldName: "Industry", label: "Industry", required: true },
     {
-      fieldName: "contactName",
+      fieldName: "ContactName",
       label: "Contact Name",
       required: true,
       minLength: 3,
       pattern: "^[a-zA-Z\\s.-]+$",
     },
-    { fieldName: "email", label: "Email", required: true, type: "email" },
-    { fieldName: "phone", label: "Phone", required: true, type: "tel" },
+    { fieldName: "Email", label: "Email", required: true, type: "email" },
+    { fieldName: "Phone", label: "Phone", required: true, type: "tel" },
   ];
 
   const validateCurrentStep = () => {
@@ -172,7 +168,6 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
   };
 
   const handleSubmit = async () => {
-    // Validate all fields
     const allFields: any = [];
     steps.forEach((step) => {
       allFields.push(...getStepFields(step));
@@ -184,7 +179,6 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
     });
     setTouchedFields(allTouchedFields);
 
-    // Validate required fields
     const requiredFields = allFields.filter((field) => field.required);
     let isValid = true;
 
@@ -198,21 +192,30 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
 
     if (isValid) {
       setLoading(true);
+      setIsSubmitting(true);
+      setSubmitError(null);
+
       try {
-        // Save to backend (commented out for this example)
-        // await saveOnboardingData(formData);
+        const result = await saveOnboardingData(formData);
 
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        console.log(result);
 
-        onComplete();
+        if (result.success) {
+          console.log("tuseme ni success");
+          onComplete();
+        } else {
+          setSubmitError(
+            result.error?.message || "Failed to save onboarding data"
+          );
+        }
       } catch (error) {
         console.error("Error saving onboarding data:", error);
+        setSubmitError("An unexpected error occurred while saving your data");
       } finally {
         setLoading(false);
+        setIsSubmitting(false);
       }
     } else {
-      // Navigate to first step with errors
       const errorStep = findFirstStepWithErrors();
       if (errorStep !== -1) {
         setCurrentStep(errorStep);
@@ -256,6 +259,20 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
     });
   };
 
+  const saveProgress = async () => {
+    try {
+      const result = await saveOnboardingProgress(formData);
+      return result.success;
+    } catch (error) {
+      console.error("Error saving progress:", error);
+      return false;
+    }
+  };
+
+  const clearSubmitError = () => {
+    setSubmitError(null);
+  };
+
   return {
     currentStep,
     formData,
@@ -265,6 +282,8 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
     isEditingWelcome,
     showStepsDropdown,
     loading,
+    submitError,
+    isSubmitting,
     stepsDropdownRef,
     setCurrentStep,
     setShowStepsDropdown,
@@ -276,5 +295,7 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
     handleSubmit,
     handleJumpToStep,
     getStepCompletionStatus,
+    saveProgress,
+    clearSubmitError,
   };
 }
