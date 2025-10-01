@@ -1,7 +1,17 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ChevronDownIcon } from 'lucide-react';
-import { BuildingIcon, CreditCardIcon, NewspaperIcon, UsersIcon, GraduationCapIcon, TrendingUpIcon, CalendarIcon, SparklesIcon, LucideProps } from 'lucide-react';
+import React, { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { ChevronDownIcon } from "lucide-react";
+import {
+  BuildingIcon,
+  CreditCardIcon,
+  NewspaperIcon,
+  UsersIcon,
+  GraduationCapIcon,
+  TrendingUpIcon,
+  CalendarIcon,
+  SparklesIcon,
+  LucideProps,
+} from "lucide-react";
 
 interface Marketplace {
   id: string;
@@ -13,60 +23,68 @@ interface Marketplace {
 
 const marketplaces: Marketplace[] = [
   {
-    id: 'non-financial',
-    name: 'Non-Financial Marketplace',
-    description: 'Business registration, legal advisory, tax, compliance, and SME support services',
+    id: "non-financial",
+    name: "Non-Financial Marketplace",
+    description:
+      "Business registration, legal advisory, tax, compliance, and SME support services",
     icon: BuildingIcon,
-    href: '/marketplace/non-financial',
+    href: "/marketplace/non-financial",
   },
   {
-    id: 'finance',
-    name: 'Finance Marketplace',
-    description: 'Funding options, grants, and financial services to help SMEs manage and grow',
+    id: "finance",
+    name: "Finance Marketplace",
+    description:
+      "Funding options, grants, and financial services to help SMEs manage and grow",
     icon: CreditCardIcon,
-    href: '/marketplace/financial',
+    href: "/marketplace/financial",
   },
   {
-    id: 'media',
-    name: 'Media Marketplace',
-    description: "News, articles, and updates on Abu Dhabi's business landscape with industry insights",
+    id: "media",
+    name: "Media Marketplace",
+    description:
+      "News, articles, and updates on Abu Dhabi's business landscape with industry insights",
     icon: NewspaperIcon,
-    href: '/marketplace/media',
+    href: "/marketplace/media",
   },
   {
-    id: 'community',
-    name: 'Community Marketplace',
-    description: 'Industry communities for networking, collaboration, and sharing best practices',
+    id: "community",
+    name: "Community Marketplace",
+    description:
+      "Industry communities for networking, collaboration, and sharing best practices",
     icon: UsersIcon,
-    href: '/marketplace/community',
+    href: "/marketplace/community",
   },
   {
-    id: 'course',
-    name: 'Course Marketplace',
-    description: 'Training and educational modules to build entrepreneurship skills and enhance businesses',
+    id: "course",
+    name: "Course Marketplace",
+    description:
+      "Training and educational modules to build entrepreneurship skills and enhance businesses",
     icon: GraduationCapIcon,
-    href: '/marketplace/courses',
+    href: "/marketplace/courses",
   },
   {
-    id: 'investment',
-    name: 'Investment Marketplace',
-    description: 'Access to venture capital, crowdfunding, and grants for SME growth',
+    id: "investment",
+    name: "Investment Marketplace",
+    description:
+      "Access to venture capital, crowdfunding, and grants for SME growth",
     icon: TrendingUpIcon,
-    href: '/marketplace/investment',
+    href: "/marketplace/investment",
   },
   {
-    id: 'calendar',
-    name: 'Calendar Marketplace',
-    description: 'Event management, matchmaking, and notifications for upcoming business events',
+    id: "calendar",
+    name: "Calendar Marketplace",
+    description:
+      "Event management, matchmaking, and notifications for upcoming business events",
     icon: CalendarIcon,
-    href: '/marketplace/calendar',
+    href: "/marketplace/calendar",
   },
   {
-    id: 'opportunity',
-    name: 'Opportunity Marketplace',
-    description: 'Business opportunities, partnerships, and growth prospects for SMEs',
+    id: "opportunity",
+    name: "Opportunity Marketplace",
+    description:
+      "Business opportunities, partnerships, and growth prospects for SMEs",
     icon: SparklesIcon,
-    href: '/marketplace/opportunities',
+    href: "/marketplace/opportunities",
   },
 ];
 
@@ -85,23 +103,30 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
         setFocusedIndex(-1);
       }
     }
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen]);
 
   // Handle keyboard navigation
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (!isOpen) {
-      if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowDown') {
+      if (
+        event.key === "Enter" ||
+        event.key === " " ||
+        event.key === "ArrowDown"
+      ) {
         event.preventDefault();
         setIsOpen(true);
         setFocusedIndex(0);
@@ -109,28 +134,30 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
       return;
     }
     switch (event.key) {
-      case 'Escape':
+      case "Escape":
         event.preventDefault();
         setIsOpen(false);
         setFocusedIndex(-1);
         buttonRef.current?.focus();
         break;
-      case 'ArrowDown':
+      case "ArrowDown":
         event.preventDefault();
         setFocusedIndex((prev) => (prev + 1) % marketplaces.length);
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         event.preventDefault();
-        setFocusedIndex((prev) => (prev <= 0 ? marketplaces.length - 1 : prev - 1));
+        setFocusedIndex((prev) =>
+          prev <= 0 ? marketplaces.length - 1 : prev - 1
+        );
         break;
-      case 'Enter':
-      case ' ':
+      case "Enter":
+      case " ":
         event.preventDefault();
         if (focusedIndex >= 0 && itemRefs.current[focusedIndex]) {
           itemRefs.current[focusedIndex]?.click();
         }
         break;
-      case 'Tab':
+      case "Tab":
         setIsOpen(false);
         setFocusedIndex(-1);
         break;
@@ -154,9 +181,7 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
     <div className="relative" ref={dropdownRef}>
       <button
         ref={buttonRef}
-        className={`flex items-center text-white hover:text-gray-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 rounded-md px-2 py-1 ${
-          isCompact ? 'text-sm' : ''
-        }`}
+        className="flex items-center text-white hover:text-gray-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 rounded-md px-2 py-1"
         onClick={() => setIsOpen(!isOpen)}
         onKeyDown={handleKeyDown}
         aria-expanded={isOpen}
@@ -165,8 +190,10 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
       >
         <span>Explore</span>
         <ChevronDownIcon
-          size={isCompact ? 14 : 16}
-          className={`ml-1 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          size={16}
+          className={`ml-1 transition-transform duration-200 ${
+            isOpen ? "rotate-180" : ""
+          }`}
         />
       </button>
       {isOpen && (
@@ -193,7 +220,7 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
                   ref={(el) => (itemRefs.current[index] = el)}
                   href={marketplace.href}
                   className={`flex items-start px-4 py-3 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none transition-colors duration-150 ${
-                    focusedIndex === index ? 'bg-gray-50' : ''
+                    focusedIndex === index ? "bg-gray-50" : ""
                   }`}
                   role="menuitem"
                   tabIndex={-1}
