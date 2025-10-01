@@ -5,18 +5,18 @@ import { profileConfig } from '../utils/profileConfig';
 
 export function ReviewStep({ formData, isRevisit }) {
     const companyStageInfo = profileConfig.companyStages.find(
-        stage => stage.id === formData.companyStage
+        stage => stage.label === formData.CompanyStage
     ) || profileConfig.companyStages[0];
 
     const dataGroups = [
         {
             title: 'Company Information',
             fields: [
-                { label: 'Company Name', value: formData.tradeName },
-                { label: 'Industry', value: formData.industry },
-                { label: 'Business Size', value: formData.businessSize },
-                { label: 'Registration Number', value: formData.registrationNumber },
-                { label: 'Establishment Date', value: formData.establishmentDate },
+                { label: 'Company Name', value: formData.CompanyName },
+                { label: 'Industry', value: formData.Industry },
+                { label: 'Business Size', value: formData.BusinessSize },
+                { label: 'Registration Number', value: formData.RegistrationNumber },
+                { label: 'Establishment Date', value: formData.EstablishmentDate },
                 {
                     label: 'Company Stage',
                     value: companyStageInfo.label,
@@ -27,35 +27,36 @@ export function ReviewStep({ formData, isRevisit }) {
         {
             title: 'Business Profile',
             fields: [
-                { label: 'Business Pitch', value: formData.businessPitch },
-                { label: 'Problem Statement', value: formData.problemStatement },
+                { label: 'Business Pitch', value: formData.BusinessPitch },
+                { label: 'Problem Statement', value: formData.ProblemStatement },
             ],
         },
         {
             title: 'Location & Contact',
             fields: [
-                { label: 'Address', value: formData.address },
-                { label: 'City', value: formData.city },
-                { label: 'Country', value: formData.country },
-                { label: 'Website', value: formData.website },
-                { label: 'Phone', value: formData.phone },
-                { label: 'Email', value: formData.email },
+                { label: 'Address', value: formData.Address },
+                { label: 'City', value: formData.City },
+                { label: 'Country', value: formData.Country },
+                { label: 'Website', value: formData.Website },
+                { label: 'Phone', value: formData.Phone },
+                { label: 'Email', value: formData.Email },
             ],
         },
         {
             title: 'Operations',
             fields: [
-                { label: 'Employee Count', value: formData.employeeCount },
-                { label: 'Founders', value: formData.founders },
-                { label: 'Founding Year', value: formData.foundingYear },
+                { label: 'Employee Count', value: formData.EmployeeCount },
+                { label: 'Founders', value: formData.Founders },
+                { label: 'Founding Year', value: formData.FoundingYear },
             ],
         },
         {
             title: 'Funding & Needs',
             fields: [
-                { label: 'Initial Capital (USD)', value: formData.initialCapital },
-                { label: 'Funding Needs (USD)', value: formData.fundingNeeds },
-                { label: 'Business Needs', value: formData.needsList },
+                { label: 'Initial Capital (USD)', value: formData.InitialCapitalUSD },
+                { label: 'Funding Needs (USD)', value: formData.FundingNeedsUSD },
+                { label: 'Business Requirements', value: formData.BusinessRequirements },
+                { label: 'Business Needs', value: formData.BusinessNeeds },
             ],
         },
     ];
