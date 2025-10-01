@@ -88,6 +88,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     };
     loadFilterOptions();
   }, [marketplaceType, config]);
+
   // Fetch items based on marketplace type, filters, and search query
   useEffect(() => {
     if (marketplaceType !== 'knowledge-hub') {
