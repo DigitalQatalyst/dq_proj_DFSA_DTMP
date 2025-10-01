@@ -6,6 +6,7 @@ export const mockKnowledgeHubItems = [
     description:
       'Comprehensive guide to scaling your business in Abu Dhabi with practical insights and local market analysis.',
     mediaType: 'Guide',
+    filterType: 'Guides',
     businessStage: 'Growth',
     domain: 'Strategy & Growth',
     format: 'In-Depth Reports',
@@ -29,6 +30,7 @@ export const mockKnowledgeHubItems = [
     description:
       'Learn how to leverage digital technologies to transform your business operations and customer experience.',
     mediaType: 'Report',
+    filterType: 'Reports',
     businessStage: 'Established',
     domain: 'Technology & Innovation',
     format: 'In-Depth Reports',
@@ -51,6 +53,7 @@ export const mockKnowledgeHubItems = [
     description:
       'Explore various funding options available for startups in Abu Dhabi, from venture capital to government grants.',
     mediaType: 'Guide',
+    filterType: 'Guides',
     businessStage: 'Startup',
     domain: 'Finance & Funding',
     format: 'Quick Reads',
@@ -98,6 +101,7 @@ export const mockKnowledgeHubItems = [
     description:
       'Join the largest business networking event in Abu Dhabi with industry leaders and government officials.',
     mediaType: 'Event',
+    filterType: 'Events',
     businessStage: 'All Stages',
     domain: 'Strategy & Growth',
     format: 'Live Events',
@@ -121,6 +125,7 @@ export const mockKnowledgeHubItems = [
     description:
       'Learn effective marketing strategies tailored for small and medium enterprises in the UAE market.',
     mediaType: 'Video',
+    filterType: 'Videos',
     businessStage: 'Growth',
     domain: 'Marketing & Sales',
     format: 'Recorded Media',
@@ -144,6 +149,7 @@ export const mockKnowledgeHubItems = [
     description:
       'Essential guide to understanding and complying with UAE business regulations and legal requirements.',
     mediaType: 'Guide',
+    filterType: 'Guides',
     businessStage: 'All Stages',
     domain: 'Legal & Compliance',
     format: 'In-Depth Reports',
@@ -167,6 +173,7 @@ export const mockKnowledgeHubItems = [
     description:
       'Weekly podcast discussing operational best practices for businesses in the UAE and wider Middle East.',
     mediaType: 'Podcast',
+    filterType: 'Podcasts',
     businessStage: 'Established',
     domain: 'Operations & Productivity',
     format: 'Recorded Media',
@@ -190,6 +197,7 @@ export const mockKnowledgeHubItems = [
     description:
       'Interactive workshop series focused on fostering innovation and creative problem-solving in your business.',
     mediaType: 'Event',
+    filterType: 'Events',
     businessStage: 'Growth',
     domain: 'Technology & Innovation',
     format: 'Live Events',
@@ -234,6 +242,7 @@ export const mockKnowledgeHubItems = [
     description:
       'Detailed analysis of export opportunities for Abu Dhabi businesses with market insights and regulatory information.',
     mediaType: 'Report',
+    filterType: 'Reports',
     businessStage: 'Scale-up',
     domain: 'Strategy & Growth',
     format: 'In-Depth Reports',
@@ -257,6 +266,7 @@ export const mockKnowledgeHubItems = [
     description:
       'Technology startups in Abu Dhabi have seen a 40% growth in the past year, according to a new report.',
     mediaType: 'News',
+    filterType: 'News',
     businessStage: 'Startup',
     domain: 'Technology & Innovation',
     format: 'Quick Reads',

@@ -14,7 +14,7 @@ import { Footer } from '../Footer';
 import { getFallbackItems } from '../../utils/fallbackData';
 import KnowledgeHubGrid from './KnowledgeHubGrid';
 
-// Mapping of Media Types to their relevant Format options
+// Mapping of Media Types to their relevant Format options (uses filter labels)
 const MEDIA_TYPE_FORMAT_MAPPING: Record<string, string[]> = {
   'News': ['Quick Reads'],
   'Reports': ['In-Depth Reports', 'Downloadable Templates'],

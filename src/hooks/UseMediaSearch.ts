@@ -61,7 +61,7 @@ export function useMediaSearch({
         // Apply tag/type filters
         if (filters && filters.length > 0) {
           filteredItems = filteredItems.filter((item) => {
-            const itemTags = [...(item.tags || []), item.mediaType]
+            const itemTags = [...(item.tags || []), item.filterType || item.mediaType]
             return filters.some((filter) => itemTags.includes(filter))
           })
         }

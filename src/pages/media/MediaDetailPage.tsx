@@ -498,7 +498,7 @@ const MediaDetailPage: React.FC = () => {
       case 'announcement':
         return 'Announcement'
       default:
-        return 'Media'
+        return 'Toolkit & Templates'
     }
   }
   // Render content based on media type
