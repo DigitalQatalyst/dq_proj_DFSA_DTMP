@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { FilterSidebar, FilterConfig } from './FilterSidebar';
@@ -13,6 +13,17 @@ import { Header } from '../Header';
 import { Footer } from '../Footer';
 import { getFallbackItems } from '../../utils/fallbackData';
 import KnowledgeHubGrid from './KnowledgeHubGrid';
+
+// Mapping of Media Types to their relevant Format options
+const MEDIA_TYPE_FORMAT_MAPPING: Record<string, string[]> = {
+  'News': ['Quick Reads'],
+  'Reports': ['In-Depth Reports', 'Downloadable Templates'],
+  'Toolkits & Templates': ['Interactive Tools', 'Downloadable Templates'],
+  'Guides': ['Quick Reads', 'In-Depth Reports'],
+  'Events': ['Live Events'],
+  'Videos': ['Recorded Media'],
+  'Podcasts': ['Recorded Media']
+};
 // Type for comparison items
 interface ComparisonItem {
   id: string;
@@ -111,10 +122,37 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   }, [marketplaceType, filters, searchQuery]);
   // Handle filter changes
   const handleFilterChange = useCallback((filterType: string, value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      [filterType]: value === prev[filterType] ? '' : value
-    }));
+    setFilters(prev => {
+      const newFilters = {
+        ...prev,
+        [filterType]: value === prev[filterType] ? '' : value
+      };
+
+      // If changing media type, clear format filter if it's no longer valid
+      if (filterType === 'mediaType' && prev.format) {
+        const mediaTypeFormatMapping: Record<string, string[]> = {
+          'News': ['Quick Reads'],
+          'Reports': ['In-Depth Reports', 'Downloadable Templates'],
+          'Toolkits & Templates': ['Interactive Tools', 'Downloadable Templates'],
+          'Guides': ['Quick Reads', 'In-Depth Reports'],
+          'Events': ['Live Events'],
+          'Videos': ['Recorded Media'],
+          'Podcasts': ['Recorded Media']
+        };
+
+        const newMediaType = newFilters[filterType];
+        if (newMediaType && mediaTypeFormatMapping[newMediaType]) {
+          const allowedFormats = mediaTypeFormatMapping[newMediaType];
+          if (!allowedFormats.includes(prev.format)) {
+            newFilters.format = '';
+          }
+        } else if (!newMediaType) {
+          // If media type is cleared, keep the format filter as is
+        }
+      }
+
+      return newFilters;
+    });
   }, []);
   // Reset all filters
   const resetFilters = useCallback(() => {
@@ -151,16 +189,87 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     setError(null);
     setLoading(true);
   }, []);
+  // Filter the format options based on selected media type for knowledge-hub
+  const filteredKnowledgeHubConfig = useMemo(() => {
+    if (marketplaceType !== 'knowledge-hub') {
+      return filterConfig;
+    }
+
+    // Find all selected media types from activeFilters
+    const mediaTypeFilter = filterConfig.find(c => c.id === 'mediaType');
+    const selectedMediaTypes = mediaTypeFilter?.options
+      .filter(opt => activeFilters.includes(opt.name))
+      .map(opt => opt.name) || [];
+
+    return filterConfig.map(config => {
+      // Only filter the Format category if at least one Media Type is selected
+      if (config.id === 'format' && selectedMediaTypes.length > 0) {
+        // Aggregate all allowed formats from all selected media types
+        const allAllowedFormats = new Set<string>();
+        selectedMediaTypes.forEach(mediaType => {
+          const allowedFormats = MEDIA_TYPE_FORMAT_MAPPING[mediaType];
+          if (allowedFormats) {
+            allowedFormats.forEach(format => allAllowedFormats.add(format));
+          }
+        });
+
+        // Filter to only show formats that are allowed by at least one selected media type
+        return {
+          ...config,
+          options: config.options.filter(option => allAllowedFormats.has(option.name))
+        };
+      }
+      return config;
+    });
+  }, [filterConfig, activeFilters, marketplaceType]);
+
   // Handle Knowledge Hub specific filter changes
   const handleKnowledgeHubFilterChange = useCallback((filter: string) => {
     setActiveFilters(prev => {
-      if (prev.includes(filter)) {
-        return prev.filter(f => f !== filter);
-      } else {
-        return [...prev, filter];
+      const newFilters = prev.includes(filter)
+        ? prev.filter(f => f !== filter)
+        : [...prev, filter];
+
+      // If changing media type, clear format filters that are no longer valid
+      const mediaTypeFilter = filterConfig.find(c => c.id === 'mediaType');
+      const isMediaTypeFilter = mediaTypeFilter?.options.some(opt => opt.name === filter);
+
+      if (isMediaTypeFilter) {
+        const formatFilter = filterConfig.find(c => c.id === 'format');
+        const currentFormatFilters = newFilters.filter(f =>
+          formatFilter?.options.some(opt => opt.name === f)
+        );
+
+        // Find the new selected media type
+        const newMediaTypes = newFilters.filter(f =>
+          mediaTypeFilter?.options.some(opt => opt.name === f)
+        );
+
+        if (newMediaTypes.length > 0) {
+          // Get allowed formats for all selected media types
+          const allAllowedFormats = new Set<string>();
+          newMediaTypes.forEach(mt => {
+            const allowedFormats = MEDIA_TYPE_FORMAT_MAPPING[mt];
+            if (allowedFormats) {
+              allowedFormats.forEach(f => allAllowedFormats.add(f));
+            }
+          });
+
+          // Remove format filters that aren't allowed
+          return newFilters.filter(f => {
+            const isFormatFilter = formatFilter?.options.some(opt => opt.name === f);
+            if (isFormatFilter) {
+              return allAllowedFormats.has(f);
+            }
+            return true;
+          });
+        }
       }
+
+      return newFilters;
     });
-  }, []);
+  }, [filterConfig]);
+
   // Clear Knowledge Hub filters
   const clearKnowledgeHubFilters = useCallback(() => {
     setActiveFilters([]);
@@ -243,7 +352,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 </div>
                 <div className="p-4">
                   {marketplaceType === 'knowledge-hub' ? <div className="space-y-4">
-                      {filterConfig.map(category => <div key={category.id} className="border-b border-gray-100 pb-3">
+                      {filteredKnowledgeHubConfig.map(category => <div key={category.id} className="border-b border-gray-100 pb-3">
                           <h3 className="font-medium text-gray-900 mb-2">
                             {category.title}
                           </h3>
@@ -271,7 +380,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   </button>}
               </div>
               {marketplaceType === 'knowledge-hub' ? <div className="space-y-4">
-                  {filterConfig.map(category => <div key={category.id} className="border-b border-gray-100 pb-3">
+                  {filteredKnowledgeHubConfig.map(category => <div key={category.id} className="border-b border-gray-100 pb-3">
                       <h3 className="font-medium text-gray-900 mb-2">
                         {category.title}
                       </h3>

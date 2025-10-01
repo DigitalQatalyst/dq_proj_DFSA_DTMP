@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 export interface FilterOption {
   id: string;
@@ -22,6 +22,17 @@ export interface FilterSidebarProps {
   onResetFilters: () => void;
   isResponsive?: boolean;
 }
+
+// Mapping of Media Types to their relevant Format options
+const MEDIA_TYPE_FORMAT_MAPPING: Record<string, string[]> = {
+  'News': ['Quick Reads'],
+  'Reports': ['In-Depth Reports', 'Downloadable Templates'],
+  'Toolkits & Templates': ['Interactive Tools', 'Downloadable Templates'],
+  'Guides': ['Quick Reads', 'In-Depth Reports'],
+  'Events': ['Live Events'],
+  'Videos': ['Recorded Media'],
+  'Podcasts': ['Recorded Media']
+};
 const AccordionSection: React.FC<AccordionSectionProps> = ({
   title,
   isOpen,
@@ -54,8 +65,26 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   };
   const textSizeClass = isResponsive ? 'text-xs' : 'text-sm';
   const spacingClass = isResponsive ? 'space-y-1' : 'space-y-2';
+
+  // Filter the format options based on selected media type
+  const filteredFilterConfig = useMemo(() => {
+    const selectedMediaType = filters['mediaType'];
+
+    return filterConfig.map(config => {
+      // Only filter the Format category if a Media Type is selected
+      if (config.id === 'format' && selectedMediaType && MEDIA_TYPE_FORMAT_MAPPING[selectedMediaType]) {
+        const allowedFormats = MEDIA_TYPE_FORMAT_MAPPING[selectedMediaType];
+        return {
+          ...config,
+          options: config.options.filter(option => allowedFormats.includes(option.name))
+        };
+      }
+      return config;
+    });
+  }, [filterConfig, filters]);
+
   return <div className="space-y-2">
-      {filterConfig.map(config => <AccordionSection key={config.id} title={config.title} isOpen={openSections[config.id] || false} onToggle={() => toggleSection(config.id)}>
+      {filteredFilterConfig.map(config => <AccordionSection key={config.id} title={config.title} isOpen={openSections[config.id] || false} onToggle={() => toggleSection(config.id)}>
           <div className={spacingClass}>
             {config.options.map(option => <div key={option.id} className="flex items-center">
                 <input type="checkbox" id={`${isResponsive ? 'mobile' : 'desktop'}-${config.id}-${option.id}`} checked={filters[config.id] === option.name} onChange={() => onFilterChange(config.id, option.name)} className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
