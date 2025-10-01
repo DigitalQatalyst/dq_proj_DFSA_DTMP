@@ -39,7 +39,7 @@ export function DocumentsPage({
   return (
     <div className="space-y-0">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-gray-100 py-3 px-4 lg:px-6 border-b border-gray-200 shadow-sm">
+      <div className="sticky top-0 z-20 py-3 px-4 lg:px-6">
         <div className="flex flex-row items-center justify-between">
           <div className='flex gap-4'>
             <div className='lg:hidden'>

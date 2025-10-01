@@ -82,7 +82,7 @@ export const OnboardingProgress: React.FC<OnboardingProgressProps> = ({
                     </div>
                     <div className="flex justify-end">
                         <button
-                            onClick={() => console.log('Continue setup')}
+                            onClick={() => window.location.href = '/dashboard/profile'}
                             className="px-4 py-2 text-sm font-medium text-white rounded-md bg-gradient-to-r from-blue-500 to-teal-400 hover:from-blue-600 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         >
                             Continue Setup
