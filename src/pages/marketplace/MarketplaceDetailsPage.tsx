@@ -18,6 +18,7 @@ import ApplicationProcessTab from "../../components/marketplace/details/tabs/App
 import SummaryCard from "../../components/marketplace/details/SummaryCard";
 import TabsNav from "../../components/marketplace/details/TabsNav";
 import { getMarketplaceConfig } from "../../utils/marketplaceConfiguration";
+import { addCompareId } from "../../utils/comparisonStorage";
 import { ErrorDisplay } from "../../components/SkeletonLoader";
 import { Link } from "react-router-dom";
 import { useProductDetails } from "../../hooks/useProductDetails";
@@ -30,8 +31,8 @@ interface MarketplaceDetailsPageProps {
 const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   marketplaceType,
   bookmarkedItems = [],
-  onToggleBookmark = () => {},
-  onAddToComparison = () => {},
+  onToggleBookmark = (_: string) => {},
+  onAddToComparison = (_: any) => {},
 }) => {
   const { itemId } = useParams<{
     itemId: string;
@@ -162,7 +163,14 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   };
   const handleAddToComparison = () => {
     if (item) {
+      // Persist selection locally so it is available on marketplace pages
+      addCompareId(marketplaceType, item.id);
+      // Keep existing behavior: inform parent handler (if provided)
       onAddToComparison(item);
+      // Navigate to marketplace listing so the user can add more services,
+      // also pass the item in state for immediate UI hydration
+      const configForType = getMarketplaceConfig(marketplaceType);
+      navigate(configForType.route, { state: { addToCompare: item } });
     }
   };
   const handlePrimaryAction = () => {
@@ -539,20 +547,22 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   </div>
                 ))}
               </div>
-              {/* Mobile/Tablet Summary Card - only visible on mobile/tablet */}
-              <div className="lg:hidden mt-8">
-                <SummaryCard
-                  isFloating={false}
-                  summaryCardRef={summaryCardRef}
-                  config={config}
-                  detailItems={detailItems}
-                  highlights={highlights}
-                  primaryAction={primaryAction}
-                  onPrimaryAction={handlePrimaryAction}
-                  onAddToComparison={handleAddToComparison}
-                  onCloseFloating={() => setIsFloatingCardVisible(false)}
-                />
-              </div>
+              {/* Mobile/Tablet Summary Card - only visible on mobile/tablet; hidden while floating card is visible */}
+              {!isVisible && (
+                <div className="lg:hidden mt-8">
+                  <SummaryCard
+                    isFloating={false}
+                    summaryCardRef={summaryCardRef}
+                    config={config}
+                    detailItems={detailItems}
+                    highlights={highlights}
+                    primaryAction={primaryAction}
+                    onPrimaryAction={handlePrimaryAction}
+                    onAddToComparison={handleAddToComparison}
+                    onCloseFloating={() => setIsFloatingCardVisible(false)}
+                  />
+                </div>
+              )}
             </div>
             {/* Summary card column (~4 columns) - visible only on desktop */}
             <div className="hidden lg:block lg:col-span-4">
@@ -573,18 +583,20 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             </div>
           </div>
         </div>
-        {/* Floating card - visible when scrolled past hero section */}
+        {/* Floating card - visible when scrolled past hero section (mobile/tablet only) */}
         {isVisible && isFloatingCardVisible && (
-          <SummaryCard
-            isFloating={true}
-            config={config}
-            detailItems={detailItems}
-            highlights={highlights}
-            primaryAction={primaryAction}
-            onPrimaryAction={handlePrimaryAction}
-            onAddToComparison={handleAddToComparison}
-            onCloseFloating={() => setIsFloatingCardVisible(false)}
-          />
+          <div className="lg:hidden">
+            <SummaryCard
+              isFloating={true}
+              config={config}
+              detailItems={detailItems}
+              highlights={highlights}
+              primaryAction={primaryAction}
+              onPrimaryAction={handlePrimaryAction}
+              onAddToComparison={handleAddToComparison}
+              onCloseFloating={() => setIsFloatingCardVisible(false)}
+            />
+          </div>
         )}
         {/* Related Items */}
         <section className="bg-gray-50 py-10 border-t border-gray-200">

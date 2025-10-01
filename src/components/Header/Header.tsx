@@ -19,6 +19,7 @@ export function Header({
   toggleSidebar,
   sidebarOpen,
   "data-id": dataId,
+  "data-id": dataId,
 }: HeaderProps) {
   const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
   const [showNotificationCenter, setShowNotificationCenter] = useState(false);
@@ -29,6 +30,7 @@ export function Header({
   const location = useLocation();
 
   // Count unread notifications
+  const unreadCount = mockNotifications.filter((notif) => !notif.read).length;
   const unreadCount = mockNotifications.filter((notif) => !notif.read).length;
 
   // Sticky header behavior

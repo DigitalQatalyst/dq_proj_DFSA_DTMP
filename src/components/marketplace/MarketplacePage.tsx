@@ -10,7 +10,15 @@ import { getMarketplaceConfig } from "../../utils/marketplaceConfiguration";
 import { MarketplaceComparison } from "./MarketplaceComparison";
 import { Header } from "../Header";
 import { Footer } from "../Footer";
+import {
+  getStoredCompareIds,
+  setStoredCompareIds,
+  addCompareId as storageAddCompareId,
+  removeCompareId as storageRemoveCompareId,
+  clearCompare as storageClearCompare,
+} from "../../utils/comparisonStorage";
 import { useQuery } from "@apollo/client/react";
+import { useLocation } from "react-router-dom";
 import { GET_PRODUCTS, GET_FACETS } from "../../services/marketplaceQueries.ts";
 import { fetchMarketplaceFilters } from "../../services/marketplace";
 
@@ -106,10 +114,6 @@ interface GetProductsData {
   };
 }
 
-interface GetProductsVariables {
-  take: number;
-}
-
 export interface MarketplacePageProps {
   marketplaceType: "courses" | "financial" | "non-financial" | "knowledge-hub";
   title: string;
@@ -118,11 +122,10 @@ export interface MarketplacePageProps {
 }
 export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   marketplaceType,
-  title,
-  description,
   promoCards = [],
 }) => {
   const navigate = useNavigate();
+  const location = useLocation() as any;
   const config = getMarketplaceConfig(marketplaceType);
   // State for items and filtering
   const [items, setItems] = useState<any[]>([]);
@@ -133,6 +136,8 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const [showFilters, setShowFilters] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [bookmarkedItems, setBookmarkedItems] = useState<string[]>([]);
+  // Avoid clobbering localStorage with empty state before hydration
+  const [hasHydratedCompare, setHasHydratedCompare] = useState(false);
   const [compareItems, setCompareItems] = useState<ComparisonItem[]>([]);
   const [showComparison, setShowComparison] = useState(false);
   // State for filter options
@@ -143,14 +148,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   // Apollo queries for products and facets
-  const {
-    data: productData,
-    error: productError,
-  } = useQuery<GetProductsData>(GET_PRODUCTS);
-  const {
-    data: facetData,
-    error: facetError,
-  } = useQuery<GetFacetsData>(GET_FACETS);
+  const { data: productData, error: productError } =
+    useQuery<GetProductsData>(GET_PRODUCTS);
+  const { data: facetData, error: facetError } =
+    useQuery<GetFacetsData>(GET_FACETS);
   // Load filter configurations based on marketplace type
  // ...existing code...
   useEffect(() => {
@@ -295,6 +296,61 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     loadItems();
   }, [productData, filters, searchQuery, marketplaceType]);
 
+  // Immediately hydrate compare from navigation state when arriving from details page
+  useEffect(() => {
+    const pending = location?.state?.addToCompare;
+    if (pending) {
+      // Add if not present and under cap
+      if (
+        !compareItems.some((c) => c.id === pending.id) &&
+        compareItems.length < 3
+      ) {
+        setCompareItems((prev) => [...prev, pending]);
+        storageAddCompareId(marketplaceType, pending.id);
+      }
+      // Clear the navigation state to avoid duplicate adds on back/refresh
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location?.state, location?.pathname, marketplaceType, compareItems]);
+
+  // Hydrate compareItems from localStorage when items are available (merge, don't clear)
+  useEffect(() => {
+    if (!items || items.length === 0) return; // wait until items are loaded
+    // Build a map for quick lookup
+    const byId: Record<string, any> = {};
+    items.forEach((it) => {
+      byId[it.id] = it;
+    });
+    const storedIds = getStoredCompareIds(marketplaceType);
+    if (!storedIds.length) return; // nothing stored; don't alter current state
+
+    // Start with current selections
+    const merged: ComparisonItem[] = [...compareItems];
+    for (const id of storedIds) {
+      if (merged.length >= 3) break;
+      if (!merged.some((c) => c.id === id)) {
+        const found = byId[id];
+        if (found) merged.push(found);
+        // If not found in items yet, keep waiting; don't drop existing selection
+      }
+    }
+    const currentIds = compareItems.map((i) => i.id).join(",");
+    const nextIds = merged.map((i) => i.id).join(",");
+    if (currentIds !== nextIds) {
+      setCompareItems(merged.slice(0, 3));
+    }
+    setHasHydratedCompare(true);
+  }, [items, marketplaceType, compareItems]);
+
+  // Keep storage in sync with current compareItems
+  useEffect(() => {
+    // Don't sync to storage until we've attempted hydration to avoid wiping existing selections
+    if (!hasHydratedCompare) return;
+    const ids = compareItems.map((i) => i.id);
+    setStoredCompareIds(marketplaceType, ids);
+  }, [compareItems, marketplaceType, hasHydratedCompare]);
+
   // Handle filter changes
   const handleFilterChange = useCallback(
     (filterType: string, value: string) => {
@@ -319,6 +375,12 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const toggleFilters = useCallback(() => {
     setShowFilters((prev) => !prev);
   }, []);
+  // Clear all comparison selections
+  const handleClearComparison = useCallback(() => {
+    setCompareItems([]);
+    storageClearCompare(marketplaceType);
+    setShowComparison(false);
+  }, [marketplaceType]);
   // Toggle bookmark for an item
   const toggleBookmark = useCallback((itemId: string) => {
     setBookmarkedItems((prev) => {
@@ -335,14 +397,20 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
         !compareItems.some((c) => c.id === item.id)
       ) {
         setCompareItems((prev) => [...prev, item]);
+        // Persist to storage
+        storageAddCompareId(marketplaceType, item.id);
       }
     },
-    [compareItems]
+    [compareItems, marketplaceType]
   );
   // Remove an item from comparison
-  const handleRemoveFromComparison = useCallback((itemId: string) => {
-    setCompareItems((prev) => prev.filter((item) => item.id !== itemId));
-  }, []);
+  const handleRemoveFromComparison = useCallback(
+    (itemId: string) => {
+      setCompareItems((prev) => prev.filter((item) => item.id !== itemId));
+      storageRemoveCompareId(marketplaceType, itemId);
+    },
+    [marketplaceType]
+  );
   // Retry loading items after an error
   const retryFetch = useCallback(() => {
     setError(null);
@@ -416,7 +484,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   Compare Selected
                 </button>
                 <button
-                  onClick={() => setCompareItems([])}
+                  onClick={handleClearComparison}
                   className="text-gray-500 hover:text-gray-700 text-sm"
                 >
                   Clear All
