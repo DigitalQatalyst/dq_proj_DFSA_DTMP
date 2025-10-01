@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 // GraphQL Query for Products
 const GET_PRODUCTS = gql`
@@ -37,6 +37,11 @@ const GET_PRODUCTS = gql`
           Cost
           Steps
           KeyTermsOfService
+          AdditionalTermsOfService
+          Logo {
+            name
+            source
+          }
           RequiredDocuments {
             id
             name
@@ -74,9 +79,7 @@ const GET_PRODUCT = gql`
   query GetProduct($id: ID!) {
     product(id: $id) {
       id
-      assets {
-        name
-      }
+
       name
       slug
       description
@@ -89,19 +92,23 @@ const GET_PRODUCT = gql`
         BusinessStage
         Nationality
         LegalStructure
-        CustomerType
         Industry
         ProcessingTime
-        RegistrationValidity
         Cost
-        Steps
-        TermsOfService
         RequiredDocuments {
           id
           name
           source
+          tags {
+            id
+          }
         }
-        EmpowermentandLeadership
+        KeyHighlights
+        ServiceApplication
+        Eligibility
+        KeyTermsOfService
+        AdditionalTermsOfService
+        formUrl
         RelatedServices {
           id
           name

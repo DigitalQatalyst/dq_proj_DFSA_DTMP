@@ -6,14 +6,22 @@ import { Header } from '../../components/Header';
 import { useAuth } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 
-const DashboardLayout = ({ children, onboardingComplete, setOnboardingComplete, isOpen, setIsOpen, isLoggedIn, setIsLoggedIn }: {
-    children: React.ReactNode;
-    onboardingComplete: boolean;
-    setOnboardingComplete: (onboardingComplete: boolean) => void;
-    isOpen: boolean;
-    setIsOpen: (isOpen: boolean) => void;
-    isLoggedIn: boolean;
-    setIsLoggedIn: (isLoggedIn: boolean) => void;
+const DashboardLayout = ({
+  children,
+  onboardingComplete,
+  setOnboardingComplete,
+  isOpen,
+  setIsOpen,
+  isLoggedIn,
+  setIsLoggedIn,
+}: {
+  children: React.ReactNode;
+  onboardingComplete: boolean;
+  setOnboardingComplete: (onboardingComplete: boolean) => void;
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  isLoggedIn: boolean;
+  setIsLoggedIn: (isLoggedIn: boolean) => void;
 }) => {
     const navigate = useNavigate();
     const [sidebarOpen] = useState(true);
@@ -48,35 +56,31 @@ const DashboardLayout = ({ children, onboardingComplete, setOnboardingComplete, 
 
     const sidebarTransform = sidebarOpen ? 'translate-x-0' : '-translate-x-full';
 
-    return (
+  return (
+    <div className="flex-1 flex flex-col">
+      <Header />
+      <div className="min-h-screen bg-gray-50 flex">
+        {/* Sidebar */}
+        <Sidebar
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
+          activeSection={activeSection}
+          onSectionChange={setActiveSection}
+          onboardingComplete={onboardingComplete}
+          companies={companies}
+          onCompanyChange={handleCompanyChange}
+          onAddNewEnterprise={handleAddNewEnterprise}
+          isLoggedIn={isLoggedIn}
+        />
+
         <div className="flex-1 flex flex-col">
-            <Header />
-            <div className="min-h-screen bg-gray-50 flex">
-                {/* Sidebar */}
-                <Sidebar
-                    isOpen={isOpen}
-                    onClose={() => setIsOpen(false)}
-                    activeSection={activeSection}
-                    onSectionChange={setActiveSection}
-                    onboardingComplete={onboardingComplete}
-                    companies={companies}
-                    onCompanyChange={handleCompanyChange}
-                    onAddNewEnterprise={handleAddNewEnterprise}
-                    isLoggedIn={isLoggedIn}
-                />
-
-                <div className="flex-1 flex flex-col">
-
-                    <div className={`transition-all duration-300`}>
-                        <div className="min-h-screen">
-                            {children}
-                        </div>
-                    </div>
-                    <Footer isLoggedIn={isLoggedIn} />
-                </div>
-            </div>
+          <div className={`transition-all duration-300`}>
+            <div className="min-h-screen">{children}</div>
+          </div>
+          <Footer isLoggedIn={isLoggedIn} />
         </div>
-
-    );
+      </div>
+    </div>
+  );
 };
 export default DashboardLayout;

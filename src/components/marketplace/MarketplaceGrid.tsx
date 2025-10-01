@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PromoCard } from '../PromoCard';
 import { MarketplaceCard } from './MarketplaceCard';
+import { KnowledgeHubCard } from './KnowledgeHubCard';
 import { MarketplaceQuickViewModal } from './MarketplaceQuickViewModal';
 import { getFallbackItems } from '../../utils/fallbackData';
 export interface MarketplaceItem {
@@ -92,6 +93,11 @@ export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
         {itemsWithPromos.map((entry, idx) => {
         if (entry.type === 'item') {
           const item = entry.data as MarketplaceItem;
+          // Use KnowledgeHubCard for knowledge-hub marketplace type
+          if (marketplaceType === 'knowledge-hub') {
+            return <KnowledgeHubCard key={`item-${item.id || idx}`} item={item} isBookmarked={bookmarkedItems.includes(item.id)} onToggleBookmark={() => onToggleBookmark(item.id)} onAddToComparison={() => onAddToComparison(item)} onQuickView={() => setQuickViewItem(item)} />;
+          }
+          // Use standard MarketplaceCard for other marketplace types
           return <MarketplaceCard key={`item-${item.id || idx}`} item={item} marketplaceType={marketplaceType} isBookmarked={bookmarkedItems.includes(item.id)} onToggleBookmark={() => onToggleBookmark(item.id)} onAddToComparison={() => onAddToComparison(item)} onQuickView={() => setQuickViewItem(item)} />;
         } else if (entry.type === 'promo') {
           const promo = entry.data as PromoCardData;

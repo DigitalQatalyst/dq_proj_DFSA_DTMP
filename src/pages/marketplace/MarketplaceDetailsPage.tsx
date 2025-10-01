@@ -1,6 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import { BookmarkIcon, StarIcon, ChevronRightIcon, HomeIcon } from "lucide-react";
+import {
+  BookmarkIcon,
+  StarIcon,
+  ChevronRightIcon,
+  HomeIcon,
+} from "lucide-react";
 import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
 import RequiredDocumentsTab from "../../components/marketplace/details/tabs/RequiredDocumentsTab";
@@ -17,7 +22,7 @@ import { ErrorDisplay } from "../../components/SkeletonLoader";
 import { Link } from "react-router-dom";
 import { useProductDetails } from "../../hooks/useProductDetails";
 interface MarketplaceDetailsPageProps {
-  marketplaceType: "courses" | "financial" | "non-financial";
+  marketplaceType: "courses" | "financial" | "non-financial" | "knowledge-hub";
   bookmarkedItems?: string[];
   onToggleBookmark?: (itemId: string) => void;
   onAddToComparison?: (item: any) => void;
@@ -160,6 +165,22 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       onAddToComparison(item);
     }
   };
+  const handlePrimaryAction = () => {
+    let url: string | undefined = (item as any)?.formUrl?.trim();
+    if (!url) {
+      url = "/forms/request-for-membership";
+    }
+    // External absolute URL: redirect
+    if (/^https?:\/\//i.test(url)) {
+      window.location.href = url;
+      return;
+    }
+    // Internal relative path: ensure it is prefixed with /forms/
+    if (!url.startsWith("/forms")) {
+      url = `/forms/${url.replace(/^\/+/, "")}`;
+    }
+    navigate(url);
+  };
   const retryFetch = () => {
     if (itemId) {
       try {
@@ -263,6 +284,8 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   // Extract display properties based on marketplace type
   const itemTitle = item.title;
   const itemDescription = item.description;
+  const serviceApplication = item.serviceApplication;
+  const logoUrl = item.customFields?.Logo?.source;
   const provider = item.provider;
   const primaryAction = config.primaryCTA;
   const secondaryAction = config.secondaryCTA;
@@ -298,6 +321,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             itemDescription={itemDescription}
             marketplaceType={marketplaceType}
             item={item}
+            serviceApplication={serviceApplication}
             config={config}
             highlights={highlights}
           />
@@ -309,14 +333,25 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       case "learning_outcomes":
         return <LearningOutcomesTab outcomes={highlights} />;
       case "eligibility_terms":
-        return <EligibilityTermsTab item={item} providerName={item.provider?.name || "Service Provider"} />;
+        return (
+          <EligibilityTermsTab
+            item={item}
+            providerName={item.provider?.name || "Service Provider"}
+          />
+        );
       case "application_process":
         return <ApplicationProcessTab process={item.applicationProcess} />;
       case "required_documents":
         return <RequiredDocumentsTab documents={item.requiredDocuments} />;
 
       case "provider":
-        return <ProviderTab provider={provider} marketplaceType={marketplaceType} item={item} />;
+        return (
+          <ProviderTab
+            provider={provider}
+            marketplaceType={marketplaceType}
+            item={item}
+          />
+        );
       // Add other tab cases as needed
       default:
         if (tab.renderContent) {
@@ -391,7 +426,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               {/* Provider */}
               <div className="flex items-center mb-3">
                 <img
-                  src={provider.logoUrl || "/image.png"}
+                  src={"/image.png"}
                   alt={`${provider.name} logo`}
                   className="h-10 w-10 object-contain mr-3 rounded-md"
                 />
@@ -420,7 +455,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   </span>
                 ))}
               </div>
-              {/* Ratings and bookmark row - Now in a separate row below tags */}
+              {/* Ratings and bookmark row - Now in a single row with proper alignment */}
               <div className="flex items-center justify-between w-full mb-4">
                 <div className="flex items-center">
                   {marketplaceType === "courses" && (
@@ -454,7 +489,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                     isBookmarked
                       ? "bg-yellow-100 text-yellow-600"
                       : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-                  }`}
+                  } ml-2`}
                   aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
                   title={isBookmarked ? "Remove bookmark" : "Add bookmark"}
                 >
@@ -504,7 +539,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   </div>
                 ))}
               </div>
-              {/* Mobile Summary Card - only visible on mobile/tablet */}
+              {/* Mobile/Tablet Summary Card - only visible on mobile/tablet */}
               <div className="lg:hidden mt-8">
                 <SummaryCard
                   isFloating={false}
@@ -513,6 +548,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   detailItems={detailItems}
                   highlights={highlights}
                   primaryAction={primaryAction}
+                  onPrimaryAction={handlePrimaryAction}
                   onAddToComparison={handleAddToComparison}
                   onCloseFloating={() => setIsFloatingCardVisible(false)}
                 />
@@ -528,6 +564,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                     detailItems={detailItems}
                     highlights={highlights}
                     primaryAction={primaryAction}
+                    onPrimaryAction={handlePrimaryAction}
                     onAddToComparison={handleAddToComparison}
                     onCloseFloating={() => setIsFloatingCardVisible(false)}
                   />
@@ -536,6 +573,19 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             </div>
           </div>
         </div>
+        {/* Floating card - visible when scrolled past hero section */}
+        {isVisible && isFloatingCardVisible && (
+          <SummaryCard
+            isFloating={true}
+            config={config}
+            detailItems={detailItems}
+            highlights={highlights}
+            primaryAction={primaryAction}
+            onPrimaryAction={handlePrimaryAction}
+            onAddToComparison={handleAddToComparison}
+            onCloseFloating={() => setIsFloatingCardVisible(false)}
+          />
+        )}
         {/* Related Items */}
         <section className="bg-gray-50 py-10 border-t border-gray-200">
           <div className="container mx-auto px-4 md:px-6 max-w-7xl">
@@ -566,7 +616,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                     >
                       <div className="flex items-center mb-3">
                         <img
-                          src={relatedItem.provider.logoUrl || "/image.png"}
+                          src={"/image.png"}
                           alt={relatedItem.provider.name}
                           className="h-8 w-8 object-contain mr-2 rounded"
                         />
@@ -621,7 +671,10 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   {item.duration || item.serviceType || ""}
                 </div>
               </div>
-              <button className="flex-1 px-4 py-3 text-white font-bold rounded-md bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600 hover:from-teal-600 hover:via-blue-600 hover:to-purple-700 transition-colors shadow-md">
+              <button
+                onClick={handlePrimaryAction}
+                className="flex-1 px-4 py-3 text-white font-bold rounded-md bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600 hover:from-teal-600 hover:via-blue-600 hover:to-purple-700 transition-colors shadow-md"
+              >
                 {primaryAction}
               </button>
             </div>

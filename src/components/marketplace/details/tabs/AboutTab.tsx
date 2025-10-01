@@ -1,6 +1,7 @@
 import React from "react";
 
 export interface AboutTabProps {
+  serviceApplication: string;
   itemDescription: string;
   marketplaceType: "courses" | "financial" | "non-financial";
   item: any;
@@ -9,6 +10,7 @@ export interface AboutTabProps {
 }
 
 const AboutTab: React.FC<AboutTabProps> = ({
+  serviceApplication,
   itemDescription,
   marketplaceType,
   item,
@@ -23,32 +25,12 @@ const AboutTab: React.FC<AboutTabProps> = ({
       </p>
       <div className="prose max-w-none">
         <p className="text-gray-700 mb-5">{itemDescription}</p>
-        {marketplaceType === "courses" && (
-          <p className="text-gray-700">
-            This course is designed to accommodate {item.businessStage}{" "}
-            businesses, with a focus on practical applications that you can
-            implement immediately. Our experienced instructors bring real-world
-            expertise to help you navigate the challenges of modern business
-            environments.
-          </p>
-        )}
+
         {marketplaceType === "financial" && (
-          <p className="text-gray-700">
-            This financial service is tailored for businesses at the{" "}
-            {item.businessStage || "growth"} stage, providing the financial
-            resources needed to achieve your business objectives. With
-            competitive terms and a streamlined application process, you can
-            access the funding you need quickly and efficiently.
-          </p>
+          <p className="text-gray-700">{serviceApplication}</p>
         )}
         {marketplaceType === "non-financial" && (
-          <p className="text-gray-700">
-            This service is designed to support businesses at all stages, with
-            particular benefits for those in the{" "}
-            {item.businessStage || "growth"} phase. Our team of experts will
-            work closely with you to ensure you receive the maximum value and
-            can implement effective solutions for your specific business needs.
-          </p>
+          <p className="text-gray-700">{serviceApplication}</p>
         )}
       </div>
       <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">

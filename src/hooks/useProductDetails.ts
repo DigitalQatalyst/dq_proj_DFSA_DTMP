@@ -1,7 +1,37 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client/react";
 import { GET_PRODUCT } from "../services/marketplaceQueries";
-import { getFallbackItemDetails, getFallbackItems } from "../utils/fallbackData";
+import {
+  getFallbackItemDetails,
+  getFallbackItems,
+} from "../utils/fallbackData";
+
+// Normalize eligibility display to the first non-empty segment before a semicolon
+const normalizeEligibility = (val: any): string | undefined => {
+  if (Array.isArray(val)) {
+    const first = val.find((e: any) => typeof e === "string" && e.trim() !== "");
+    return first ? String(first).split(";")[0].trim() : undefined;
+  }
+  if (typeof val === "string") {
+    return val.split(";")[0].trim();
+  }
+  return undefined;
+};
+
+// Extract a human-readable document name without extension
+const normalizeDocumentName = (raw: string): string => {
+  if (!raw) return "";
+  // Remove query/hash
+  let s = raw.split("#")[0].split("?")[0];
+  // Extract basename from URL or path
+  const parts = s.split(/[/\\]/);
+  s = parts[parts.length - 1] || s;
+  // If there's no dot or it's a hidden file like ".env", just return trimmed
+  if (!/\./.test(s.replace(/^\.+/, ""))) return s.trim();
+  // Strip last extension
+  s = s.replace(/\.[^.\/\\]+$/, "");
+  return s.trim();
+};
 
 export interface UseProductDetailsArgs {
   itemId?: string;
@@ -16,7 +46,11 @@ export interface ProductItem {
   [key: string]: any;
 }
 
-export function useProductDetails({ itemId, marketplaceType, shouldTakeAction }: UseProductDetailsArgs) {
+export function useProductDetails({
+  itemId,
+  marketplaceType,
+  shouldTakeAction,
+}: UseProductDetailsArgs) {
   const [item, setItem] = useState<ProductItem | null>(null);
   const [relatedItems, setRelatedItems] = useState<any[]>([]);
 
@@ -28,6 +62,28 @@ export function useProductDetails({ itemId, marketplaceType, shouldTakeAction }:
   const mapProductToItem = (product: any): ProductItem | null => {
     if (!product) return null;
     const cf = (product as any).customFields || {};
+    // Resolve provider logo strictly from CustomFields.Logo.source
+    const logoFromCFArray = Array.isArray(cf.Logo)
+      ? (cf.Logo[0] as any)?.source
+      : undefined;
+    const logoFromCFObject = !Array.isArray(cf.Logo)
+      ? (cf.Logo as any)?.source
+      : undefined;
+    const toAbsolute = (url?: string) => {
+      if (!url) return undefined;
+      if (/^https?:\/\//i.test(url)) return url;
+      const base = (import.meta as any)?.env?.VITE_ASSETS_BASE_URL || "";
+      if (base) {
+        const trimmedBase = String(base).replace(/\/$/, "");
+        return `${trimmedBase}${url}`;
+      }
+      return url; // fallback: hope it's valid as-is
+    };
+    const resolvedLogo =
+      toAbsolute(logoFromCFArray) ||
+      toAbsolute(logoFromCFObject) ||
+      "/image.png";
+
     return {
       id: product.id,
       title: product.name,
@@ -38,17 +94,60 @@ export function useProductDetails({ itemId, marketplaceType, shouldTakeAction }:
       price: cf.Cost,
       processingTime: cf.ProcessingTime,
       amount: cf.Cost,
-      details: Array.isArray(cf.Steps) ? cf.Steps : cf.TermsOfService ? [cf.TermsOfService] : [],
+      interestRate: cf.InterestRate,
+      serviceApplication: cf.ServiceApplication,
+      // URL/path to the application form
+      formUrl: typeof cf.formUrl === "string" ? cf.formUrl.trim() : undefined,
+      // Eligibility mapping for EligibilityTermsTab
+      eligibilityCriteria: Array.isArray(cf.Eligibility)
+        ? cf.Eligibility.filter((e: any) => typeof e === "string" && e.trim() !== "")
+        : undefined,
+      eligibility: normalizeEligibility(cf.Eligibility),
+      // Highlights/details mapping
+      // Prefer KeyHighlights when present; otherwise fall back to Steps or TermsOfService
+      details: Array.isArray(cf.KeyHighlights)
+        ? cf.KeyHighlights
+        : typeof cf.KeyHighlights === "string" && cf.KeyHighlights.trim() !== ""
+        ? [cf.KeyHighlights]
+        : Array.isArray(cf.Steps)
+        ? cf.Steps
+        : typeof cf.Steps === "string" && cf.Steps.trim() !== ""
+        ? [cf.Steps]
+        : typeof cf.TermsOfService === "string" && cf.TermsOfService.trim() !== ""
+        ? [cf.TermsOfService]
+        : [],
+      // Expose learning outcomes specifically for course views
+      learningOutcomes: Array.isArray(cf.KeyHighlights)
+        ? cf.KeyHighlights
+        : typeof cf.KeyHighlights === "string" && cf.KeyHighlights.trim() !== ""
+        ? [cf.KeyHighlights]
+        : [],
       requiredDocuments: Array.isArray(cf.RequiredDocuments)
         ? cf.RequiredDocuments
-            .map((d: any) => (typeof d === "string" ? d : d?.name || d?.source || ""))
-            .filter(Boolean)
+            .map((d: any) => {
+              if (typeof d === "string") return normalizeDocumentName(d);
+              const raw = d?.name || d?.source || "";
+              return normalizeDocumentName(raw);
+            })
+            .filter((s: string) => !!s)
         : [],
-      keyTerms: Array.isArray(cf.TermsOfService) ? cf.TermsOfService.join(", ") : cf.TermsOfService,
+      // Prefer new fields for terms when available
+      keyTerms:
+        (Array.isArray(cf.KeyTermsOfService)
+          ? cf.KeyTermsOfService.join(", ")
+          : cf.KeyTermsOfService) ||
+        (Array.isArray(cf.TermsOfService)
+          ? cf.TermsOfService.join(", ")
+          : cf.TermsOfService),
+      additionalTerms: Array.isArray(cf.AdditionalTermsOfService)
+        ? cf.AdditionalTermsOfService
+        : cf.AdditionalTermsOfService
+        ? [cf.AdditionalTermsOfService]
+        : undefined,
       tags: [cf.Industry, cf.CustomerType, cf.BusinessStage].filter(Boolean),
       provider: {
         name: "Service Provider",
-        logoUrl: "/image.png",
+        logoUrl: resolvedLogo,
       },
       providerLocation: "UAE",
     } as any;
@@ -60,7 +159,10 @@ export function useProductDetails({ itemId, marketplaceType, shouldTakeAction }:
 
     if (!product) {
       // fallback path if no product in response
-      const fallback = getFallbackItemDetails(marketplaceType, itemId || "fallback-1");
+      const fallback = getFallbackItemDetails(
+        marketplaceType,
+        itemId || "fallback-1"
+      );
       if (fallback) {
         setItem(fallback);
         setRelatedItems(getFallbackItems(marketplaceType));
@@ -72,7 +174,10 @@ export function useProductDetails({ itemId, marketplaceType, shouldTakeAction }:
     if (!mapped) return;
 
     // merge with fallback to fill gaps
-    const fallbackForItem = getFallbackItemDetails(marketplaceType, itemId || "fallback-1");
+    const fallbackForItem = getFallbackItemDetails(
+      marketplaceType,
+      itemId || "fallback-1"
+    );
     const merged: any = { ...(fallbackForItem || {}), ...mapped };
     if (fallbackForItem) {
       for (const key of Object.keys(fallbackForItem)) {
@@ -92,6 +197,9 @@ export function useProductDetails({ itemId, marketplaceType, shouldTakeAction }:
       };
     }
 
+    // Ensure eligibility is shortened even if it came from fallback
+    merged.eligibility = normalizeEligibility(merged.eligibility) ?? merged.eligibility;
+
     setItem(merged);
 
     const rs = product?.customFields?.RelatedServices;
@@ -102,7 +210,7 @@ export function useProductDetails({ itemId, marketplaceType, shouldTakeAction }:
           description: x.description || "",
           provider: {
             name: merged.provider?.name,
-            logoUrl: merged.provider?.logoUrl,
+            logoUrl: merged.provider?.logoUrl || "/mzn_logo.png",
           },
           tags: [],
         }))
@@ -118,8 +226,9 @@ export function useProductDetails({ itemId, marketplaceType, shouldTakeAction }:
         title: x.title || x.name || "Related Service",
         description: x.description || "",
         provider: {
-          name: x.provider?.name || (merged.provider?.name || "Service Provider"),
-          logoUrl: x.provider?.logoUrl || (merged.provider?.logoUrl || "/mzn_logo.png"),
+          name: x.provider?.name || merged.provider?.name || "Service Provider",
+          logoUrl:
+            x.provider?.logoUrl || merged.provider?.logoUrl || "/mzn_logo.png",
         },
         tags: Array.isArray(x.tags) ? x.tags : [],
       }));
@@ -127,7 +236,9 @@ export function useProductDetails({ itemId, marketplaceType, shouldTakeAction }:
 
     if (shouldTakeAction) {
       setTimeout(() => {
-        document.getElementById("action-section")?.scrollIntoView({ behavior: "smooth" });
+        document
+          .getElementById("action-section")
+          ?.scrollIntoView({ behavior: "smooth" });
       }, 100);
     }
   }, [data, itemId, marketplaceType, shouldTakeAction]);
