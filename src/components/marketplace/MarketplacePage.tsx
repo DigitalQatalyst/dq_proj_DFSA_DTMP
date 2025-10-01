@@ -113,10 +113,6 @@ interface GetProductsData {
   };
 }
 
-interface GetProductsVariables {
-  take: number;
-}
-
 export interface MarketplacePageProps {
   marketplaceType: "courses" | "financial" | "non-financial" | "knowledge-hub";
   title: string;
@@ -125,8 +121,6 @@ export interface MarketplacePageProps {
 }
 export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   marketplaceType,
-  title,
-  description,
   promoCards = [],
 }) => {
   const navigate = useNavigate();
@@ -279,7 +273,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     const pending = location?.state?.addToCompare;
     if (pending) {
       // Add if not present and under cap
-      if (!compareItems.some((c) => c.id === pending.id) && compareItems.length < 3) {
+      if (
+        !compareItems.some((c) => c.id === pending.id) &&
+        compareItems.length < 3
+      ) {
         setCompareItems((prev) => [...prev, pending]);
         storageAddCompareId(marketplaceType, pending.id);
       }
@@ -379,10 +376,13 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     [compareItems, marketplaceType]
   );
   // Remove an item from comparison
-  const handleRemoveFromComparison = useCallback((itemId: string) => {
-    setCompareItems((prev) => prev.filter((item) => item.id !== itemId));
-    storageRemoveCompareId(marketplaceType, itemId);
-  }, [marketplaceType]);
+  const handleRemoveFromComparison = useCallback(
+    (itemId: string) => {
+      setCompareItems((prev) => prev.filter((item) => item.id !== itemId));
+      storageRemoveCompareId(marketplaceType, itemId);
+    },
+    [marketplaceType]
+  );
   // Retry loading items after an error
   const retryFetch = useCallback(() => {
     setError(null);
