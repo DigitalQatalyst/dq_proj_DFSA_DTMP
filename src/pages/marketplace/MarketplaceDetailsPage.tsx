@@ -18,6 +18,7 @@ import ApplicationProcessTab from "../../components/marketplace/details/tabs/App
 import SummaryCard from "../../components/marketplace/details/SummaryCard";
 import TabsNav from "../../components/marketplace/details/TabsNav";
 import { getMarketplaceConfig } from "../../utils/marketplaceConfiguration";
+import { addCompareId } from "../../utils/comparisonStorage";
 import { ErrorDisplay } from "../../components/SkeletonLoader";
 import { Link } from "react-router-dom";
 import { useProductDetails } from "../../hooks/useProductDetails";
@@ -30,8 +31,8 @@ interface MarketplaceDetailsPageProps {
 const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   marketplaceType,
   bookmarkedItems = [],
-  onToggleBookmark = () => {},
-  onAddToComparison = () => {},
+  onToggleBookmark = (_: string) => {},
+  onAddToComparison = (_: any) => {},
 }) => {
   const { itemId } = useParams<{
     itemId: string;
@@ -162,7 +163,14 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   };
   const handleAddToComparison = () => {
     if (item) {
+      // Persist selection locally so it is available on marketplace pages
+      addCompareId(marketplaceType, item.id);
+      // Keep existing behavior: inform parent handler (if provided)
       onAddToComparison(item);
+      // Navigate to marketplace listing so the user can add more services,
+      // also pass the item in state for immediate UI hydration
+      const configForType = getMarketplaceConfig(marketplaceType);
+      navigate(configForType.route, { state: { addToCompare: item } });
     }
   };
   const handlePrimaryAction = () => {
