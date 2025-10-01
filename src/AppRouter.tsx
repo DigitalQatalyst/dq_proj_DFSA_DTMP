@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { CourseType } from "./utils/mockData";
 import { AuthProvider } from "./components/Header";
 import { MarketplaceRouter } from "./pages/marketplace/MarketplaceRouter";
-import { App } from './App';
+import { App } from "./App";
 import MarketplaceDetailsPage from "./pages/marketplace/MarketplaceDetailsPage";
 import DashboardRouter from "./pages/dashboard/DashboardRouter";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -12,7 +12,19 @@ import NotFound from "./pages/NotFound";
 import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
 import KfBot from "./bot/KfBot";
-import MediaDetailPage from "./pages/media/MediaDetailPage";
+// Forms
+import NeedsAssessmentForm from "./pages/forms/NeedsAssessmentForm";
+import RequestForMembership from "./pages/forms/RequestForMembership";
+import RequestForFunding from "./pages/forms/RequestForFunding";
+import BookConsultationForEntrepreneurship from "./pages/forms/BookConsultationForEntrepreneurship";
+import CancelLoan from "./pages/forms/CancelLoan";
+import CollateralUserGuide from "./pages/forms/CollateralUserGuide";
+import DisburseApprovedLoan from "./pages/forms/DisburseApprovedLoan";
+import FacilitateCommunication from "./pages/forms/FacilitateCommunication";
+import ReallocationOfLoanDisbursement from "./pages/forms/ReallocationOfLoanDisbursement";
+import RequestToAmendExistingLoanDetails from "./pages/forms/RequestToAmendExistingLoanDetails";
+import TrainingInEntrepreneurship from "./pages/forms/TrainingInEntrepreneurship";
+import IssueSupportLetter from "./pages/forms/IssueSupportLetter";
 
 export function AppRouter() {
   const [bookmarkedCourses, setBookmarkedCourses] = useState<string[]>([]);
@@ -35,50 +47,85 @@ export function AppRouter() {
     }
   };
 
-
-  const client = new ApolloClient({
-    link: new HttpLink({
-      uri: "https://9609a7336af8.ngrok-free.app/services-api",
-    }), // <-- Use HttpLink
-    cache: new InMemoryCache(),
-  });
-
   return (
-    <ApolloProvider client={client}>
-      <BrowserRouter>
-        <AuthProvider>
-          <KfBot />
-          <Routes>
-            <Route path="/" element={<App />} />
-            <Route path="/courses" element={<App />} />
-            <Route
-              path="/courses/:itemId"
-              element={
-                <MarketplaceDetailsPage
-                  marketplaceType="courses"
-                  bookmarkedItems={bookmarkedCourses}
-                  onToggleBookmark={toggleBookmark}
-                  onAddToComparison={handleAddToComparison}
-                />
-              }
-            />
-            <Route path="/marketplace/*" element={<MarketplaceRouter />} />
-            <Route path="/media/:type/:id" element={<MediaDetailPage />} />
-            <Route
-              path="/dashboard/*"
-              element={
-                // <ProtectedRoute>
-                  <DashboardRouter />
-                // </ProtectedRoute>
-              }
-            />
-            <Route path="/discover-abudhabi" element={<DiscoverAbuDhabi />} />
-            <Route path="/404" element={<NotFound />} />
+    <BrowserRouter>
+      <AuthProvider>
+        <KfBot />
+        <Routes>
+          <Route path="/" element={<App />} />
+          <Route path="/courses" element={<App />} />
+          <Route
+            path="/courses/:itemId"
+            element={
+              <MarketplaceDetailsPage
+                marketplaceType="courses"
+                bookmarkedItems={bookmarkedCourses}
+                onToggleBookmark={toggleBookmark}
+                onAddToComparison={handleAddToComparison}
+              />
+            }
+          />
+          <Route path="/marketplace/*" element={<MarketplaceRouter />} />
+          <Route
+            path="/dashboard/*"
+            element={
+              // <ProtectedRoute>
+              <DashboardRouter />
+              // </ProtectedRoute>
+            }
+          />
+          <Route path="/discover-abudhabi" element={<DiscoverAbuDhabi />} />
+          {/** Forms routes */}
+          <Route
+            path="/forms/needs-assessment"
+            element={<NeedsAssessmentForm />}
+          />
+          <Route
+            path="/forms/request-for-membership"
+            element={<RequestForMembership />}
+          />
+          <Route
+            path="/forms/request-for-funding"
+            element={<RequestForFunding />}
+          />
+          <Route
+            path="/forms/book-consultation"
+            element={<BookConsultationForEntrepreneurship />}
+          />
+          <Route path="/forms/cancel-loan" element={<CancelLoan />} />
+          <Route
+            path="/forms/collateral-user-guide"
+            element={<CollateralUserGuide />}
+          />
+          <Route
+            path="/forms/disburse-approved-loan"
+            element={<DisburseApprovedLoan />}
+          />
+          <Route
+            path="/forms/facilitate-communication"
+            element={<FacilitateCommunication />}
+          />
+          <Route
+            path="/forms/reallocation-of-loan-disbursement"
+            element={<ReallocationOfLoanDisbursement />}
+          />
+          <Route
+            path="/forms/request-to-amend-existing-loan-details"
+            element={<RequestToAmendExistingLoanDetails />}
+          />
+          <Route
+            path="/forms/training-in-entrepreneurship"
+            element={<TrainingInEntrepreneurship />}
+          />
+          <Route
+            path="/forms/issue-support-letter"
+            element={<IssueSupportLetter />}
+          />
+          <Route path="/404" element={<NotFound />} />
 
-            <Route path="*" element={<Navigate to="/404" replace />} />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
-    </ApolloProvider>
+          <Route path="*" element={<Navigate to="/404" replace />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }

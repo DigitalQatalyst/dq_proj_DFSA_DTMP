@@ -128,41 +128,17 @@ export const AnimatedText = ({
   React.useEffect(() => {
     if (isInView && !hasAnimated && once) setHasAnimated(true);
   }, [isInView, hasAnimated, once]);
-
-  // Wrapper style: prefer wordSpacing if provided
-  const wrapperStyle: React.CSSProperties | undefined = wordSpacing
-    ? { wordSpacing }
-    : undefined;
-
-  return (
-    <span
-      ref={ref as React.RefObject<HTMLSpanElement>}
-      className={className}
-      style={wrapperStyle}
-    >
-      {words.map((word, i) => {
-        // If using gap (margin between words), apply it to all but the last word
-        const marginRight =
-          !wordSpacing && gap && i < words.length - 1 ? gap : undefined;
-
-        return (
-          <span
-            key={`${word}-${i}`}
-            className="inline-block"
-            style={{
-              opacity: shouldAnimate ? 1 : 0,
-              transform: shouldAnimate ? "translateY(0)" : "translateY(20px)",
-              transition: `opacity ${duration}s ease-out, transform ${duration}s ease-out`,
-              transitionDelay: `${delay * i}s`,
-              marginRight,
-            }}
-          >
-            {word}
-          </span>
-        );
-      })}
-    </span>
-  );
+  return <span ref={ref as React.RefObject<HTMLSpanElement>} className={className}>
+      {words.map((word, i) => <span key={i} className="inline-block" style={{
+      opacity: shouldAnimate ? 1 : 0,
+      transform: shouldAnimate ? 'translateY(0)' : 'translateY(20px)',
+      transition: `opacity ${duration}s ease-out, transform ${duration}s ease-out`,
+      transitionDelay: `${delay * i}s`,
+      marginRight: '1rem',
+    }}>
+          {word}{' '}
+        </span>)}
+    </span>;
 };
 
 // Animated element that fades and slides up when scrolled into view
