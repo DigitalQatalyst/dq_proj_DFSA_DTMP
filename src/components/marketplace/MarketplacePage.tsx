@@ -232,7 +232,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             id: product.id,
             title: product.name,
             slug: product.slug,
-            description: product.description,
+            description: product.description || "Through this service, you can easily reallocate your approved loan funds to different areas of your business to support changing needs and enhance growth.",
             facetValues: product.facetValues,
             provider: {
               name: product.customFields?.Industry || "Unknown Provider",
