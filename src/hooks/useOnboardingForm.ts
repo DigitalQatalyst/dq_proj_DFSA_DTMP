@@ -201,7 +201,6 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
         console.log(result);
 
         if (result.success) {
-          console.log("tuseme ni success");
           onComplete();
         } else {
           setSubmitError(
