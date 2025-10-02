@@ -131,6 +131,28 @@ export function useProductDetails({
             })
             .filter((s: string) => !!s)
         : [],
+      // Normalize application process steps from CustomFields.Steps
+      applicationProcess: Array.isArray(cf.Steps)
+        ? cf.Steps
+            .map((s: any) => {
+              if (typeof s === "string") {
+                return { title: s, description: "" };
+              }
+              if (s && typeof s === "object") {
+                const title =
+                  typeof s.title === "string" && s.title.trim() !== ""
+                    ? s.title.trim()
+                    : typeof s.name === "string" && s.name.trim() !== ""
+                    ? s.name.trim()
+                    : "";
+                const description =
+                  typeof s.description === "string" ? s.description : "";
+                return { title, description };
+              }
+              return { title: "", description: "" };
+            })
+            .filter((x: any) => x.title !== "")
+        : undefined,
       // Prefer new fields for terms when available
       keyTerms:
         (Array.isArray(cf.KeyTermsOfService)
@@ -146,7 +168,11 @@ export function useProductDetails({
         : undefined,
       tags: [cf.Industry, cf.CustomerType, cf.BusinessStage].filter(Boolean),
       provider: {
-        name: "Service Provider",
+        // Prefer explicit Partner field from customFields, otherwise fallback to Khalifa Fund
+        name:
+          (typeof cf.Partner === "string" && cf.Partner.trim() !== ""
+            ? cf.Partner.trim()
+            : undefined) || "Khalifa Fund",
         logoUrl: resolvedLogo,
       },
       providerLocation: "UAE",

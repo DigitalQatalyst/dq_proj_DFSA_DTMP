@@ -335,8 +335,7 @@ export const mockFinancialServices = [
     amount: "Up to AED 5 million",
     duration: "5-7 years",
     interestRate: "Starting from 3%",
-    eligibility:
-      "Business must be operating for at least 2 years with annual revenue of AED 1 million+",
+    eligibility: "At least 2 years of operation",
     details: [
       "No collateral required for loans up to AED 1 million",
       "Flexible repayment options",
@@ -446,7 +445,7 @@ export const mockFinancialServices = [
     amount: "Credit limit up to AED 500,000",
     duration: "Revolving credit",
     interestRate: "18% APR",
-    eligibility: "At least 2 years of operation",
+    eligibility: "  Registered businesses with good credit history",
     details: [
       "Business-specific rewards and cashback",
       "Multiple cards for employees with spending controls",
