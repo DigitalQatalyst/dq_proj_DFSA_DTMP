@@ -152,7 +152,6 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     error: facetError,
   } = useQuery<GetFacetsData>(GET_FACETS);
   // Load filter configurations based on marketplace type
- // ...existing code...
   useEffect(() => {
     const loadFilterOptions = async () => {
       try {
@@ -201,7 +200,6 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     };
     loadFilterOptions();
   }, [facetData, marketplaceType]);
-// ...existing code...
 
   // Fetch items based on marketplace type, filters, and search query
   useEffect(() => {
@@ -228,20 +226,37 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           }
 
           // Map product data to match expected MarketplaceItem structure
-          const mappedItems = filteredServices.map((product) => ({
-            id: product.id,
-            title: product.name,
-            slug: product.slug,
-            description: product.description || "Through this service, you can easily reallocate your approved loan funds to different areas of your business to support changing needs and enhance growth.",
-            facetValues: product.facetValues,
-            provider: {
-              name: product.customFields?.Industry || "Unknown Provider",
-              logoUrl: product.customFields?.Logo?.source || "/mzn_logo.png",
-              description: "No provider description available",
-            },
-            formUrl: product.customFields?.formUrl || "/forms/request-for-membership", // <-- Add this line
-            ...product.customFields,
-          }));
+          const mappedItems = filteredServices.map((product) => {
+            // Debug: Log the entire product.customFields
+            console.log(`Product ID: ${product.id}, customFields:`, product.customFields);
+            // Debug: Log the Logo field specifically
+            console.log(`Product ID: ${product.id}, Logo:`, product.customFields?.Logo);
+            // Debug: Log whether Logo is an array and its length
+            console.log(`Product ID: ${product.id}, Is Logo an array?`, Array.isArray(product.customFields?.Logo));
+            console.log(`Product ID: ${product.id}, Logo length:`, product.customFields?.Logo?.length);
+            // Debug: Log the calculated logoUrl
+            const logoUrl = product.customFields?.Logo && Array.isArray(product.customFields.Logo) && product.customFields.Logo.length > 0 && product.customFields.Logo[0].source
+              ? product.customFields.Logo[0].source.replace(/\\/g, "/")
+              : "/mzn_logo.png";
+            console.log(`Product ID: ${product.id}, Calculated logoUrl:`, logoUrl);
+
+            return {
+              id: product.id,
+              title: product.name,
+              slug: product.slug,
+              description: product.description || "Through this service, you can easily reallocate your approved loan funds to different areas of your business to support changing needs and enhance growth.",
+              facetValues: product.facetValues,
+              provider: {
+                name: product.customFields?.Industry || "Unknown Provider",
+                logoUrl: product.customFields?.Logo && Array.isArray(product.customFields.Logo) && product.customFields.Logo.length > 0 && product.customFields.Logo[0].source
+                  ? product.customFields.Logo[0].source.replace(/\\/g, "/")
+                  : "/mzn_logo.png",
+                description: "No provider description available",
+              },
+              formUrl: product.customFields?.formUrl || "/forms/request-for-membership",
+              ...product.customFields,
+            };
+          });
 
           // Apply filters and search query
           const filtered = mappedItems.filter((product: any) => {
