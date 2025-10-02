@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   XIcon,
   PhoneIcon,
@@ -9,6 +10,7 @@ import {
   TagIcon,
   BarChart3Icon,
 } from "lucide-react";
+import { useScrollLock } from "../../hooks/useScrollLock";
 interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -30,36 +32,95 @@ interface ProfileModalProps {
 }
 const ProfileModal = ({ isOpen, onClose, profile }: ProfileModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+ 
+  // Use the scroll lock hook to prevent background scrolling
+  useScrollLock(isOpen);
+ 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         onClose();
       }
     };
+ 
     const handleClickOutside = (e: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+      if (overlayRef.current && e.target === overlayRef.current) {
         onClose();
       }
     };
+ 
     if (isOpen) {
+      // Additional scroll prevention
+      const preventScroll = (e: Event) => {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      };
+ 
       document.addEventListener("keydown", handleEscape);
       document.addEventListener("mousedown", handleClickOutside);
-      document.body.style.overflow = "hidden";
+      document.addEventListener("wheel", preventScroll, { passive: false });
+      document.addEventListener("touchmove", preventScroll, { passive: false });
+ 
+      return () => {
+        document.removeEventListener("keydown", handleEscape);
+        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener("wheel", preventScroll);
+        document.removeEventListener("touchmove", preventScroll);
+      };
     }
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.body.style.overflow = "auto";
-    };
   }, [isOpen, onClose]);
+ 
   if (!isOpen || !profile) return null;
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4 animate-fadeIn">
+ 
+  // Create or get modal root
+  let modalRoot = document.getElementById("modal-root");
+  if (!modalRoot) {
+    modalRoot = document.createElement("div");
+    modalRoot.id = "modal-root";
+    modalRoot.style.position = "fixed";
+    modalRoot.style.top = "0";
+    modalRoot.style.left = "0";
+    modalRoot.style.width = "100%";
+    modalRoot.style.height = "100%";
+    modalRoot.style.zIndex = "9999";
+    modalRoot.style.pointerEvents = "none";
+    document.body.appendChild(modalRoot);
+  }
+ 
+  const modalContent = (
+    <div
+      ref={overlayRef}
+      className="fixed inset-0 bg-black bg-opacity-75 z-[9999] flex items-center justify-center p-4 animate-fadeIn"
+      style={{
+        position: "fixed",
+        top: "0px",
+        left: "0px",
+        right: "0px",
+        bottom: "0px",
+        width: "100vw",
+        height: "100vh",
+        margin: "0px",
+        padding: "1rem",
+        transform: "translate3d(0, 0, 0)",
+        zIndex: 9999,
+        pointerEvents: "auto",
+      }}
+    >
       <div
         ref={modalRef}
-        className="bg-white rounded-xl overflow-hidden max-w-4xl w-full max-h-[90vh] shadow-2xl relative"
+        className="bg-white rounded-xl overflow-hidden max-w-4xl w-full max-h-[90vh] shadow-2xl relative flex flex-col transform transition-all duration-300 scale-100"
+        style={{
+          maxHeight: "90vh",
+          margin: "auto",
+          position: "relative",
+          top: "auto",
+          left: "auto",
+          transform: "none",
+        }}
       >
-        <div className="p-6 flex justify-between items-center border-b sticky top-0 bg-white z-10">
+        <div className="p-6 flex justify-between items-center border-b bg-white z-10 flex-shrink-0">
           <div className="flex items-center">
             <div className="w-12 h-12 rounded-lg bg-gray-50 flex items-center justify-center overflow-hidden mr-4 shadow-sm">
               <img
@@ -85,7 +146,7 @@ const ProfileModal = ({ isOpen, onClose, profile }: ProfileModalProps) => {
             <XIcon size={20} />
           </button>
         </div>
-        <div className="overflow-y-auto p-6">
+        <div className="overflow-y-auto p-6 flex-1 min-h-0">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-2">
               <h4 className="font-display text-lg font-bold mb-4">About</h4>
@@ -204,5 +265,9 @@ const ProfileModal = ({ isOpen, onClose, profile }: ProfileModalProps) => {
       </div>
     </div>
   );
+ 
+  return createPortal(modalContent, modalRoot);
 };
 export default ProfileModal;
+ 
+ 
