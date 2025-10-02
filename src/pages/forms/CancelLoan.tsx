@@ -9,6 +9,7 @@ function BookConsultationForEntrepreneurship() {
     console.log("Form submitted:", data);
     alert("Form submitted successfully!");
   };
+
   const handleSave = async (data: any) => {
     console.log("Form saved:", data);
     setFormData(data);

@@ -112,24 +112,21 @@ const Toast = ({ message, type = "success", onClose }) => {
   return (
     <div className="fixed bottom-4 right-4 z-50 animate-slide-up">
       <div
-        className={`rounded-lg shadow-lg p-4 flex items-start ${
-          type === "success"
-            ? "bg-green-50 border-l-4 border-green-500"
-            : "bg-red-50 border-l-4 border-red-500"
-        }`}
+        className={`rounded-lg shadow-lg p-4 flex items-start ${type === "success"
+          ? "bg-green-50 border-l-4 border-green-500"
+          : "bg-red-50 border-l-4 border-red-500"
+          }`}
       >
         <div
-          className={`flex-shrink-0 mr-3 ${
-            type === "success" ? "text-green-500" : "text-red-500"
-          }`}
+          className={`flex-shrink-0 mr-3 ${type === "success" ? "text-green-500" : "text-red-500"
+            }`}
         >
           {type === "success" ? <CheckCircle size={20} /> : <X size={20} />}
         </div>
         <div className="flex-1">
           <p
-            className={`text-sm font-medium ${
-              type === "success" ? "text-green-800" : "text-red-800"
-            }`}
+            className={`text-sm font-medium ${type === "success" ? "text-green-800" : "text-red-800"
+              }`}
           >
             {message}
           </p>
@@ -166,7 +163,7 @@ const CTACard: React.FC<CTACardProps> = ({
   description,
   buttonText,
   buttonColor,
-  onClick = () => {},
+  onClick = () => { },
   delay = 0,
   isExpanded = false,
   onExpand = undefined,
@@ -221,55 +218,53 @@ const CTACard: React.FC<CTACardProps> = ({
         {!isExpanded ? (
           <>
             <div
-              className={`${
-                buttonColor === "blue"
-                  ? "bg-blue-100"
-                  : buttonColor === "green"
+              className={`${buttonColor === "blue"
+                ? "bg-blue-100"
+                : buttonColor === "green"
                   ? "bg-emerald-100"
                   : "bg-purple-100"
-              } p-4 rounded-full inline-block mb-6 transition-transform duration-500 ${
-                isHovered ? "scale-110" : ""
-              }`}
+                } p-4 rounded-full inline-block mb-6 transition-transform duration-500 ${isHovered ? "scale-110" : ""
+                }`}
             >
               {icon}
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-3">{title}</h3>
             <p className="text-gray-600 mb-6">{description}</p>
-            <button
-              onClick={(e) => {
-                handleRippleEffect(e);
-                if (onExpand) {
-                  onExpand();
-                } else {
-                  onClick();
-                }
-              }}
-              className={`relative overflow-hidden px-6 py-3 font-medium rounded-lg shadow-md transition-all duration-300 flex items-center ${
-                buttonColor === "blue"
+            <div className="flex justify-center">  {/* Add this wrapper div */}
+              <button
+                onClick={(e) => {
+                  handleRippleEffect(e);
+                  if (onExpand) {
+                    onExpand();
+                  } else {
+                    onClick();
+                  }
+                }}
+                className={`relative overflow-hidden px-6 py-3 font-medium rounded-lg shadow-md transition-all duration-300 flex items-center ${buttonColor === "blue"
                   ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
                   : buttonColor === "green"
-                  ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-700 hover:to-teal-700"
-                  : "bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700"
-              } ${isHovered ? "shadow-lg" : ""}`}
-            >
-              {buttonText}
-              <ChevronRight
-                size={16}
-                className={`ml-2 transition-transform duration-300 ${
-                  isHovered ? "translate-x-1" : ""
-                }`}
-              />
-              {/* Ripple effect */}
-              <span
-                ref={rippleRef}
-                className="absolute rounded-full bg-white/20 pointer-events-none transition-all duration-700"
-                style={{
-                  width: "10px",
-                  height: "10px",
-                  opacity: 0,
-                }}
-              ></span>
-            </button>
+                    ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-700 hover:to-teal-700"
+                    : "bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700"
+                  } ${isHovered ? "shadow-lg" : ""}`}
+              >
+                {buttonText}
+                <ChevronRight
+                  size={16}
+                  className={`ml-2 transition-transform duration-300 ${isHovered ? "translate-x-1" : ""
+                    }`}
+                />
+                {/* Ripple effect */}
+                <span
+                  ref={rippleRef}
+                  className="absolute rounded-full bg-white/20 pointer-events-none transition-all duration-700"
+                  style={{
+                    width: "10px",
+                    height: "10px",
+                    opacity: 0,
+                  }}
+                ></span>
+              </button>
+            </div>
           </>
         ) : (
           <>
@@ -300,18 +295,16 @@ const CTACard: React.FC<CTACardProps> = ({
       </div>
       {/* Background glow effect */}
       <div
-        className={`absolute inset-0 transition-opacity duration-700 ${
-          isHovered ? "opacity-100" : "opacity-0"
-        }`}
+        className={`absolute inset-0 transition-opacity duration-700 ${isHovered ? "opacity-100" : "opacity-0"
+          }`}
       >
         <div
-          className={`absolute -inset-1 rounded-xl blur-xl ${
-            buttonColor === "blue"
-              ? "bg-blue-600/20"
-              : buttonColor === "green"
+          className={`absolute -inset-1 rounded-xl blur-xl ${buttonColor === "blue"
+            ? "bg-blue-600/20"
+            : buttonColor === "green"
               ? "bg-emerald-600/20"
               : "bg-purple-600/20"
-          }`}
+            }`}
         ></div>
       </div>
     </div>
@@ -329,6 +322,10 @@ const CallToAction: React.FC = () => {
   const [ref, isInView] = useInView({
     threshold: 0.2,
   });
+  const handleSignIn = () => {
+    // If you have a login function, use it here, otherwise navigate to signin
+    navigate("/signin");
+  };
   // State for expandable cards
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastData | null>(null);
@@ -508,7 +505,7 @@ const CallToAction: React.FC = () => {
         >
           {/* Card 1: Register Your Enterprise */}
           <div id="cta-register" className="scroll-mt-20">
-            <CTACard
+            {/* <CTACard
               icon={<Users size={28} className="text-blue-600" />}
               title="Register Your Enterprise"
               description="Get access to tailored services, funding opportunities, and resources to accelerate your business growth."
@@ -529,6 +526,14 @@ const CallToAction: React.FC = () => {
                 })
               }
               delay={0.3}
+            /> */}
+            <CTACard
+              icon={<Users size={28} className="text-blue-600" />}
+              title="Register Your Enterprise"
+              description="Get access to tailored services, funding opportunities, and resources to accelerate your business growth."
+              buttonText="Register Now"
+              buttonColor="blue"
+              onClick={handleSignIn}
             />
           </div>
           {/* Card 2: List Your Services */}

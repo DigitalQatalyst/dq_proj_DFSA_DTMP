@@ -8,8 +8,7 @@ const initialProfiles = [
         name: 'Abu Dhabi Global Market',
         logo: '/logo/global.jpg',
         category: 'Finance',
-        description:
-            'International financial center located on Al Maryah Island, providing a broad range of financial services.',
+        description: `Abu Dhabi Global Market (ADGM) is an international financial center on Al Maryah Island, designed to host a broad spectrum of financial services—from banking, asset and wealth management to fintech, sustainable finance, and professional services. It operates under an English common law framework with an independent courts system and the Financial Services Regulatory Authority (FSRA), offering clear, business-friendly regulation and robust investor protection. ADGM is known for efficient company setup (including SPVs and foundations), strong governance standards, and a thriving fintech ecosystem that supports innovation sandboxes and digital-first ventures. With modern infrastructure and a strategic location linking East and West, ADGM provides a stable, transparent platform for regional and global growth.`,
         phone: '+971 2 333 8888',
         email: 'contact@adgm.com',
         website: 'adgm.com',
@@ -319,7 +318,7 @@ const DirectorySection = () => {
                         </div>
                         {filteredProfiles.length > 0 && hasMoreProfiles && (
                             <div className="mt-16 text-center">
-                                <button
+                                {/* <button
                                     className={`px-10 py-4 bg-white border-2 border-primary text-primary font-body font-medium rounded-lg hover:bg-primary hover:text-white transition-colors shadow-sm hover:shadow-md ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
                                     onClick={handleLoadMore}
                                     disabled={isLoading}
@@ -332,7 +331,7 @@ const DirectorySection = () => {
                                     ) : (
                                         'Load More'
                                     )}
-                                </button>
+                                </button> */}
                             </div>
                         )}
                     </>
