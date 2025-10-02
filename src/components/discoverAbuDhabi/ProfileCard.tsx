@@ -38,7 +38,7 @@ const ProfileCard = ({
             </span>
           </div>
         </div>
-        <p className="text-gray-600 font-body mb-6 flex-1">{description}</p>
+        <p className="text-gray-600 font-body mb-6 flex-1 line-clamp-4">{description}</p>
         <div className="space-y-3 bg-gray-50 p-4 rounded-lg mb-6">
           <div className="flex items-center text-gray-600">
             <PhoneIcon size={16} className="mr-3 text-primary" />

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   MenuIcon,
   XIcon,
@@ -15,6 +16,7 @@ import {
   CalendarIcon,
   SparklesIcon,
 } from "lucide-react";
+
 interface MobileDrawerProps {
   isCompact?: boolean;
   onSignIn: () => void;
@@ -23,6 +25,7 @@ interface MobileDrawerProps {
   onEnquiry?: () => void;
   onPartner?: () => void;
 }
+
 const marketplaces = [
   {
     id: "non-financial",
@@ -46,16 +49,27 @@ const marketplaces = [
     description:
       "News, articles, and updates on Abu Dhabi's business landscape with industry insights",
     icon: NewspaperIcon,
-    href: "/marketplace/media",
+    href: "/marketplace/knowledgehub",
   },
+  // {
+  //   id: "community",
+  //   name: "Community Marketplace",
+  //   description:
+  //     "Industry communities for networking, collaboration, and sharing best practices",
+  //   icon: UsersIcon,
+  //   // example external:
+  //   // href: "https://example.com/community",
+  //   href: "/marketplace/community",
+  // },
   {
     id: "community",
     name: "Community Marketplace",
     description:
       "Industry communities for networking, collaboration, and sharing best practices",
     icon: UsersIcon,
-    href: "/marketplace/community",
+    href: "https://ujs.qxk.mybluehost.me/website_e550b4e3/", // external
   },
+  
   {
     id: "course",
     name: "Course Marketplace",
@@ -89,16 +103,23 @@ const marketplaces = [
     href: "/marketplace/opportunities",
   },
 ];
+
+function isExternal(href: string) {
+  return /^https?:\/\//i.test(href);
+}
+
 export function MobileDrawer({
   isCompact = false,
   onSignIn,
   onSignUp,
   isSignedIn,
   onEnquiry,
-  onPartner
+  onPartner,
 }: MobileDrawerProps) {
+  const navigate = useNavigate();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isExploreExpanded, setIsExploreExpanded] = useState(false);
+
   useEffect(() => {
     if (isDrawerOpen) {
       const scrollY = window.scrollY;
@@ -118,23 +139,30 @@ export function MobileDrawer({
     onSignIn();
     setIsDrawerOpen(false);
   };
-  // Sign out is handled via profile dropdown in desktop; mobile can add later if needed
+
   const handleCTAClick = (action: string) => {
-    if (action === 'Make an Enquiry') {
+    if (action === "Make an Enquiry") {
       onEnquiry && onEnquiry();
-    } else if (action === 'Become a Partner') {
+    } else if (action === "Become a Partner") {
       onPartner && onPartner();
     }
     setIsDrawerOpen(false);
   };
+
   const handleMarketplaceClick = (href: string) => {
-    console.log("Navigate to:", href);
+    if (isExternal(href)) {
+      window.open(href, "_blank", "noopener,noreferrer");
+    } else {
+      navigate(href);
+    }
     setIsDrawerOpen(false);
   };
+
   const handleDiscoverClick = () => {
-    console.log("Navigate to: Discover AbuDhabi");
+    navigate("/discover");
     setIsDrawerOpen(false);
   };
+
   return (
     <>
       {/* Always visible primary CTA + hamburger menu for Mobile (<768px) */}
@@ -157,6 +185,7 @@ export function MobileDrawer({
           {isDrawerOpen ? <XIcon size={24} /> : <MenuIcon size={24} />}
         </button>
       </div>
+
       {/* Tablet hamburger menu (768px - 1023px) */}
       <div className="hidden md:flex lg:hidden items-center">
         <button
@@ -168,6 +197,7 @@ export function MobileDrawer({
           {isDrawerOpen ? <XIcon size={24} /> : <MenuIcon size={24} />}
         </button>
       </div>
+
       {/* Mobile and Tablet drawer overlay */}
       {isDrawerOpen && (
         <>
@@ -191,17 +221,15 @@ export function MobileDrawer({
                   <XIcon size={18} className="text-gray-600" />
                 </button>
               </div>
+
               {/* Drawer content - scrollable area */}
-              <div
-                className={`flex-1 overflow-y-auto ${
-                  !isSignedIn ? "pb-20" : ""
-                }`}
-              >
+              <div className={`flex-1 overflow-y-auto ${!isSignedIn ? "pb-20" : ""}`}>
                 {/* Navigation Section - Show for Mobile only, Tablet has these in header */}
                 <div className="px-4 py-3 md:hidden">
                   <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:text-[11px] sm:text-[10px]">
                     Navigation
                   </h3>
+
                   {/* Explore Accordion */}
                   <div className="mb-1">
                     <button
@@ -217,6 +245,7 @@ export function MobileDrawer({
                         }`}
                       />
                     </button>
+
                     {isExploreExpanded && (
                       <div className="mt-1 ml-3 space-y-0.5">
                         {marketplaces.map((marketplace) => {
@@ -225,9 +254,7 @@ export function MobileDrawer({
                             <button
                               key={marketplace.id}
                               className="w-full flex items-start px-2.5 py-2 text-left hover:bg-gray-50 rounded-lg transition-colors md:py-1.5 sm:py-1"
-                              onClick={() =>
-                                handleMarketplaceClick(marketplace.href)
-                              }
+                              onClick={() => handleMarketplaceClick(marketplace.href)}
                             >
                               <div className="flex-shrink-0 mt-0.5">
                                 <Icon
@@ -249,6 +276,7 @@ export function MobileDrawer({
                       </div>
                     )}
                   </div>
+
                   {/* Discover AbuDhabi */}
                   <button
                     className="w-full flex items-center justify-between px-3 py-2.5 text-left text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-sm font-medium tracking-tight md:text-[13px] sm:text-xs md:py-2 sm:py-1.5"
@@ -261,8 +289,10 @@ export function MobileDrawer({
                     />
                   </button>
                 </div>
+
                 {/* Divider - Only show for mobile */}
                 <div className="border-t border-gray-200 mx-4 my-2 md:hidden"></div>
+
                 {/* Get Started Section - Always visible, contains both CTAs */}
                 <div className="px-4 py-3">
                   <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:text-[11px] sm:text-[10px]">
@@ -280,7 +310,8 @@ export function MobileDrawer({
                         className="text-gray-400 md:w-3 md:h-3 sm:w-3 sm:h-3"
                       />
                     </button>
-                    {/* Make an Enquiry - Only for non-signed-in users, styled as emphasized menu item */}
+
+                    {/* Make an Enquiry - Only for non-signed-in users */}
                     {!isSignedIn && (
                       <button
                         className="w-full flex items-center justify-between px-3 py-2.5 text-left text-teal-700 hover:bg-teal-50 rounded-lg transition-colors text-sm font-bold tracking-tight md:text-[13px] sm:text-xs md:py-2 sm:py-1.5 border-l-3 border-teal-600"
@@ -296,6 +327,7 @@ export function MobileDrawer({
                   </div>
                 </div>
               </div>
+
               {/* Sticky CTA at bottom for non-signed-in users */}
               {!isSignedIn && (
                 <div className="sticky bottom-0 left-0 right-0 px-4 py-4 border-t border-gray-200 bg-white shadow-lg">

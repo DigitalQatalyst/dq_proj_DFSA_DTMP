@@ -8,8 +8,8 @@ interface EnquiryModalProps {
 }
 
 const ENQUIRY_TYPES = [
-  'General Inquiry',
-  'Product Inquiry',
+  'General Enquiry',
+  'Product Enquiry',
   'Support'
 ];
 
