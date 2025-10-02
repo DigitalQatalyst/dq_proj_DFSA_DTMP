@@ -76,6 +76,17 @@ const MediaDetailPage: React.FC = () => {
     phone: '',
     hearAboutUs: '',
   })
+  // Countdown timer state
+  const [countdown, setCountdown] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    isExpired: false,
+  })
+  // Profile modal state
+  const [showProfileModal, setShowProfileModal] = useState(false)
+  const [providerPosts, setProviderPosts] = useState<any[]>([])
   // Video player state
   const [videoAvailable, setVideoAvailable] = useState(true)
   const [videoLoading, setVideoLoading] = useState(true)
@@ -162,8 +173,87 @@ const MediaDetailPage: React.FC = () => {
         setLoading(false)
       }
     }
-    if (id) fetchMediaDetails()
-  }, [id, type])// Client-side only initialization of video player
+    if (id) {
+      fetchMediaDetails()
+    }
+  }, [id, type])
+  // Countdown timer effect for events
+  useEffect(() => {
+    if (!item?.date || type !== 'event') return
+
+    const calculateCountdown = () => {
+      // Parse the date string - handle multiple formats
+      let eventDate: Date
+
+      // Check if date is in "Month Day-Day, Year" format (e.g., "November 5-7, 2025")
+      const rangeMatch = item.date.match(
+        /(\w+)\s+(\d+)(?:-\d+)?,\s+(\d{4})/,
+      )
+      if (rangeMatch) {
+        // Extract month, start day, and year
+        const [, month, day, year] = rangeMatch
+        eventDate = new Date(`${month} ${day}, ${year}`)
+      } else {
+        // Try parsing as-is (handles YYYY-MM-DD and other standard formats)
+        eventDate = new Date(item.date)
+      }
+
+      // Check if date is valid
+      if (isNaN(eventDate.getTime())) {
+        console.warn('Invalid date detected:', item.date)
+        setCountdown({
+          days: 0,
+          hours: 0,
+          minutes: 0,
+          seconds: 0,
+          isExpired: false,
+        })
+        return
+      }
+
+      const now = new Date()
+      const diff = eventDate.getTime() - now.getTime()
+
+      if (diff <= 0) {
+        setCountdown({
+          days: 0,
+          hours: 0,
+          minutes: 0,
+          seconds: 0,
+          isExpired: true,
+        })
+        return
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+      const hours = Math.floor(
+        (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+      )
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+
+      setCountdown({ days, hours, minutes, seconds, isExpired: false })
+    }
+
+    calculateCountdown()
+    const interval = setInterval(calculateCountdown, 1000)
+
+    return () => clearInterval(interval)
+  }, [item?.date, type])
+  // Fetch provider posts when profile modal is opened
+  useEffect(() => {
+    if (showProfileModal && item?.provider) {
+      const allItems = getFallbackKnowledgeHubItems()
+      const posts = allItems
+        .filter(
+          (post) =>
+            post.provider?.name === item.provider.name && post.id !== item.id,
+        )
+        .slice(0, 6) // Limit to 6 posts
+      setProviderPosts(posts)
+    }
+  }, [showProfileModal, item?.provider, item?.id])
+  // Client-side only initialization of video player
   useEffect(() => {
     // Only run on the client side
     if (!isClientSide) return
@@ -1703,13 +1793,13 @@ const MediaDetailPage: React.FC = () => {
                     <h3 className="font-semibold text-gray-900">
                       {item.provider?.name || 'Unknown Provider'}
                     </h3>
-                    <a
-                      href="#"
+                    <button
+                      onClick={() => setShowProfileModal(true)}
                       className="text-blue-600 hover:text-blue-800 text-sm flex items-center ml-2"
                     >
                       View Profile
                       <ChevronRightIcon size={14} className="ml-1" />
-                    </a>
+                    </button>
                   </div>
                   <p className="text-gray-600 text-sm line-clamp-1">
                     {item.provider?.description ||
@@ -2044,74 +2134,144 @@ const MediaDetailPage: React.FC = () => {
                             {/* Calendar Header */}
                             <div className="bg-blue-600 text-white text-center py-2">
                               <p className="text-sm font-medium uppercase tracking-wider">
-                                {item.date
-                                  ? new Date(
-                                      item.date.split('-')[0],
-                                    ).toLocaleString('default', {
-                                      month: 'long',
-                                    })
-                                  : 'June'}
+                                {(() => {
+                                  if (!item.date) return 'June'
+                                  const rangeMatch = item.date.match(
+                                    /(\w+)\s+(\d+)(?:-(\d+))?,\s+(\d{4})/,
+                                  )
+                                  if (rangeMatch) {
+                                    return rangeMatch[1] // Month name
+                                  }
+                                  return new Date(item.date).toLocaleString(
+                                    'default',
+                                    { month: 'long' },
+                                  )
+                                })()}
                               </p>
                             </div>
                             {/* Calendar Day */}
                             <div className="py-6 text-center">
                               <span className="text-6xl font-bold text-gray-900">
-                                {item.date ? item.date.split('-')[1] : '15'}
+                                {(() => {
+                                  if (!item.date) return '15'
+                                  const rangeMatch = item.date.match(
+                                    /(\w+)\s+(\d+)(?:-(\d+))?,\s+(\d{4})/,
+                                  )
+                                  if (rangeMatch) {
+                                    return rangeMatch[2] // Start day
+                                  }
+                                  return new Date(item.date).getDate()
+                                })()}
                               </span>
                               <p className="text-gray-600 font-medium mt-1">
-                                {item.date
-                                  ? new Date(
-                                      item.date.split('-')[0],
+                                {(() => {
+                                  if (!item.date) return 'Thursday'
+                                  const rangeMatch = item.date.match(
+                                    /(\w+)\s+(\d+)(?:-(\d+))?,\s+(\d{4})/,
+                                  )
+                                  if (rangeMatch) {
+                                    const [, month, day, , year] = rangeMatch
+                                    return new Date(
+                                      `${month} ${day}, ${year}`,
                                     ).toLocaleString('default', {
                                       weekday: 'long',
                                     })
-                                  : 'Thursday'}
+                                  }
+                                  return new Date(item.date).toLocaleString(
+                                    'default',
+                                    { weekday: 'long' },
+                                  )
+                                })()}
                               </p>
                               <p className="text-gray-500 mt-1">
-                                {item.date ? item.date.split('-')[0] : '2023'}
+                                {(() => {
+                                  if (!item.date) return '2023'
+                                  const rangeMatch = item.date.match(
+                                    /(\w+)\s+(\d+)(?:-(\d+))?,\s+(\d{4})/,
+                                  )
+                                  if (rangeMatch) {
+                                    return rangeMatch[4] // Year
+                                  }
+                                  return new Date(item.date).getFullYear()
+                                })()}
                               </p>
+                              {(() => {
+                                if (!item.date) return null
+                                const rangeMatch = item.date.match(
+                                  /(\w+)\s+(\d+)-(\d+),\s+(\d{4})/,
+                                )
+                                if (rangeMatch && rangeMatch[3]) {
+                                  return (
+                                    <p className="text-gray-400 text-sm mt-2">
+                                      Ends: {rangeMatch[1]} {rangeMatch[3]}
+                                    </p>
+                                  )
+                                }
+                                return null
+                              })()}
                             </div>
                           </div>
                           {/* Countdown Timer */}
                           <div className="w-full bg-blue-50 rounded-lg p-4 border border-blue-100">
                             <h4 className="text-sm font-semibold text-blue-800 mb-3 text-center">
-                              Event Countdown
+                              {countdown.isExpired
+                                ? 'Event Has Started'
+                                : 'Event Countdown'}
                             </h4>
-                            <div className="flex justify-center space-x-3">
-                              {/* Days */}
-                              <div className="flex flex-col items-center">
-                                <div className="bg-white w-14 h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
-                                  <span className="text-xl font-bold text-gray-800">
-                                    14
+                            {countdown.isExpired ? (
+                              <div className="text-center py-4">
+                                <p className="text-gray-700 font-medium">
+                                  This event has already started or ended
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="flex justify-center space-x-2">
+                                {/* Days */}
+                                <div className="flex flex-col items-center">
+                                  <div className="bg-white w-14 h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
+                                    <span className="text-xl font-bold text-gray-800">
+                                      {String(countdown.days).padStart(2, '0')}
+                                    </span>
+                                  </div>
+                                  <span className="text-xs text-gray-600 mt-1">
+                                    Days
                                   </span>
                                 </div>
-                                <span className="text-xs text-gray-600 mt-1">
-                                  Days
-                                </span>
-                              </div>
-                              {/* Hours */}
-                              <div className="flex flex-col items-center">
-                                <div className="bg-white w-14 h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
-                                  <span className="text-xl font-bold text-gray-800">
-                                    08
+                                {/* Hours */}
+                                <div className="flex flex-col items-center">
+                                  <div className="bg-white w-14 h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
+                                    <span className="text-xl font-bold text-gray-800">
+                                      {String(countdown.hours).padStart(2, '0')}
+                                    </span>
+                                  </div>
+                                  <span className="text-xs text-gray-600 mt-1">
+                                    Hours
                                   </span>
                                 </div>
-                                <span className="text-xs text-gray-600 mt-1">
-                                  Hours
-                                </span>
-                              </div>
-                              {/* Minutes */}
-                              <div className="flex flex-col items-center">
-                                <div className="bg-white w-14 h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
-                                  <span className="text-xl font-bold text-gray-800">
-                                    45
+                                {/* Minutes */}
+                                <div className="flex flex-col items-center">
+                                  <div className="bg-white w-14 h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
+                                    <span className="text-xl font-bold text-gray-800">
+                                      {String(countdown.minutes).padStart(2, '0')}
+                                    </span>
+                                  </div>
+                                  <span className="text-xs text-gray-600 mt-1">
+                                    Minutes
                                   </span>
                                 </div>
-                                <span className="text-xs text-gray-600 mt-1">
-                                  Minutes
-                                </span>
+                                {/* Seconds */}
+                                <div className="flex flex-col items-center">
+                                  <div className="bg-white w-14 h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
+                                    <span className="text-xl font-bold text-gray-800">
+                                      {String(countdown.seconds).padStart(2, '0')}
+                                    </span>
+                                  </div>
+                                  <span className="text-xs text-gray-600 mt-1">
+                                    Seconds
+                                  </span>
+                                </div>
                               </div>
-                            </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -2593,6 +2753,167 @@ const MediaDetailPage: React.FC = () => {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Profile Modal */}
+      {showProfileModal && item?.provider && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              {/* Modal Header */}
+              <div className="flex justify-between items-start mb-6">
+                <div className="flex items-center">
+                  {item.provider.logoUrl && (
+                    <img
+                      src={item.provider.logoUrl}
+                      alt={item.provider.name}
+                      className="w-16 h-16 object-contain rounded-lg mr-4"
+                    />
+                  )}
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      {item.provider.name}
+                    </h2>
+                    <p className="text-gray-600 mt-1">
+                      {item.provider.description ||
+                        'Provider information not available.'}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowProfileModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Provider Details */}
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {item.provider.website && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-1">
+                        Website
+                      </h4>
+                      <a
+                        href={item.provider.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 text-sm flex items-center"
+                      >
+                        Visit Website
+                        <ExternalLinkIcon size={14} className="ml-1" />
+                      </a>
+                    </div>
+                  )}
+                  {item.provider.email && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-1">
+                        Email
+                      </h4>
+                      <a
+                        href={`mailto:${item.provider.email}`}
+                        className="text-blue-600 hover:text-blue-800 text-sm"
+                      >
+                        {item.provider.email}
+                      </a>
+                    </div>
+                  )}
+                  {item.provider.phone && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-1">
+                        Phone
+                      </h4>
+                      <a
+                        href={`tel:${item.provider.phone}`}
+                        className="text-blue-600 hover:text-blue-800 text-sm"
+                      >
+                        {item.provider.phone}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Other Posts */}
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">
+                  Other Posts by {item.provider.name}
+                </h3>
+                {providerPosts.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {providerPosts.map((post) => (
+                      <div
+                        key={post.id}
+                        className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                        onClick={() => {
+                          setShowProfileModal(false)
+                          navigate(
+                            `/media/${post.mediaType.toLowerCase().replace(/\s+/g, '-')}/${post.id}`,
+                          )
+                        }}
+                      >
+                        <div className="flex items-start">
+                          {post.imageUrl && (
+                            <img
+                              src={post.imageUrl}
+                              alt={post.title}
+                              className="w-20 h-20 object-cover rounded mr-3"
+                            />
+                          )}
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900 mb-1 line-clamp-2">
+                              {post.title}
+                            </h4>
+                            <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                              {post.description}
+                            </p>
+                            <div className="flex items-center text-xs text-gray-500">
+                              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                {post.mediaType}
+                              </span>
+                              {post.date && (
+                                <span className="ml-2">{post.date}</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <p>No other posts from this provider</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Close Button */}
+              <div className="mt-6 flex justify-end">
+                <button
+                  onClick={() => setShowProfileModal(false)}
+                  className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
