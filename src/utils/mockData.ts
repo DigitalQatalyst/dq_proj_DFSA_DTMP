@@ -463,7 +463,7 @@ export const mockProfileData = {
       fields: assignFieldStatuses([
         { label: "Contact Name", value: "John Smith" },
         { label: "Position", value: "Chief Executive Officer" },
-        { label: "Email", value: "john.smith@futuretech.com" },
+        { label: "Email", value: "contact@futuretech.com" },
         { label: "Phone", value: "+971 50 123 4567" },
         { label: "Nationality", value: "British" },
         { label: "Languages", value: "English, Arabic" },

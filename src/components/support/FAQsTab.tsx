@@ -37,12 +37,6 @@ const initialFaqCategories = [
                 answer:
                     'You can update your profile information by navigating to the Settings page and selecting the "Profile" tab. From there, you can edit your personal information, contact details, and preferences.',
             },
-            {
-                id: 'q3',
-                question: 'Is my data secure on this platform?',
-                answer:
-                    'Yes, we take data security very seriously. We use industry-standard encryption protocols, regular security audits, and strict access controls to protect your information. All data is stored in secure, compliant facilities.',
-            },
         ],
     },
     {

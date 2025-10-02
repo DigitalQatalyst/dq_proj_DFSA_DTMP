@@ -33,7 +33,7 @@ export function Footer({
             <span>© 2025 Enterprise Journey</span>
             <span className="hidden sm:inline">v2.1.0</span>
           </div>
-          <a href="#" className="text-xs text-gray-500 hover:text-gray-700 transition-colors">
+          <a href="/dashboard/support" className="text-xs text-gray-500 hover:text-gray-700 transition-colors">
             Support
           </a>
         </div>

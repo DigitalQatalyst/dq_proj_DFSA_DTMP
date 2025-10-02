@@ -556,7 +556,7 @@ function generateMockDataverseResponse() {
         fields: {
           contactName: "John Smith",
           position: "Chief Executive Officer",
-          email: "john.smith@futuretech.com",
+          email: "contact@futuretech.com",
           phone: "+971 50 123 4567",
           nationality: "British",
           languages: "English, Arabic",
