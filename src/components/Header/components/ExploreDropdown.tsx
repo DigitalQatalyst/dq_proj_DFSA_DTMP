@@ -75,7 +75,7 @@ const marketplaces: Marketplace[] = [
     href: "/marketplace/investment",
   },
   {
-    id: "calendar",
+    id: "calendar", 
     name: "Calendar Marketplace",
     description:
       "Event management, matchmaking, and notifications for upcoming business events",
@@ -92,6 +92,7 @@ const marketplaces: Marketplace[] = [
   },
 ];
 
+// TODO: Add more marketplaces
 interface ExploreDropdownProps {
   isCompact?: boolean;
 }
