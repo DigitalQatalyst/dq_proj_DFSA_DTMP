@@ -112,7 +112,7 @@ export const IssueSupportLetterSchema: FormSchema = {
               id: "letterRecipient",
               label: "Recipient of the Support Letter",
               type: "text",
-              placeholder: "John Doe",
+              placeholder: "John Smith",
               required: true,
               validation: { minLength: 2 },
             },
