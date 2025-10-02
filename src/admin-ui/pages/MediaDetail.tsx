@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import AppLayout from '../components/AppLayout'
 import { mediaService, MediaItem } from '../utils/supabase'
 import { Toast, ToastType } from '../components/Toast'
-import { ArrowLeft as ArrowLeftIcon, Save as SaveIcon, Calendar as CalendarIcon } from 'lucide-react'
+import { ArrowLeft as ArrowLeftIcon, Save as SaveIcon, Calendar as CalendarIcon, Tag as TagIcon, X as XIcon, PlusCircle as PlusCircleIcon } from 'lucide-react'
 
 type Tab = 'details' | 'schedule'
 
@@ -26,14 +26,15 @@ const MediaDetail: React.FC = () => {
       setLoading(true)
       try {
         const data = await mediaService.getMediaItemById(id)
-        setItem(data)
-        setFormData(data)
-        // Load available tags for checkbox list
+        const normalizedTags = Array.isArray(data.tags) ? data.tags : []
+        setItem({ ...data, tags: normalizedTags })
+        setFormData({ ...data, tags: normalizedTags })
         try {
           const tags = await mediaService.getAvailableTags()
-          setAvailableTags(tags)
+          const combined = Array.from(new Set([...(tags || []), ...normalizedTags]))
+          setAvailableTags(combined.sort((a, b) => a.localeCompare(b)))
         } catch {
-          setAvailableTags([])
+          setAvailableTags(normalizedTags.sort((a, b) => a.localeCompare(b)))
         }
         if (data.publishedAt) {
           const d = new Date(data.publishedAt)
@@ -55,12 +56,64 @@ const MediaDetail: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
+  const selectedTags = useMemo(() => (Array.isArray(formData.tags) ? formData.tags : []), [formData.tags])
+
+  const addAvailableTag = (tag: string) => {
+    setAvailableTags((prev) => {
+      if (prev.includes(tag)) return prev
+      return [...prev, tag].sort((a, b) => a.localeCompare(b))
+    })
+  }
+
+  const addTag = (tag: string) => {
+    const trimmed = tag.trim()
+    if (!trimmed) return
+    setFormData((prev) => {
+      const current = Array.isArray(prev.tags) ? prev.tags : []
+      if (current.includes(trimmed)) return prev
+      return { ...prev, tags: [...current, trimmed] }
+    })
+    addAvailableTag(trimmed)
+  }
+
+  const removeTag = (tag: string) => {
+    setFormData((prev) => {
+      const current = Array.isArray(prev.tags) ? prev.tags : []
+      if (!current.includes(tag)) return prev
+      return { ...prev, tags: current.filter((item) => item !== tag) }
+    })
+  }
+
+  const toggleTag = (tag: string) => {
+    setFormData((prev) => {
+      const current = Array.isArray(prev.tags) ? prev.tags : []
+      if (current.includes(tag)) {
+        return { ...prev, tags: current.filter((item) => item !== tag) }
+      }
+      return { ...prev, tags: [...current, tag] }
+    })
+  }
+
+  const handleAddCustomTag = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newTag.trim()) return
+    addTag(newTag)
+    setNewTag('')
+  }
+
+  const filteredTags = useMemo(() => {
+    if (!tagSearch.trim()) return availableTags
+    const query = tagSearch.toLowerCase()
+    return availableTags.filter((tag) => tag.toLowerCase().includes(query))
+  }, [availableTags, tagSearch])
+
   const save = async () => {
     if (!id) return
     setSaving(true)
     try {
       const updated = await mediaService.updateMediaItem(id, formData)
       setItem(updated)
+      setFormData(updated)
       setToast({ message: 'Saved changes', type: 'success' })
     } catch (e) {
       console.error('Save failed', e)
@@ -260,6 +313,7 @@ const MediaDetail: React.FC = () => {
                       <option value="Event">Event</option>
                       <option value="Podcast">Podcast</option>
                       <option value="Video">Video</option>
+                      <option value="Tool">Tool / Document</option>
                       <option value="Image">Image</option>
                     </select>
                   </div>
@@ -280,6 +334,111 @@ const MediaDetail: React.FC = () => {
                       <option value="de">German</option>
                       <option value="ar">Arabic</option>
                     </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Tags</label>
+                  <p className="text-xs text-gray-500 mb-2">Select or add tags to improve search relevance and Knowledge Hub filtering.</p>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {selectedTags.length === 0 ? (
+                      <span className="text-sm text-gray-500">No tags selected yet.</span>
+                    ) : (
+                      selectedTags.map((tag) => (
+                        <span
+                          key={`detail-selected-${tag}`}
+                          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm"
+                        >
+                          <TagIcon className="h-4 w-4" />
+                          <span>{tag}</span>
+                          <button
+                            type="button"
+                            className="text-blue-600 hover:text-blue-800"
+                            onClick={() => removeTag(tag)}
+                            aria-label={`Remove tag ${tag}`}
+                          >
+                            <XIcon className="h-4 w-4" />
+                          </button>
+                        </span>
+                      ))
+                    )}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 mb-3">
+                    <input
+                      value={tagSearch}
+                      onChange={(e) => setTagSearch(e.target.value)}
+                      placeholder="Filter available tags"
+                      className="border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <span className="text-xs text-gray-400">
+                      {filteredTags.length} tag{filteredTags.length === 1 ? '' : 's'} available
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {filteredTags.map((tag) => {
+                      const isActive = selectedTags.includes(tag)
+                      return (
+                        <button
+                          type="button"
+                          key={`detail-available-${tag}`}
+                          onClick={() => toggleTag(tag)}
+                          className={`px-3 py-1 rounded-full border text-sm transition-colors ${
+                            isActive
+                              ? 'border-blue-600 bg-blue-50 text-blue-700'
+                              : 'border-gray-300 text-gray-700 hover:border-blue-400 hover:text-blue-600'
+                          }`}
+                          aria-pressed={isActive}
+                        >
+                          {tag}
+                        </button>
+                      )
+                    })}
+                  </div>
+                  <form className="mt-4 flex flex-col sm:flex-row gap-3" onSubmit={handleAddCustomTag}>
+                    <input
+                      value={newTag}
+                      onChange={(e) => setNewTag(e.target.value)}
+                      placeholder="Add custom tag"
+                      className="flex-1 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <button
+                      type="submit"
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    >
+                      <PlusCircleIcon className="h-4 w-4" /> Add tag
+                    </button>
+                  </form>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">SEO Title</label>
+                    <input
+                      name="seoTitle"
+                      value={formData.seoTitle || ''}
+                      onChange={handleChange}
+                      className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Canonical URL</label>
+                    <input
+                      name="canonicalUrl"
+                      type="url"
+                      value={formData.canonicalUrl || ''}
+                      onChange={handleChange}
+                      placeholder="https://example.com/path-to-original"
+                      className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700">SEO Description</label>
+                    <textarea
+                      name="seoDescription"
+                      value={formData.seoDescription || ''}
+                      onChange={handleChange}
+                      rows={3}
+                      className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    />
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-gray-600">
@@ -315,3 +474,4 @@ const MediaDetail: React.FC = () => {
 }
 
 export default MediaDetail
+

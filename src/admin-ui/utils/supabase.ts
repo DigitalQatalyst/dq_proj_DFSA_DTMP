@@ -7,7 +7,7 @@ export interface MediaItem {
   slug: string
   summary: string
   body: string
-  type: 'Article' | 'Report' | 'Announcement' | 'Event' | 'Podcast' | 'Video' | 'Image'
+  type: 'Article' | 'Report' | 'Announcement' | 'Event' | 'Podcast' | 'Video' | 'Tool' | 'Image'
   category?: string
   status: 'Draft' | 'InReview' | 'Scheduled' | 'Published' | 'Archived'
   visibility: 'Public' | 'Private'
@@ -144,6 +144,7 @@ export const mediaService = {
       seoTitle: inserted.seo_title,
       seoDescription: inserted.seo_description,
       canonicalUrl: inserted.canonical_url,
+      tags: inserted.tags || [],
     } as MediaItem
   },
 
@@ -189,6 +190,7 @@ export const mediaService = {
       seoTitle: updated.seo_title,
       seoDescription: updated.seo_description,
       canonicalUrl: updated.canonical_url,
+      tags: updated.tags || [],
     } as MediaItem
   },
 
@@ -248,8 +250,4 @@ export const auditService = {
   async getAuditLogs(_id: string) { return [] as AuditLog[] },
   async createAuditLog(_log: Partial<AuditLog>) { return { success: true } },
 }
-
-
-
-
 
