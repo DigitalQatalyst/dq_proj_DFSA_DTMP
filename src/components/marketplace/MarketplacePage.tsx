@@ -228,14 +228,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
           const fallbackLogos = [
             "/mzn_logo.png",
-            // "/logo/logos/631f84a6a66d6b63cd69f54d7e8e7c21ca2be77f.png",
             "/logo/logos/e07c16a3e6df005a9eab2f9f7b4f2f2a126d3513.png",
-            // Add more fallback URLs as needed
           ];
 
-          // Map product data to match expected MarketplaceItem structure
           const mappedItems = filteredServices.map((product) => {
-            // Randomly pick a fallback logo if none is provided
             const randomFallbackLogo =
               fallbackLogos[Math.floor(Math.random() * fallbackLogos.length)];
 
@@ -245,7 +241,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               slug: product.slug,
               description:
                 product.description ||
-                "Through this service, you can easily reallocate your approved loan funds to different areas of your business to support changing needs and enhance growth.",
+                "Through this service, you can easily reallocate your approved loan funds...",
               facetValues: product.facetValues,
               provider: {
                 name: product.customFields?.Partner || "Khalifa Fund",
@@ -253,12 +249,14 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   product.customFields?.Logo?.source || randomFallbackLogo,
                 description: "No provider description available",
               },
-              formUrl: product.customFields?.formUrl || "/forms/request-for-membership",
+              formUrl:
+                product.customFields?.formUrl ||
+                "/forms/request-for-membership",
               ...product.customFields,
             };
           });
 
-          // Apply filters and search query
+          // Apply filters + search (unchanged)
           const filtered = mappedItems.filter((product: any) => {
             const matchesAllFacets = Object.keys(filters).every((facetCode) => {
               const selectedValue = filters[facetCode];
@@ -289,13 +287,15 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             return matchesAllFacets && matchesSearch;
           });
 
-          // Log filters and filteredItems for debugging
-          console.log("filters:", filters);
-          console.log("filteredItems:", filtered);
+          // ✅ Force ID 133 to the front
+          const prioritized = filtered.sort((a, b) => {
+            if (a.id === "133") return -1;
+            if (b.id === "133") return 1;
+            return 0;
+          });
 
-          // Set items and filteredItems to backend data
           setItems(mappedItems);
-          setFilteredItems(filtered);
+          setFilteredItems(prioritized);
           setLoading(false);
         }
       } catch (err) {
@@ -309,6 +309,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
     loadItems();
   }, [productData, filters, searchQuery, marketplaceType]);
+
 
   // Handle filter changes
   const handleFilterChange = useCallback(
