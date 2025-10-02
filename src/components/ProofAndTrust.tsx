@@ -139,7 +139,7 @@ const partnerCategories = [{
 }, {
   id: 'service',
   title: 'Service Providers',
-  subtitle: 'Specialized business support and consultancy',
+  subtitle: 'Specialized business support and consultancy services',
   icon: <Users2 size={28} />,
   metric: '500+',
   color: 'blue-600'
@@ -552,7 +552,7 @@ const FeaturedPartnersCarousel = () => {
         Featured Partners
       </h3>
       <p className="text-gray-600">
-        Trusted by leading organizations across the UAE
+      Powered by leading organisation in Abu Dhabi and the UAE
       </p>
     </FadeInUpOnScroll>
     {/* Carousel container */}

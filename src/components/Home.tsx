@@ -312,9 +312,10 @@ const ServiceCarousel = ({ services, handleServiceClick }: {
   return (
     <div className="relative">
       {/* Carousel container */}
-      <div
+            {/* Carousel container */}
+            <div
         ref={carouselRef}
-        className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth pb-6"
+        className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth pb-6 gap-6"
         style={{
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
@@ -327,6 +328,10 @@ const ServiceCarousel = ({ services, handleServiceClick }: {
           <div
             key={`page-${pageIndex}`}
             className="flex-shrink-0 w-full flex gap-6 snap-center"
+            style={{
+              paddingLeft: pageIndex === 0 ? '0' : '0',
+              paddingRight: pageIndex === totalSlides - 1 ? '0' : '0',
+            }}
           >
             {services
               .slice(pageIndex * visibleCount, (pageIndex + 1) * visibleCount)
@@ -538,7 +543,7 @@ export const HomePage: React.FC = () => {
           title: 'Business Communities',
           description: 'Connect with business networks and expand your professional connections',
           icon: <Users />,
-          path: 'https://ujs.qxk.mybluehost.me/website_6ad02141/staging/7520/',
+          path: 'https://ujs.qxk.mybluehost.me/website_e550b4e3/',
           gradientFrom: 'from-teal-600',
           gradientTo: 'to-teal-400',
           isActive: true,

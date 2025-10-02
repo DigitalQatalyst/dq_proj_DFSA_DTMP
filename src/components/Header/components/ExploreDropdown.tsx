@@ -19,6 +19,8 @@ interface Marketplace {
   description: string;
   icon: React.ComponentType<LucideProps>;
   href: string;
+  target?: string;
+  rel?: string;
 }
 
 const marketplaces: Marketplace[] = [
@@ -44,7 +46,7 @@ const marketplaces: Marketplace[] = [
     description:
       "News, articles, and updates on Abu Dhabi's business landscape with industry insights",
     icon: NewspaperIcon,
-    href: "/marketplace/media",
+    href: "/marketplace/knowledgehub",
   },
   {
     id: "community",
@@ -52,7 +54,9 @@ const marketplaces: Marketplace[] = [
     description:
       "Industry communities for networking, collaboration, and sharing best practices",
     icon: UsersIcon,
-    href: "/marketplace/community",
+    href: "https://ujs.qxk.mybluehost.me/website_e550b4e3/",
+    target: "_blank",
+    rel: "noopener noreferrer",
   },
   {
     id: "course",
@@ -71,7 +75,7 @@ const marketplaces: Marketplace[] = [
     href: "/marketplace/investment",
   },
   {
-    id: "calendar",
+    id: "calendar", 
     name: "Calendar Marketplace",
     description:
       "Event management, matchmaking, and notifications for upcoming business events",
@@ -88,8 +92,13 @@ const marketplaces: Marketplace[] = [
   },
 ];
 
+// TODO: Add more marketplaces
 interface ExploreDropdownProps {
   isCompact?: boolean;
+}
+
+function isExternal(href: string) {
+  return /^https?:\/\//i.test(href);
 }
 
 export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
@@ -103,30 +112,19 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
         setFocusedIndex(-1);
       }
     }
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    if (isOpen) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
   // Handle keyboard navigation
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (!isOpen) {
-      if (
-        event.key === "Enter" ||
-        event.key === " " ||
-        event.key === "ArrowDown"
-      ) {
+      if (event.key === "Enter" || event.key === " " || event.key === "ArrowDown") {
         event.preventDefault();
         setIsOpen(true);
         setFocusedIndex(0);
@@ -146,9 +144,7 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
         break;
       case "ArrowUp":
         event.preventDefault();
-        setFocusedIndex((prev) =>
-          prev <= 0 ? marketplaces.length - 1 : prev - 1
-        );
+        setFocusedIndex((prev) => (prev <= 0 ? marketplaces.length - 1 : prev - 1));
         break;
       case "Enter":
       case " ":
@@ -171,10 +167,10 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
     }
   }, [focusedIndex, isOpen]);
 
-  const handleItemClick = (href: string) => {
+  const handleInternalNav = (href: string) => {
     setIsOpen(false);
     setFocusedIndex(-1);
-    navigate(href); // Use React Router's navigate function
+    navigate(href);
   };
 
   return (
@@ -182,7 +178,7 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
       <button
         ref={buttonRef}
         className="flex items-center text-white hover:text-gray-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 rounded-md px-2 py-1"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => setIsOpen((v) => !v)}
         onKeyDown={handleKeyDown}
         aria-expanded={isOpen}
         aria-haspopup="true"
@@ -191,11 +187,10 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
         <span>Explore</span>
         <ChevronDownIcon
           size={16}
-          className={`ml-1 transition-transform duration-200 ${
-            isOpen ? "rotate-180" : ""
-          }`}
+          className={`ml-1 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
         />
       </button>
+
       {isOpen && (
         <div
           className="absolute top-full left-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50 py-2"
@@ -204,29 +199,37 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
           aria-labelledby="explore-menu"
         >
           <div className="px-4 py-2 border-b border-gray-100">
-            <h3 className="text-sm font-semibold text-gray-800">
-              Explore Marketplaces
-            </h3>
+            <h3 className="text-sm font-semibold text-gray-800">Explore Marketplaces</h3>
             <p className="text-xs text-gray-500 mt-1">
-              Discover opportunities across Abu Dhabi's business ecosystem
+              Discover opportunities across Abu Dhabi&apos;s business ecosystem
             </p>
           </div>
+
           <div className="max-h-96 overflow-y-auto">
             {marketplaces.map((marketplace, index) => {
               const Icon = marketplace.icon;
+              const external = isExternal(marketplace.href);
+
               return (
                 <a
                   key={marketplace.id}
                   ref={(el) => (itemRefs.current[index] = el)}
                   href={marketplace.href}
+                  // Respect explicit per-item settings, otherwise set sensible defaults
+                  target={marketplace.target ?? (external ? "_blank" : undefined)}
+                  rel={marketplace.rel ?? (external ? "noopener noreferrer" : undefined)}
                   className={`flex items-start px-4 py-3 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none transition-colors duration-150 ${
                     focusedIndex === index ? "bg-gray-50" : ""
                   }`}
                   role="menuitem"
                   tabIndex={-1}
                   onClick={(e) => {
-                    e.preventDefault();
-                    handleItemClick(marketplace.href);
+                    // Internal routes: prevent default and route via react-router
+                    if (!external) {
+                      e.preventDefault();
+                      handleInternalNav(marketplace.href);
+                    }
+                    // External routes: let the browser handle it (respects target/rel)
                   }}
                   onMouseEnter={() => setFocusedIndex(index)}
                   onFocus={() => setFocusedIndex(index)}

@@ -37,12 +37,12 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
   useEffect(() => {
     const loadData = async () => {
       const azureB2CClaims = {
-        CompanyName: "Test Company 4",
+        CompanyName: "Future Tech",
         Industry: "Technology",
         CompanyStage: "Startup",
         ContactName: "John Doe",
         Phone: "+971501234567",
-        Email: "contact@futuretech.com",
+        Email: "test@digitalqatalyst.com",
       };
       setFormData(azureB2CClaims);
     };
