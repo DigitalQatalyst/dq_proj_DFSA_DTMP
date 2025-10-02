@@ -10,6 +10,12 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { DiscoverAbuDhabi } from "./pages/discoverAbuDhabi";
 import NotFound from "./pages/NotFound";
 import MediaDetailPage from "./pages/media/MediaDetailPage";
+// Admin UI (integrated)
+import AdminDashboard from "./admin-ui/pages/Dashboard";
+import AdminMediaList from "./admin-ui/pages/MediaList";
+import AdminMediaCreate from "./admin-ui/pages/MediaCreate";
+import AdminMediaDetail from "./admin-ui/pages/MediaDetail";
+import AdminSettings from "./admin-ui/pages/Settings";
 import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
 import KfBot from "./bot/KfBot";
@@ -73,6 +79,12 @@ export function AppRouter() {
             />
             <Route path="/discover-abudhabi" element={<DiscoverAbuDhabi />} />
             <Route path="/media/:type/:id" element={<MediaDetailPage />} />
+            {/* Embedded Admin UI */}
+            <Route path="/admin-ui/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin-ui/media" element={<AdminMediaList />} />
+            <Route path="/admin-ui/media/new" element={<AdminMediaCreate />} />
+            <Route path="/admin-ui/media/:id" element={<AdminMediaDetail />} />
+            <Route path="/admin-ui/settings" element={<AdminSettings />} />
             <Route path="/404" element={<NotFound />} />
 
             <Route path="*" element={<Navigate to="/404" replace />} />

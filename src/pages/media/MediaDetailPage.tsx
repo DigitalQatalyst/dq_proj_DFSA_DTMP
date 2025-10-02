@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useRef, lazy } from 'react'
+﻿import React, { useCallback, useEffect, useState, useRef, lazy } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   BookmarkIcon,
@@ -24,6 +24,7 @@ import { Header } from '../../components/Header'
 import { Footer } from '../../components/Footer'
 import { MediaCard } from '../../components/Cards/MediaCard'
 import { getFallbackKnowledgeHubItems } from '../../utils/fallbackData'
+import { getSupabase } from '../../admin-ui/utils/supabaseClient'
 import {
   getVideoDuration,
   VideoDurationInfo,
@@ -91,28 +92,65 @@ const MediaDetailPage: React.FC = () => {
   const videoUrlRef = useRef<string | null>(null)
   const videoInitializedRef = useRef(false)
   // Check if we're on the client side to avoid SSR hydration issues
-  useEffect(() => {
-    setIsClientSide(true)
-  }, [])
-  useEffect(() => {
+    useEffect(() => {
+    const mapRowToItem = (row: any) => ({
+      id: row.id,
+      title: row.title,
+      description: row.body || row.summary,
+      content: row.body,
+      mediaType: row.type || 'Resource',
+      provider: { name: row.provider_name || 'Knowledge Hub', logoUrl: row.provider_logo_url || null },
+      imageUrl: row.image_url || null,
+      videoUrl: row.video_url || null,
+      audioUrl: row.audio_url || null,
+      tags: row.tags || [],
+      date: row.published_at,
+      lastUpdated: row.updated_at,
+    })
     const fetchMediaDetails = async () => {
       setLoading(true)
       setError(null)
       try {
-        // In a real app, this would be an API call
-        // For now, we'll use the fallback data
+        // Try Supabase first
+        try {
+          const supabase = getSupabase()
+          const { data, error } = await supabase
+            .from('media_items')
+            .select('*')
+            .eq('id', id)
+            .single()
+          if (error) throw error
+          if (data) {
+            const mapped = mapRowToItem(data)
+            setItem(mapped)
+            const { data: rel } = await supabase
+              .from('media_items')
+              .select('*')
+              .neq('id', id)
+              .eq('type', data.type)
+              .eq('status', 'Published')
+              .lte('published_at', new Date().toISOString())
+              .order('published_at', { ascending: false })
+              .limit(3)
+            const related = (rel || []).map(mapRowToItem)
+            setRelatedItems(related)
+            setLoading(false)
+            return
+          }
+        } catch (e) {
+          // fall through to fallback
+        }
         const allItems = getFallbackKnowledgeHubItems()
-        const foundItem = allItems.find((item) => item.id === id)
+        const foundItem = allItems.find((it) => it.id === id)
         if (foundItem) {
           setItem(foundItem)
-          // Get related items (same type, different ID)
           const related = allItems
             .filter(
-              (item) =>
-                item.id !== id &&
-                item.mediaType.toLowerCase().replace(/\s+/g, '-') === type,
+              (it) =>
+                it.id !== id &&
+                it.mediaType.toLowerCase().replace(/\s+/g, '-') === type,
             )
-            .slice(0, 3) // Only take the first 3
+            .slice(0, 3)
           setRelatedItems(related)
         } else {
           setError('Media not found')
@@ -124,11 +162,8 @@ const MediaDetailPage: React.FC = () => {
         setLoading(false)
       }
     }
-    if (id) {
-      fetchMediaDetails()
-    }
-  }, [id, type])
-  // Client-side only initialization of video player
+    if (id) fetchMediaDetails()
+  }, [id, type])// Client-side only initialization of video player
   useEffect(() => {
     // Only run on the client side
     if (!isClientSide) return
@@ -2566,3 +2601,6 @@ const MediaDetailPage: React.FC = () => {
   )
 }
 export default MediaDetailPage
+
+
+
