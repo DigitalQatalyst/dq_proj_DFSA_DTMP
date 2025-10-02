@@ -9,7 +9,7 @@ import { ErrorDisplay, CourseCardSkeleton } from '../SkeletonLoader';
 import { fetchMarketplaceItems, fetchMarketplaceFilters } from '../../services/marketplace';
 import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
 import { MarketplaceComparison } from './MarketplaceComparison';
-import { Header } from '../Header';
+import { Header, useAuth } from '../Header';
 import { Footer } from '../Footer';
 import { getFallbackItems } from '../../utils/fallbackData';
 import KnowledgeHubGrid from './KnowledgeHubGrid';
@@ -43,6 +43,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   promoCards = []
 }) => {
   const navigate = useNavigate();
+  const { user, isLoading } = useAuth();
   const config = getMarketplaceConfig(marketplaceType);
   // State for items and filtering
   const [items, setItems] = useState<any[]>([]);
@@ -301,8 +302,16 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           {config.title}
         </h1>
         <p className="text-gray-600 mb-6">{config.description}</p>
-        <div className="mb-6">
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+          {marketplaceType === 'knowledge-hub' && !isLoading && user && (
+            <Link
+              to="/admin-ui/media/new"
+              className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Add Content
+            </Link>
+          )}
         </div>
         {/* Comparison bar */}
         {compareItems.length > 0 && <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">

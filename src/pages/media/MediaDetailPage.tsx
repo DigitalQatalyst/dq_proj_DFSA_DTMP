@@ -91,6 +91,30 @@ const MediaDetailPage: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const videoUrlRef = useRef<string | null>(null)
   const videoInitializedRef = useRef(false)
+  // Minimal HTML sanitizer for rendering stored rich text safely on client
+  const sanitizeHtml = useCallback((html: string): string => {
+    try {
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(String(html || ''), 'text/html')
+      // Remove potentially dangerous elements
+      doc.querySelectorAll('script,style,iframe,object,embed,link,meta').forEach((n) => n.remove())
+      // Strip event handlers and javascript: URLs
+      doc.querySelectorAll('*').forEach((el) => {
+        Array.from(el.attributes).forEach((attr) => {
+          const name = attr.name.toLowerCase()
+          const value = attr.value
+          if (name.startsWith('on')) {
+            el.removeAttribute(attr.name)
+          } else if ((name === 'href' || name === 'src') && /javascript:/i.test(value)) {
+            el.removeAttribute(attr.name)
+          }
+        })
+      })
+      return doc.body.innerHTML
+    } catch {
+      return ''
+    }
+  }, [])
   // Check if we're on the client side to avoid SSR hydration issues
     useEffect(() => {
     const mapRowToItem = (row: any) => ({
@@ -547,7 +571,17 @@ const MediaDetailPage: React.FC = () => {
   // Render content based on media type
   const renderMediaContent = () => {
     if (!item || !type) return null
-    switch (type.toLowerCase()) {
+    const t = String(type).toLowerCase()
+    // If we have stored rich body for article-like content, render it directly (sanitized)
+    if ((t === 'news' || t === 'blog') && item.content && String(item.content).trim()) {
+      return (
+        <div
+          className="prose max-w-none"
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(String(item.content)) }}
+        />
+      )
+    }
+    switch (t) {
       case 'news':
       case 'blog':
         return (

@@ -1,9 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState, Suspense } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import AppLayout from '../components/AppLayout'
 import { mediaService, MediaItem } from '../utils/supabase'
 import { Toast, ToastType } from '../components/Toast'
 import { ArrowLeft as ArrowLeftIcon, Save as SaveIcon, Calendar as CalendarIcon, Tag as TagIcon, X as XIcon, PlusCircle as PlusCircleIcon } from 'lucide-react'
+
+const RichTextEditor = React.lazy(() => import('../components/RichTextEditor'))
 
 type Tab = 'details' | 'schedule'
 
@@ -19,6 +21,8 @@ const MediaDetail: React.FC = () => {
   const [scheduleDate, setScheduleDate] = useState('')
   const [scheduleTime, setScheduleTime] = useState('')
   const [availableTags, setAvailableTags] = useState<string[]>([])
+  const [tagSearch, setTagSearch] = useState('')
+  const [newTag, setNewTag] = useState('')
 
   useEffect(() => {
     if (!id) return
@@ -94,7 +98,11 @@ const MediaDetail: React.FC = () => {
     })
   }
 
-  const createCustomTag = () => {`r`n    if (!newTag.trim()) return`r`n    addTag(newTag)`r`n    setNewTag(')`r`n  }
+  const createCustomTag = () => {
+    if (!newTag.trim()) return
+    addTag(newTag)
+    setNewTag('')
+  }
 
   const filteredTags = useMemo(() => {
     if (!tagSearch.trim()) return availableTags
@@ -261,12 +269,12 @@ const MediaDetail: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700">Content</label>
                   {/* Lightweight rich text editor */}
                   <div className="mt-1">
-                    {(() => {
-                      // Lazy require to avoid SSR/import issues
-                      // eslint-disable-next-line @typescript-eslint/no-var-requires
-                      const RT = require('../components/RichTextEditor').default
-                      return <RT value={formData.body || ''} onChange={(html: string) => setFormData((prev) => ({ ...prev, body: html }))} />
-                    })()}
+                    <Suspense fallback={<div className="border rounded-md p-3 text-sm text-gray-500">Loading editor�</div>}>
+                      <RichTextEditor
+                        value={formData.body || ''}
+                        onChange={(html: string) => setFormData((prev) => ({ ...prev, body: html }))}
+                      />
+                    </Suspense>
                   </div>
                 </div>
                 <div>
@@ -476,6 +484,7 @@ const MediaDetail: React.FC = () => {
 }
 
 export default MediaDetail
+
 
 
 
