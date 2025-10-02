@@ -32,6 +32,7 @@ const GET_PRODUCTS = gql`
           Nationality
           LegalStructure
           Industry
+          Partner
           ProcessingTime
           RegistrationValidity
           Cost

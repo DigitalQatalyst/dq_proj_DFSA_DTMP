@@ -75,6 +75,7 @@ interface ProductCustomFields {
   Nationality?: string;
   LegalStructure?: string;
   Industry?: string;
+  Partner?: string;
   ProcessingTime?: string;
   RegistrationValidity?: string;
   Cost?: number;
@@ -228,21 +229,37 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             );
           }
 
+          const fallbackLogos = [
+            "/mzn_logo.png",
+            // "/logo/logos/631f84a6a66d6b63cd69f54d7e8e7c21ca2be77f.png",
+            "/logo/logos/e07c16a3e6df005a9eab2f9f7b4f2f2a126d3513.png",
+            // Add more fallback URLs as needed
+          ];
+
           // Map product data to match expected MarketplaceItem structure
-          const mappedItems = filteredServices.map((product) => ({
-            id: product.id,
-            title: product.name,
-            slug: product.slug,
-            description: product.description || "Through this service, you can easily reallocate your approved loan funds to different areas of your business to support changing needs and enhance growth.",
-            facetValues: product.facetValues,
-            provider: {
-              name: product.customFields?.Industry || "Unknown Provider",
-              logoUrl: product.customFields?.Logo?.source || "/mzn_logo.png",
-              description: "No provider description available",
-            },
-            formUrl: product.customFields?.formUrl || "/forms/request-for-membership", // <-- Add this line
-            ...product.customFields,
-          }));
+         const mappedItems = filteredServices.map((product) => {
+            // Randomly pick a fallback logo if none is provided
+            const randomFallbackLogo =
+              fallbackLogos[Math.floor(Math.random() * fallbackLogos.length)];
+
+            return {
+              id: product.id,
+              title: product.name,
+              slug: product.slug,
+              description:
+                product.description ||
+                "Through this service, you can easily reallocate your approved loan funds to different areas of your business to support changing needs and enhance growth.",
+              facetValues: product.facetValues,
+              provider: {
+                name: product.customFields?.Partner || "Khalifa Fund",
+                logoUrl:
+                  product.customFields?.Logo?.source || randomFallbackLogo,
+                description: "No provider description available",
+              },
+              formUrl: product.customFields?.formUrl || "/forms/request-for-membership",
+              ...product.customFields,
+            };
+          });
 
           // Apply filters and search query
           const filtered = mappedItems.filter((product: any) => {
