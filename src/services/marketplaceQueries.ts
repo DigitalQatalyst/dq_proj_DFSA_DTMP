@@ -88,6 +88,7 @@ const GET_PRODUCT = gql`
           name
           source
         }
+        Partner
         CustomerType
         BusinessStage
         Nationality

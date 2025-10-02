@@ -146,7 +146,11 @@ export function useProductDetails({
         : undefined,
       tags: [cf.Industry, cf.CustomerType, cf.BusinessStage].filter(Boolean),
       provider: {
-        name: "Service Provider",
+        // Prefer explicit Partner field from customFields, otherwise fallback to Khalifa Fund
+        name:
+          (typeof cf.Partner === "string" && cf.Partner.trim() !== ""
+            ? cf.Partner.trim()
+            : undefined) || "Khalifa Fund",
         logoUrl: resolvedLogo,
       },
       providerLocation: "UAE",
