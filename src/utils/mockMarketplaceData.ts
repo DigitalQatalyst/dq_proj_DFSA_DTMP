@@ -209,7 +209,7 @@ export const mockKnowledgeHubItems = [
     },
     tags: ['Innovation', 'Workshop'],
     imageUrl:
-      'https://images.unsplash.com/photo-1540317580384-e5d43867caa6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+      'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
     date: 'November 5-7, 2025',
     location: 'Hub71, Abu Dhabi',
   },
@@ -255,7 +255,7 @@ export const mockKnowledgeHubItems = [
     },
     tags: ['Export', 'Market Research'],
     imageUrl:
-      'https://images.unsplash.com/photo-1493894473891-10fc1e5dbd22?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1469&q=80',
+      'https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
     date: 'April 18, 2023',
     downloadCount: 1456,
     fileSize: '7.5 MB',
@@ -283,9 +283,9 @@ export const mockKnowledgeHubItems = [
   },
   {
     id: '13',
-    title: 'Marketing Strategy for SMEs',
+    title: 'Digital Marketing Essentials for Small Businesses',
     description:
-      'Learn effective marketing strategies tailored for small and medium enterprises in the UAE market.',
+      'Discover proven digital marketing tactics designed specifically for small and medium-sized businesses operating in the UAE.',
     mediaType: 'Video',
     filterType: 'Videos',
     businessStage: 'Growth',

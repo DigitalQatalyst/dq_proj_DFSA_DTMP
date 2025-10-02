@@ -98,12 +98,11 @@ const MediaDetail: React.FC = () => {
     })
   }
 
-  const createCustomTag = () => {
-    if (!newTag.trim()) return
-    addTag(newTag)
-    setNewTag('')
-  }
-
+const createCustomTag = () => {
+  if (!newTag.trim()) return
+  addTag(newTag)
+  setNewTag('')
+}
   const filteredTags = useMemo(() => {
     if (!tagSearch.trim()) return availableTags
     const query = tagSearch.toLowerCase()
@@ -484,8 +483,3 @@ const MediaDetail: React.FC = () => {
 }
 
 export default MediaDetail
-
-
-
-
-
