@@ -95,6 +95,7 @@ const GET_PRODUCT = gql`
         LegalStructure
         Industry
         ProcessingTime
+        Steps
         Cost
         RequiredDocuments {
           id
