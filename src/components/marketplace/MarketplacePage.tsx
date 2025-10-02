@@ -154,7 +154,6 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const { data: facetData, error: facetError } =
     useQuery<GetFacetsData>(GET_FACETS);
   // Load filter configurations based on marketplace type
- // ...existing code...
   useEffect(() => {
     const loadFilterOptions = async () => {
       try {
@@ -203,7 +202,6 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     };
     loadFilterOptions();
   }, [facetData, marketplaceType]);
-// ...existing code...
 
   // Fetch items based on marketplace type, filters, and search query
   useEffect(() => {
@@ -231,14 +229,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
           const fallbackLogos = [
             "/mzn_logo.png",
-            // "/logo/logos/631f84a6a66d6b63cd69f54d7e8e7c21ca2be77f.png",
             "/logo/logos/e07c16a3e6df005a9eab2f9f7b4f2f2a126d3513.png",
-            // Add more fallback URLs as needed
           ];
 
-          // Map product data to match expected MarketplaceItem structure
-         const mappedItems = filteredServices.map((product) => {
-            // Randomly pick a fallback logo if none is provided
+          const mappedItems = filteredServices.map((product) => {
             const randomFallbackLogo =
               fallbackLogos[Math.floor(Math.random() * fallbackLogos.length)];
 
@@ -248,7 +242,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               slug: product.slug,
               description:
                 product.description ||
-                "Through this service, you can easily reallocate your approved loan funds to different areas of your business to support changing needs and enhance growth.",
+                "Through this service, you can easily reallocate your approved loan funds...",
               facetValues: product.facetValues,
               provider: {
                 name: product.customFields?.Partner || "Khalifa Fund",
@@ -256,12 +250,14 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   product.customFields?.Logo?.source || randomFallbackLogo,
                 description: "No provider description available",
               },
-              formUrl: product.customFields?.formUrl || "/forms/request-for-membership",
+              formUrl:
+                product.customFields?.formUrl ||
+                "/forms/request-for-membership",
               ...product.customFields,
             };
           });
 
-          // Apply filters and search query
+          // Apply filters + search (unchanged)
           const filtered = mappedItems.filter((product: any) => {
             const matchesAllFacets = Object.keys(filters).every((facetCode) => {
               const selectedValue = filters[facetCode];
@@ -292,13 +288,15 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             return matchesAllFacets && matchesSearch;
           });
 
-          // Log filters and filteredItems for debugging
-          console.log("filters:", filters);
-          console.log("filteredItems:", filtered);
+          // ✅ Force ID 133 to the front
+          const prioritized = filtered.sort((a, b) => {
+            if (a.id === "133") return -1;
+            if (b.id === "133") return 1;
+            return 0;
+          });
 
-          // Set items and filteredItems to backend data
           setItems(mappedItems);
-          setFilteredItems(filtered);
+          setFilteredItems(prioritized);
           setLoading(false);
         }
       } catch (err) {
@@ -313,60 +311,6 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     loadItems();
   }, [productData, filters, searchQuery, marketplaceType]);
 
-  // Immediately hydrate compare from navigation state when arriving from details page
-  useEffect(() => {
-    const pending = location?.state?.addToCompare;
-    if (pending) {
-      // Add if not present and under cap
-      if (
-        !compareItems.some((c) => c.id === pending.id) &&
-        compareItems.length < 3
-      ) {
-        setCompareItems((prev) => [...prev, pending]);
-        storageAddCompareId(marketplaceType, pending.id);
-      }
-      // Clear the navigation state to avoid duplicate adds on back/refresh
-      navigate(location.pathname, { replace: true, state: {} });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location?.state, location?.pathname, marketplaceType, compareItems]);
-
-  // Hydrate compareItems from localStorage when items are available (merge, don't clear)
-  useEffect(() => {
-    if (!items || items.length === 0) return; // wait until items are loaded
-    // Build a map for quick lookup
-    const byId: Record<string, any> = {};
-    items.forEach((it) => {
-      byId[it.id] = it;
-    });
-    const storedIds = getStoredCompareIds(marketplaceType);
-    if (!storedIds.length) return; // nothing stored; don't alter current state
-
-    // Start with current selections
-    const merged: ComparisonItem[] = [...compareItems];
-    for (const id of storedIds) {
-      if (merged.length >= 3) break;
-      if (!merged.some((c) => c.id === id)) {
-        const found = byId[id];
-        if (found) merged.push(found);
-        // If not found in items yet, keep waiting; don't drop existing selection
-      }
-    }
-    const currentIds = compareItems.map((i) => i.id).join(",");
-    const nextIds = merged.map((i) => i.id).join(",");
-    if (currentIds !== nextIds) {
-      setCompareItems(merged.slice(0, 3));
-    }
-    setHasHydratedCompare(true);
-  }, [items, marketplaceType, compareItems]);
-
-  // Keep storage in sync with current compareItems
-  useEffect(() => {
-    // Don't sync to storage until we've attempted hydration to avoid wiping existing selections
-    if (!hasHydratedCompare) return;
-    const ids = compareItems.map((i) => i.id);
-    setStoredCompareIds(marketplaceType, ids);
-  }, [compareItems, marketplaceType, hasHydratedCompare]);
 
   // Handle filter changes
   const handleFilterChange = useCallback(
@@ -542,28 +486,26 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               </button>
               {(Object.values(filters).some((f) => f !== "") ||
                 activeFilters.length > 0) && (
-                <button
-                  onClick={resetFilters}
-                  className="ml-2 text-blue-600 text-sm font-medium whitespace-nowrap px-3 py-2"
-                >
-                  Reset
-                </button>
-              )}
+                  <button
+                    onClick={resetFilters}
+                    className="ml-2 text-blue-600 text-sm font-medium whitespace-nowrap px-3 py-2"
+                  >
+                    Reset
+                  </button>
+                )}
             </div>
           </div>
           {/* Filter sidebar - mobile/tablet */}
           <div
-            className={`fixed inset-0 bg-gray-800 bg-opacity-75 z-30 transition-opacity duration-300 xl:hidden ${
-              showFilters ? "opacity-100" : "opacity-0 pointer-events-none"
-            }`}
+            className={`fixed inset-0 bg-gray-800 bg-opacity-75 z-30 transition-opacity duration-300 xl:hidden ${showFilters ? "opacity-100" : "opacity-0 pointer-events-none"
+              }`}
             onClick={toggleFilters}
             aria-hidden={!showFilters}
           >
             <div
               id="filter-sidebar"
-              className={`fixed inset-y-0 left-0 w-full max-w-sm bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
-                showFilters ? "translate-x-0" : "-translate-x-full"
-              }`}
+              className={`fixed inset-y-0 left-0 w-full max-w-sm bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${showFilters ? "translate-x-0" : "-translate-x-full"
+                }`}
               onClick={(e) => e.stopPropagation()}
               role="dialog"
               aria-modal="true"
@@ -638,13 +580,13 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 <h2 className="text-lg font-semibold">Filters</h2>
                 {(Object.values(filters).some((f) => f !== "") ||
                   activeFilters.length > 0) && (
-                  <button
-                    onClick={resetFilters}
-                    className="text-blue-600 text-sm font-medium"
-                  >
-                    Reset All
-                  </button>
-                )}
+                    <button
+                      onClick={resetFilters}
+                      className="text-blue-600 text-sm font-medium"
+                    >
+                      Reset All
+                    </button>
+                  )}
               </div>
               {marketplaceType === "knowledge-hub" ? (
                 <div className="space-y-4">
