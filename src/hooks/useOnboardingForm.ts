@@ -42,7 +42,7 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
         CompanyStage: "Startup",
         ContactName: "John Doe",
         Phone: "+971501234567",
-        Email: "test@digitalqatalyst.com",
+        Email: "contact@futuretech.com",
       };
       setFormData(azureB2CClaims);
     };
