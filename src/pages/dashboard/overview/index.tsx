@@ -51,7 +51,11 @@ export const Overview: React.FC = () => {
         );
     }
     return (
-        <PageLayout title="Dashboard Overview">
+        <PageLayout
+            title="Dashboard Overview"
+            headerClassName=""
+            titleClassName="text-3xl font-bold text-gray-900"
+        >
             <div className="mb-6 flex justify-between items-center">
                 <p className="text-gray-600">
                     Your central view of business status, requests, and upcoming
