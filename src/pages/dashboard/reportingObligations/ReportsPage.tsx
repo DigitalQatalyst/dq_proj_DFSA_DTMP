@@ -91,8 +91,8 @@ export function ReportsPage() {
 
                 <div className="flex flex-1 overflow-hidden">
                     <div className="bg-gray-50 min-h-screen w-full">
-                        <div className=" mx-auto p-4 md:p-6 lg:p-8">
-                            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                        <div className=" mx-auto p-4 pt-2 md:p-6 md:pt-4 lg:p-8 lg:pt-4 ">
+                            <h1 className="text-3xl font-bold text-gray-900 mb-4">
                                 Reports & Reporting Obligations
                             </h1>
                             <div className="bg-white rounded-2xl shadow-sm p-6 flex items-center justify-center h-screen">
@@ -116,7 +116,7 @@ export function ReportsPage() {
 
                     <div className="bg-gray-50 min-h-screen w-full">
                         <div className="  p-4 md:p-6 lg:p-8">
-                            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                            <h1 className="text-3xl font-bold text-gray-900 mb-4">
                                 Reports & Reporting Obligations
                             </h1>
 
@@ -143,8 +143,8 @@ export function ReportsPage() {
 
             <div className="flex flex-1 overflow-hidden">
                 <div className="bg-gray-50 min-h-screen w-full">
-                    <div className=" mx-auto p-4 md:p-6 lg:p-8">
-                        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                    <div className=" mx-auto p-4 pt-2 md:p-6 md:pt-4 lg:p-8 lg:pt-5">
+                        <h1 className="text-3xl font-bold text-gray-900 mb-4">
                             Reports & Reporting Obligations
                         </h1>
 
