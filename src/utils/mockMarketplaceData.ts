@@ -305,6 +305,51 @@ export const mockKnowledgeHubItems = [
     date: 'April 5, 2023',
     duration: '45 minutes',
   },
+  {
+      id: '14',
+      title: 'Abu Dhabi Tech Sector Reports Significant Expansion',
+      description:
+        'A recent industry analysis reveals that technology-focused startups in Abu Dhabi experienced significant expansion over the previous 12 months.',
+      mediaType: 'News',
+      filterType: 'News',
+      businessStage: 'Startup',
+      domain: 'Technology & Innovation',
+      format: 'Quick Reads',
+      popularity: 'Trending',
+      provider: {
+        name: 'TechNews Daily',
+        logoUrl: 'https://placehold.co/400x400/4338ca/white?text=TND',
+        description: 'Leading technology news source in the UAE.',
+      },
+      tags: ['Technology', 'Startup'],
+      imageUrl:
+        'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+      date: 'April 28, 2023',
+    },
+    {
+    id: '15',
+    title: 'Business Operations Mastery Series',
+    description:
+      'A weekly podcast series exploring operational strategies and efficiency techniques for companies across the UAE and Middle East region.',
+    mediaType: 'Podcast',
+    filterType: 'Podcasts',
+    businessStage: 'Established',
+    domain: 'Operations & Productivity',
+    format: 'Recorded Media',
+    popularity: 'Latest',
+    provider: {
+      name: 'Khalifa Fund',
+      logoUrl:
+        'https://media.licdn.com/dms/image/v2/D4D0BAQEm7hh-vPHtNg/company-logo_200_200/B4DZj1W_mTIgAM-/0/1756463104605/khalifa_fund_logo?e=2147483647&v=beta&t=AtpC5HexpPIneFytzHCc6-wjOCF9u0ShL3s5GXPW8K8',
+      description: 'Supporting entrepreneurs and SMEs in Abu Dhabi.',
+    },
+    tags: ['Operations', 'Productivity'],
+    imageUrl:
+      'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    date: 'May 5, 2023',
+    duration: '30 minutes',
+    episodes: 25,
+  },
 ]
 
 // Mock data for Knowledge Hub filter options
