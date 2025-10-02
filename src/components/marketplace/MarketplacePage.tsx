@@ -67,6 +67,7 @@ interface ProductCustomFields {
   Nationality?: string;
   LegalStructure?: string;
   Industry?: string;
+  Partner?: string;
   ProcessingTime?: string;
   RegistrationValidity?: string;
   Cost?: number;
@@ -225,32 +226,31 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             );
           }
 
+          const fallbackLogos = [
+            "/mzn_logo.png",
+            // "/logo/logos/631f84a6a66d6b63cd69f54d7e8e7c21ca2be77f.png",
+            "/logo/logos/e07c16a3e6df005a9eab2f9f7b4f2f2a126d3513.png",
+            // Add more fallback URLs as needed
+          ];
+
           // Map product data to match expected MarketplaceItem structure
           const mappedItems = filteredServices.map((product) => {
-            // Debug: Log the entire product.customFields
-            console.log(`Product ID: ${product.id}, customFields:`, product.customFields);
-            // Debug: Log the Logo field specifically
-            console.log(`Product ID: ${product.id}, Logo:`, product.customFields?.Logo);
-            // Debug: Log whether Logo is an array and its length
-            console.log(`Product ID: ${product.id}, Is Logo an array?`, Array.isArray(product.customFields?.Logo));
-            console.log(`Product ID: ${product.id}, Logo length:`, product.customFields?.Logo?.length);
-            // Debug: Log the calculated logoUrl
-            const logoUrl = product.customFields?.Logo && Array.isArray(product.customFields.Logo) && product.customFields.Logo.length > 0 && product.customFields.Logo[0].source
-              ? product.customFields.Logo[0].source.replace(/\\/g, "/")
-              : "/mzn_logo.png";
-            console.log(`Product ID: ${product.id}, Calculated logoUrl:`, logoUrl);
+            // Randomly pick a fallback logo if none is provided
+            const randomFallbackLogo =
+              fallbackLogos[Math.floor(Math.random() * fallbackLogos.length)];
 
             return {
               id: product.id,
               title: product.name,
               slug: product.slug,
-              description: product.description || "Through this service, you can easily reallocate your approved loan funds to different areas of your business to support changing needs and enhance growth.",
+              description:
+                product.description ||
+                "Through this service, you can easily reallocate your approved loan funds to different areas of your business to support changing needs and enhance growth.",
               facetValues: product.facetValues,
               provider: {
-                name: product.customFields?.Industry || "Unknown Provider",
-                logoUrl: product.customFields?.Logo && Array.isArray(product.customFields.Logo) && product.customFields.Logo.length > 0 && product.customFields.Logo[0].source
-                  ? product.customFields.Logo[0].source.replace(/\\/g, "/")
-                  : "/mzn_logo.png",
+                name: product.customFields?.Partner || "Khalifa Fund",
+                logoUrl:
+                  product.customFields?.Logo?.source || randomFallbackLogo,
                 description: "No provider description available",
               },
               formUrl: product.customFields?.formUrl || "/forms/request-for-membership",
@@ -472,28 +472,26 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               </button>
               {(Object.values(filters).some((f) => f !== "") ||
                 activeFilters.length > 0) && (
-                <button
-                  onClick={resetFilters}
-                  className="ml-2 text-blue-600 text-sm font-medium whitespace-nowrap px-3 py-2"
-                >
-                  Reset
-                </button>
-              )}
+                  <button
+                    onClick={resetFilters}
+                    className="ml-2 text-blue-600 text-sm font-medium whitespace-nowrap px-3 py-2"
+                  >
+                    Reset
+                  </button>
+                )}
             </div>
           </div>
           {/* Filter sidebar - mobile/tablet */}
           <div
-            className={`fixed inset-0 bg-gray-800 bg-opacity-75 z-30 transition-opacity duration-300 xl:hidden ${
-              showFilters ? "opacity-100" : "opacity-0 pointer-events-none"
-            }`}
+            className={`fixed inset-0 bg-gray-800 bg-opacity-75 z-30 transition-opacity duration-300 xl:hidden ${showFilters ? "opacity-100" : "opacity-0 pointer-events-none"
+              }`}
             onClick={toggleFilters}
             aria-hidden={!showFilters}
           >
             <div
               id="filter-sidebar"
-              className={`fixed inset-y-0 left-0 w-full max-w-sm bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
-                showFilters ? "translate-x-0" : "-translate-x-full"
-              }`}
+              className={`fixed inset-y-0 left-0 w-full max-w-sm bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${showFilters ? "translate-x-0" : "-translate-x-full"
+                }`}
               onClick={(e) => e.stopPropagation()}
               role="dialog"
               aria-modal="true"
@@ -568,13 +566,13 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 <h2 className="text-lg font-semibold">Filters</h2>
                 {(Object.values(filters).some((f) => f !== "") ||
                   activeFilters.length > 0) && (
-                  <button
-                    onClick={resetFilters}
-                    className="text-blue-600 text-sm font-medium"
-                  >
-                    Reset All
-                  </button>
-                )}
+                    <button
+                      onClick={resetFilters}
+                      className="text-blue-600 text-sm font-medium"
+                    >
+                      Reset All
+                    </button>
+                  )}
               </div>
               {marketplaceType === "knowledge-hub" ? (
                 <div className="space-y-4">
