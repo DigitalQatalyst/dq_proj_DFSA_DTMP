@@ -335,8 +335,7 @@ export const mockFinancialServices = [
     amount: "Up to AED 5 million",
     duration: "5-7 years",
     interestRate: "Starting from 3%",
-    eligibility:
-      "Business must be operating for at least 2 years with annual revenue of AED 1 million+",
+    eligibility: "At least 2 years of operation",
     details: [
       "No collateral required for loans up to AED 1 million",
       "Flexible repayment options",
