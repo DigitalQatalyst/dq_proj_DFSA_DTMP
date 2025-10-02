@@ -104,8 +104,7 @@ const MediaCreate: React.FC = () => {
     })
   }
 
-  const handleAddCustomTag = (e: React.FormEvent) => {
-    e.preventDefault()
+  const createCustomTag = () => {
     if (!newTag.trim()) return
     addTag(newTag)
     setNewTag('')
@@ -338,20 +337,27 @@ const MediaCreate: React.FC = () => {
                       )
                     })}
                   </div>
-                  <form className="mt-4 flex flex-col sm:flex-row gap-3" onSubmit={handleAddCustomTag}>
+                                    <div className="mt-4 flex flex-col sm:flex-row gap-3">
                     <input
                       value={newTag}
                       onChange={(e) => setNewTag(e.target.value)}
                       placeholder="Add custom tag"
                       className="flex-1 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          createCustomTag()
+                        }
+                      }}
                     />
                     <button
-                      type="submit"
+                      type="button"
+                      onClick={createCustomTag}
                       className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                     >
                       <PlusCircleIcon className="h-4 w-4" /> Add tag
                     </button>
-                  </form>
+                  </div>
                 </div>
                 <div className="mt-6 flex justify-end gap-2">
                   <button
@@ -440,3 +446,7 @@ const MediaCreate: React.FC = () => {
 }
 
 export default MediaCreate
+
+
+
+
