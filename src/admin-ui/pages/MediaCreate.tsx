@@ -1,20 +1,32 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState, Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AppLayout from '../components/AppLayout'
 import { mediaService, MediaItem } from '../utils/supabase'
 import { Check as CheckIcon, X as XIcon, Tag as TagIcon, PlusCircle as PlusCircleIcon } from 'lucide-react'
 import { Toast, ToastType } from '../components/Toast'
+import DOMPurify from 'dompurify'
+import RichTextEditor from '../components/RichTextEditor'
 
 type MediaFormData = Partial<MediaItem>
+
+const isHttpUrl = (s: string) => { try { const u = new URL(s); return u.protocol === 'http:' || u.protocol === 'https:' } catch { return false } }
 
 const MediaCreate: React.FC = () => {
   const navigate = useNavigate()
   const [step, setStep] = useState(1)
+
+  const [thumbnailUrl, setThumbnailUrl] = useState<string>("")
+  const [thumbnailPreviewDims, setThumbnailPreviewDims] = useState<{w:number;h:number}|null>(null)
+  const [thumbnailError, setThumbnailError] = useState<string| null>(null)
+  const [pendingThumbFile, setPendingThumbFile] = useState<File | null>(null)
+  const [uploadingThumb, setUploadingThumb] = useState<boolean>(false)
   const [formData, setFormData] = useState<MediaFormData>({
     title: '',
     slug: '',
     summary: '',
     body: '',
+    bodyHtml: '',
+    bodyJson: null as any,
     type: 'Article',
     language: 'en',
     visibility: 'Public',
@@ -29,6 +41,8 @@ const MediaCreate: React.FC = () => {
   const [newTag, setNewTag] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null)
+  const [slugTouched, setSlugTouched] = useState(false)
+  const [canonicalTouched, setCanonicalTouched] = useState(false)
 
   useEffect(() => {
     let shouldUpdate = true
@@ -55,6 +69,32 @@ const MediaCreate: React.FC = () => {
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '')
 
+  const isValidSlug = (slug: string) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug.trim())
+  const isValidUrl = (url: string) => {
+    if (!url) return true
+    try {
+      const u = new URL(url)
+      return Boolean(u.protocol === 'http:' || u.protocol === 'https:')
+    } catch {
+      return false
+    }
+  }
+
+  const getTextFromHTML = (html?: string) => {
+    if (!html) return ''
+    const d = document.createElement('div')
+    d.innerHTML = html
+    return d.textContent || d.innerText || ''
+  }
+
+  const sanitizeHtml = (html: string) => {
+    if (!html) return ''
+    // Remove script/style tags
+    const withoutScripts = html.replace(/<\/?(script|style)[^>]*>/gi, '')
+    // Remove inline event handlers (on*)
+    return withoutScripts.replace(/ on\w+="[^"]*"/gi, '').replace(/ on\w+='[^']*'/gi, '')
+  }
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
@@ -63,6 +103,8 @@ const MediaCreate: React.FC = () => {
       setFormData((prev) => ({ ...prev, title: value, slug: generateSlug(value) }))
       return
     }
+    if (name === 'slug') setSlugTouched(true)
+    if (name === 'canonicalUrl') setCanonicalTouched(true)
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
@@ -120,23 +162,39 @@ const MediaCreate: React.FC = () => {
     e.preventDefault()
     setSubmitting(true)
     try {
+      let slug = (formData.slug || '').trim()
+      if (!slug) slug = generateSlug(formData.title || '')
+      const editorHtml = DOMPurify.sanitize(formData.bodyHtml || formData.body || '')
       const payload: MediaFormData = {
         ...formData,
+        slug,
         tags: selectedTags,
+        bodyHtml: editorHtml,
+        bodyJson: formData.bodyJson as any,
+        body: editorHtml,
       }
       const newMediaItem = await mediaService.createMediaItem(payload)
       setToast({ message: 'Media item created successfully!', type: 'success' })
       setTimeout(() => {
         navigate(`/admin-ui/media/${newMediaItem.id}`)
       }, 1200)
-    } catch (error) {
-      console.error('Error creating media item:', { error, formData })
-      setToast({ message: 'Failed to create media item', type: 'error' })
+    } catch (error: any) {
+      console.error('Error creating media item', { error, payload: formData })
+      setToast({ message: error?.message || 'Failed to create media item', type: 'error' })
       setSubmitting(false)
     }
   }
 
-  const validateStep1 = () => Boolean(formData.title && formData.slug && formData.type && formData.summary)
+  const validateStep1 = () =>
+    Boolean((formData.title || '').trim() && (formData.type || '').trim() && (formData.visibility || '').trim()) &&
+    isValidSlug((formData.slug || '').trim() || generateSlug(formData.title || ''))
+
+  const bodyText = useMemo(() => getTextFromHTML(formData.bodyHtml || formData.body || ''), [formData.bodyHtml, formData.body])
+  const wordCount = useMemo(() => (bodyText.trim() ? bodyText.trim().split(/\s+/).length : 0), [bodyText])
+  const charCount = bodyText.length
+
+  const slugInvalid = slugTouched && !isValidSlug(formData.slug || '')
+  const canonicalInvalid = canonicalTouched && !isValidUrl(formData.canonicalUrl || '')
 
   return (
     <AppLayout title="Create New Media Item">
@@ -201,12 +259,19 @@ const MediaCreate: React.FC = () => {
                       name="slug"
                       value={formData.slug}
                       onChange={handleChange}
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className={`mt-1 block w-full border rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                        slugInvalid ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      aria-invalid={slugInvalid}
+                      aria-describedby="slug-help"
                       required
                     />
-                    <p className="mt-1 text-sm text-gray-500">
+                    <p id="slug-help" className="mt-1 text-sm text-gray-500">
                       URL-friendly identifier. Auto-generated from the title (you can adjust before saving).
                     </p>
+                    {slugInvalid && (
+                      <p className="mt-1 text-xs text-red-600">Use lowercase letters, numbers, and hyphens only.</p>
+                    )}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -251,8 +316,24 @@ const MediaCreate: React.FC = () => {
                     </div>
                   </div>
                   <div>
+                    <label htmlFor="visibility" className="block text-sm font-medium text-gray-700">
+                      Visibility <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      id="visibility"
+                      name="visibility"
+                      value={formData.visibility}
+                      onChange={handleChange}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      required
+                    >
+                      <option value="Public">Public</option>
+                      <option value="Private">Private</option>
+                    </select>
+                  </div>
+                  <div>
                     <label htmlFor="summary" className="block text-sm font-medium text-gray-700">
-                      Summary <span className="text-red-500">*</span>
+                      Summary
                     </label>
                     <textarea
                       id="summary"
@@ -261,21 +342,18 @@ const MediaCreate: React.FC = () => {
                       onChange={handleChange}
                       rows={3}
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      required
                     />
                   </div>
                   <div>
                     <label htmlFor="body" className="block text-sm font-medium text-gray-700">
                       Content Body
                     </label>
-                    <textarea
-                      id="body"
-                      name="body"
-                      value={formData.body}
-                      onChange={handleChange}
-                      rows={10}
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
+                    <div className="mt-1">
+                      <Suspense fallback={<div className="border rounded-md p-3 text-sm text-gray-500">Loading editor…</div>}>
+                        <RichTextEditor valueJson={formData.bodyJson || undefined} valueHtml={formData.bodyHtml || formData.body || ''} onChange={(json, html) => setFormData((prev) => ({ ...prev, bodyJson: json, bodyHtml: html }))} />
+                      </Suspense>
+                    </div>
+                    <div className="mt-2 text-xs text-gray-500">{wordCount} words • {charCount} characters</div>
                   </div>
                 </div>
                 <div>
@@ -337,7 +415,7 @@ const MediaCreate: React.FC = () => {
                       )
                     })}
                   </div>
-                                    <div className="mt-4 flex flex-col sm:flex-row gap-3">
+                  <div className="mt-4 flex flex-col sm:flex-row gap-3">
                     <input
                       value={newTag}
                       onChange={(e) => setNewTag(e.target.value)}
@@ -417,11 +495,28 @@ const MediaCreate: React.FC = () => {
                       placeholder="https://example.com/path-to-original"
                       value={formData.canonicalUrl || ''}
                       onChange={handleChange}
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className={`mt-1 block w-full border rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                        canonicalInvalid ? 'border-red-500' : 'border-gray-300'
+                      }`}
                     />
                     <p className="mt-1 text-xs text-gray-500">
                       Optional canonical reference for search engines when this content originates elsewhere.
                     </p>
+                    {canonicalInvalid && (
+                      <p className="mt-1 text-xs text-red-600">Please enter a valid URL (http or https).</p>
+                    )}
+                  </div>
+                </div>
+                <div className="mt-2 border rounded-md p-3 bg-gray-50">
+                  <div className="text-xs text-gray-500 mb-1">SEO Preview</div>
+                  <div className="text-blue-700 text-base leading-snug">
+                    {(formData.seoTitle || formData.title || 'Page Title') as string}
+                  </div>
+                  <div className="text-green-700 text-sm">
+                    {(formData.canonicalUrl || 'https://www.example.com/example-path') as string}
+                  </div>
+                  <div className="text-gray-700 text-sm mt-1">
+                    {(formData.seoDescription || formData.summary || 'Page description preview...') as string}
                   </div>
                 </div>
                 <div className="mt-6 flex justify-between">
@@ -431,7 +526,7 @@ const MediaCreate: React.FC = () => {
                   <button
                     type="submit"
                     className="px-4 py-2 bg-blue-600 text-white rounded-md disabled:opacity-50"
-                    disabled={submitting}
+                    disabled={submitting || !validateStep1()}
                   >
                     Create
                   </button>
@@ -446,6 +541,12 @@ const MediaCreate: React.FC = () => {
 }
 
 export default MediaCreate
+
+
+
+
+
+
 
 
 

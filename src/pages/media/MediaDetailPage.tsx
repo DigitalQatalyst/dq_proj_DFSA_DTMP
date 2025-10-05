@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useEffect, useState, useRef, lazy } from 'react'
+import React, { useCallback, useEffect, useState, useRef, lazy } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   BookmarkIcon,
@@ -21,6 +21,7 @@ import {
   Loader,
 } from 'lucide-react'
 import { Header } from '../../components/Header'
+import DOMPurify from 'dompurify'
 import { Footer } from '../../components/Footer'
 import { MediaCard } from '../../components/Cards/MediaCard'
 import { getFallbackKnowledgeHubItems } from '../../utils/fallbackData'
@@ -132,10 +133,10 @@ const MediaDetailPage: React.FC = () => {
       id: row.id,
       title: row.title,
       description: row.body || row.summary,
-      content: row.body,
+      content: row.body_html || row.body,
       mediaType: row.type || 'Resource',
       provider: { name: row.provider_name || 'Knowledge Hub', logoUrl: row.provider_logo_url || null },
-      imageUrl: row.image_url || null,
+      imageUrl: row.thumbnail_url || row.image_url || null,
       videoUrl: row.video_url || null,
       audioUrl: row.audio_url || null,
       tags: row.tags || [],
@@ -663,10 +664,11 @@ const MediaDetailPage: React.FC = () => {
     if (!item || !type) return null
     const t = String(type).toLowerCase()
     // If we have stored rich body for article-like content, render it directly (sanitized)
-    if ((t === 'news' || t === 'blog') && item.content && String(item.content).trim()) {
+    const articleTypes = new Set(['news','blog','report','guide','announcement','tool','article'])
+    if (articleTypes.has(t) && item.content && String(item.content).trim()) {
       return (
         <div
-          className="prose max-w-none"
+          className="prose prose-slate max-w-none"
           dangerouslySetInnerHTML={{ __html: sanitizeHtml(String(item.content)) }}
         />
       )
@@ -675,7 +677,7 @@ const MediaDetailPage: React.FC = () => {
       case 'news':
       case 'blog':
         return (
-          <div className="prose max-w-none">
+          <div className="prose prose-slate max-w-none">
             <p className="text-lg text-gray-700 mb-6 leading-relaxed">
               {item.description}
             </p>
@@ -1249,7 +1251,7 @@ const MediaDetailPage: React.FC = () => {
                   {/* Keyboard shortcuts info */}
                   <div className="mt-6 text-gray-300 text-sm">
                     <p className="text-center">
-                      Keyboard shortcuts: Space/K (play/pause), ← → (seek), M
+                      Keyboard shortcuts: Space/K (play/pause), ? ? (seek), M
                       (mute)
                     </p>
                   </div>
@@ -1306,25 +1308,25 @@ const MediaDetailPage: React.FC = () => {
                   </h3>
                   <ul className="space-y-2">
                     <li className="flex items-start">
-                      <div className="text-blue-600 mr-2">•</div>
+                      <div className="text-blue-600 mr-2">?</div>
                       <span className="text-gray-700">
                         Market analysis and growth projections for key sectors
                       </span>
                     </li>
                     <li className="flex items-start">
-                      <div className="text-blue-600 mr-2">•</div>
+                      <div className="text-blue-600 mr-2">?</div>
                       <span className="text-gray-700">
                         Regulatory framework and compliance guidelines
                       </span>
                     </li>
                     <li className="flex items-start">
-                      <div className="text-blue-600 mr-2">•</div>
+                      <div className="text-blue-600 mr-2">?</div>
                       <span className="text-gray-700">
                         Strategic planning templates and financial models
                       </span>
                     </li>
                     <li className="flex items-start">
-                      <div className="text-blue-600 mr-2">•</div>
+                      <div className="text-blue-600 mr-2">?</div>
                       <span className="text-gray-700">
                         Case studies of successful business implementations
                       </span>
@@ -1596,7 +1598,7 @@ const MediaDetailPage: React.FC = () => {
               </h2>
               <p className="text-gray-700">{item.description}</p>
             </div>
-            <div className="prose max-w-none">
+            <div className="prose prose-slate max-w-none">
               <p className="text-gray-700 mb-6 leading-relaxed">
                 We are pleased to inform all stakeholders about this important
                 development that will impact the business community in Abu
@@ -1639,7 +1641,7 @@ const MediaDetailPage: React.FC = () => {
         )
       default:
         return (
-          <div className="prose max-w-none">
+          <div className="prose prose-slate max-w-none">
             <p className="text-gray-700 mb-6">{item.description}</p>
             <p className="text-gray-700">
               No additional content available for this media type.
@@ -2956,6 +2958,11 @@ const MediaDetailPage: React.FC = () => {
   )
 }
 export default MediaDetailPage
+
+
+
+
+
 
 
 

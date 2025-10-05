@@ -16,13 +16,20 @@ export interface Database {
           slug: string
           summary: string
           body: string
+          body_html: string | null
+          body_json: Json | null
           type: string
+          category: string | null
           status: string
           visibility: string
           language: string
           published_at: string | null
           updated_at: string
           created_at: string
+          seo_title: string | null
+          seo_description: string | null
+          canonical_url: string | null
+          tags: string[] | null
         }
         Insert: {
           id?: string
@@ -30,13 +37,20 @@ export interface Database {
           slug: string
           summary: string
           body?: string
+          body_html?: string | null
+          body_json?: Json | null
           type: string
+          category?: string | null
           status: string
           visibility: string
           language: string
           published_at?: string | null
           updated_at?: string
           created_at?: string
+          seo_title?: string | null
+          seo_description?: string | null
+          canonical_url?: string | null
+          tags?: string[]
         }
         Update: {
           id?: string
@@ -44,13 +58,20 @@ export interface Database {
           slug?: string
           summary?: string
           body?: string
+          body_html?: string | null
+          body_json?: Json | null
           type?: string
+          category?: string | null
           status?: string
           visibility?: string
           language?: string
           published_at?: string | null
           updated_at?: string
           created_at?: string
+          seo_title?: string | null
+          seo_description?: string | null
+          canonical_url?: string | null
+          tags?: string[]
         }
       }
     }
