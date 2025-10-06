@@ -33,12 +33,12 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
     const loadData = async () => {
       // Azure B2C claims (in real app, this would come from auth context)
       const azureB2CClaims = {
-        tradeName: "FutureTech",
-        industry: "Information Technology",
-        companyStage: "growth",
-        contactName: "John Smith",
-        phone: "+971 50 123 4567",
-        email: "john.smith@futuretech.com",
+        CompanyName: "Future Tech",
+        Industry: "Technology",
+        CompanyStage: "Startup",
+        ContactName: "John Smith",
+        Phone: "+971501234567",
+        Email: "test@digitalqatalyst.com",
       };
 
       // In real implementation, load from persistent storage
@@ -205,7 +205,13 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
         // Simulate API call
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        onComplete();
+        if (result.success) {
+          onComplete();
+        } else {
+          setSubmitError(
+            result.error?.message || "Failed to save onboarding data"
+          );
+        }
       } catch (error) {
         console.error("Error saving onboarding data:", error);
       } finally {

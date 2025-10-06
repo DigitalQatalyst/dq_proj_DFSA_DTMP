@@ -55,7 +55,7 @@ export function PageHeader({
     'data-id': dataId,
 }: PageHeaderProps) {
     return (
-        <div className="pb-4 mb-6" data-id={dataId}>
+        <div className="pb-4" data-id={dataId}>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">{title}</h1>
             {breadcrumbs && breadcrumbs.length > 0 && (
                 <Breadcrumbs items={breadcrumbs} />

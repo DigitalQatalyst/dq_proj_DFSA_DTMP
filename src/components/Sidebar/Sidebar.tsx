@@ -213,11 +213,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
         icon: <BarChart3 size={20} />,
         href: "/dashboard/reporting-obligations",
       },
-      {
-        id: "forms",
-        label: "Forms",
-        icon: <FolderOpen size={20} />,
-      } as MenuItem,
+      // {
+      //   id: "forms",
+      //   label: "Forms",
+      //   icon: <FolderOpen size={20} />,
+      // } as MenuItem,
       {
         id: "settings-support",
         label: "Settings & Support",
@@ -241,13 +241,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
         icon: <MessageCircleIcon size={20} />,
         href: "/dashboard/chat-support",
       },
-      {
-        id: "help-center",
-        label: "Help Center",
-        icon: <ExternalLink size={16} />,
-        external: true,
-        href: "https://docs.example.com/help",
-      }
+      // {
+      //   id: "help-center",
+      //   label: "Help Center",
+      //   icon: <ExternalLink size={16} />,
+      //   external: true,
+      //   href: "https://docs.example.com/help",
+      // }
     );
     return items;
   };
