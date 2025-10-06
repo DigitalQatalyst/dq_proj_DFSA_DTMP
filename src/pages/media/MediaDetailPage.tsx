@@ -128,7 +128,10 @@ const MediaDetailPage: React.FC = () => {
     }
   }, [])
   // Check if we're on the client side to avoid SSR hydration issues
-    useEffect(() => {
+  useEffect(() => {
+    setIsClientSide(true)
+  }, [])
+  useEffect(() => {
     const mapRowToItem = (row: any) => ({
       id: row.id,
       title: row.title,
@@ -1280,6 +1283,15 @@ const MediaDetailPage: React.FC = () => {
                   </button>
                 </div>
               )}
+            </div>
+            {/* Podcast description */}
+            <div className="mb-8 bg-white p-6 rounded-lg">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">
+                About This Episode
+              </h2>
+              <p className="text-gray-700 leading-relaxed">
+                {item.description}
+              </p>
             </div>
           </div>
         )

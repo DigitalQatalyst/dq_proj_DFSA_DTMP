@@ -2,6 +2,10 @@ import { useState, useEffect, useCallback } from 'react'
 import { getFallbackKnowledgeHubItems } from '../utils/fallbackData'
 import { mapApiItemToCardProps } from '../utils/mediaMappers'
 import { getSupabase } from '../admin-ui/utils/supabaseClient'
+
+// Known media types - these are filter values that map to the 'type' field in the database
+const KNOWN_TYPES = ['News', 'Reports', 'Toolkits & Templates', 'Guides', 'Events', 'Videos', 'Podcasts']
+
 export interface MediaSearchParams {
   q?: string
   filters?: string[]
@@ -178,21 +182,35 @@ export function useMediaSearch({
               `title.ilike.%${search}%,summary.ilike.%${search}%`
             )
           }
-          // Filter by type if provided (map filters directly to `type`)
-          const typeFilters = (filters || []).filter((f) => KNOWN_TYPES.includes(String(f))) as string[]
-          if (typeFilters.length > 0) {
-            query = query.in('type', typeFilters as string[])
-          }
+          // Apply filters if provided
+          if (filters && filters.length > 0) {
+            // Separate type filters from other filters
+            const typeFilters = (filters || []).filter((f) => KNOWN_TYPES.includes(String(f))) as string[]
+            const otherFilters = (filters || []).filter((f) => !KNOWN_TYPES.includes(String(f))) as string[]
 
-                              // Tag filters (JSONB array) ? match ANY selected tag
-          const tagFilters = (filters || []).filter((f) => !KNOWN_TYPES.includes(String(f))) as string[]
-          if (tagFilters.length > 0) {
-            const parts = tagFilters.map((t) => {
-              const safe = String(t).replace(/\"/g, '\\"')
-              return `tags.cs.["${safe}"]`
-            })
-            if (parts.length > 0) {
-              query = query.or(parts.join(','))
+            // Build OR conditions for all filter types
+            const orConditions: string[] = []
+
+            // Add type filter
+            if (typeFilters.length > 0) {
+              query = query.in('type', typeFilters as string[])
+            }
+
+            // Add filters for other fields (business_stage, domain, format, popularity, tags)
+            if (otherFilters.length > 0) {
+              otherFilters.forEach((filter) => {
+                const safe = String(filter).replace(/\"/g, '\\"')
+                // Check against multiple fields
+                orConditions.push(`business_stage.eq.${safe}`)
+                orConditions.push(`domain.eq.${safe}`)
+                orConditions.push(`format.eq.${safe}`)
+                orConditions.push(`popularity.eq.${safe}`)
+                orConditions.push(`tags.cs.["${safe}"]`)
+              })
+
+              if (orConditions.length > 0) {
+                query = query.or(orConditions.join(','))
+              }
             }
           }const { data, error, count } = await query.range(from, to)
           if (error) throw error
@@ -254,8 +272,19 @@ export function useMediaSearch({
           }
           if (filters && filters.length > 0) {
             allItems = allItems.filter((item) => {
-              const itemTags = [...(item.tags || []), item.filterType || item.mediaType]
-              return filters.some((filter) => itemTags.includes(filter))
+              // Collect all filterable values from the item
+              const itemValues = [
+                item.filterType,
+                item.mediaType,
+                item.businessStage,
+                item.domain,
+                item.format,
+                item.popularity,
+                ...(item.tags || [])
+              ].filter(Boolean)
+
+              // Check if any of the active filters match any of the item's values
+              return filters.some((filter) => itemValues.includes(filter))
             })
           }
           const toDate = (it: any) => new Date(it.date || it.lastUpdated || 0).getTime()
@@ -295,11 +324,22 @@ export function useMediaSearch({
               (item.tags && item.tags.some((tag: string) => tag.toLowerCase().includes(searchQuery))),
           )
         }
-        // Apply filters (by tags and mediaType)
+        // Apply filters (by mediaType, businessStage, domain, format, popularity, and tags)
         if (filters && filters.length > 0) {
           allItems = allItems.filter((item) => {
-            const itemTags = [...(item.tags || []), item.filterType || item.mediaType]
-            return filters.some((filter) => itemTags.includes(filter))
+            // Collect all filterable values from the item
+            const itemValues = [
+              item.filterType,
+              item.mediaType,
+              item.businessStage,
+              item.domain,
+              item.format,
+              item.popularity,
+              ...(item.tags || [])
+            ].filter(Boolean)
+
+            // Check if any of the active filters match any of the item's values
+            return filters.some((filter) => itemValues.includes(filter))
           })
         }
         // Sort newest first (by date/lastUpdated)

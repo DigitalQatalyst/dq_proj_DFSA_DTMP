@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { FilterSidebar, FilterConfig } from './FilterSidebar';
 import { MarketplaceGrid } from './MarketplaceGrid';
 import { SearchBar } from '../SearchBar';
-import { FilterIcon, XIcon, HomeIcon, ChevronRightIcon } from 'lucide-react';
+import { FilterIcon, XIcon, HomeIcon, ChevronRightIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import { ErrorDisplay, CourseCardSkeleton } from '../SkeletonLoader';
 import { fetchMarketplaceItems, fetchMarketplaceFilters } from '../../services/marketplace';
 import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
@@ -60,6 +60,8 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const [filterConfig, setFilterConfig] = useState<FilterConfig[]>([]);
   // Knowledge Hub specific filters
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  // Collapsible filter categories state
+  const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({});
   // Loading and error states
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -276,6 +278,14 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const clearKnowledgeHubFilters = useCallback(() => {
     setActiveFilters([]);
   }, []);
+
+  // Toggle collapse state for a filter category
+  const toggleCategoryCollapse = useCallback((categoryId: string) => {
+    setCollapsedCategories(prev => ({
+      ...prev,
+      [categoryId]: !prev[categoryId]
+    }));
+  }, []);
   return <div className="min-h-screen flex flex-col bg-gray-50">
       <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
       <div className="container mx-auto px-4 py-8 flex-grow">
@@ -303,7 +313,9 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
         </h1>
         <p className="text-gray-600 mb-6">{config.description}</p>
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+          <div className="w-full xl:w-1/4">
+            <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+          </div>
           {marketplaceType === 'knowledge-hub' && !isLoading && user && (
             <Link
               to="/admin-ui/media/new"
@@ -382,28 +394,40 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           </div>
           {/* Filter sidebar - desktop - always visible */}
           <div className="hidden xl:block xl:w-1/4">
-            <div className="bg-white rounded-lg shadow p-4 sticky top-24">
-              <div className="flex justify-between items-center mb-4">
+            <div className="bg-white rounded-lg shadow sticky top-24 max-h-[calc(100vh-7rem)] flex flex-col">
+              <div className="flex justify-between items-center p-4 border-b border-gray-200 flex-shrink-0">
                 <h2 className="text-lg font-semibold">Filters</h2>
                 {(Object.values(filters).some(f => f !== '') || activeFilters.length > 0) && <button onClick={resetFilters} className="text-blue-600 text-sm font-medium">
                     Reset All
                   </button>}
               </div>
-              {marketplaceType === 'knowledge-hub' ? <div className="space-y-4">
-                  {filteredKnowledgeHubConfig.map(category => <div key={category.id} className="border-b border-gray-100 pb-3">
-                      <h3 className="font-medium text-gray-900 mb-2">
-                        {category.title}
-                      </h3>
-                      <div className="space-y-2">
-                        {category.options.map(option => <div key={option.id} className="flex items-center">
-                            <input type="checkbox" id={`desktop-${category.id}-${option.id}`} checked={activeFilters.includes(option.name)} onChange={() => handleKnowledgeHubFilterChange(option.name)} className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                            <label htmlFor={`desktop-${category.id}-${option.id}`} className="ml-2 text-sm text-gray-700">
-                              {option.name}
-                            </label>
-                          </div>)}
-                      </div>
-                    </div>)}
-                </div> : <FilterSidebar filters={filters} filterConfig={filterConfig} onFilterChange={handleFilterChange} onResetFilters={resetFilters} isResponsive={false} />}
+              <div className="overflow-y-auto flex-grow p-4">
+                {marketplaceType === 'knowledge-hub' ? <div className="space-y-2">
+                    {filteredKnowledgeHubConfig.map(category => {
+                      const isCollapsed = collapsedCategories[category.id];
+                      const hasActiveFilters = category.options.some(opt => activeFilters.includes(opt.name));
+                      return <div key={category.id} className="border-b border-gray-100 pb-2">
+                          <button onClick={() => toggleCategoryCollapse(category.id)} className="w-full flex items-center justify-between py-2 hover:bg-gray-50 rounded transition-colors" aria-expanded={!isCollapsed}>
+                            <h3 className="font-medium text-gray-900 flex items-center gap-2">
+                              {category.title}
+                              {hasActiveFilters && <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                  {category.options.filter(opt => activeFilters.includes(opt.name)).length}
+                                </span>}
+                            </h3>
+                            {isCollapsed ? <ChevronDownIcon size={18} className="text-gray-500" /> : <ChevronUpIcon size={18} className="text-gray-500" />}
+                          </button>
+                          {!isCollapsed && <div className="space-y-2 mt-2 ml-1">
+                              {category.options.map(option => <div key={option.id} className="flex items-center">
+                                  <input type="checkbox" id={`desktop-${category.id}-${option.id}`} checked={activeFilters.includes(option.name)} onChange={() => handleKnowledgeHubFilterChange(option.name)} className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                                  <label htmlFor={`desktop-${category.id}-${option.id}`} className="ml-2 text-sm text-gray-700 cursor-pointer">
+                                    {option.name}
+                                  </label>
+                                </div>)}
+                            </div>}
+                        </div>;
+                    })}
+                  </div> : <FilterSidebar filters={filters} filterConfig={filterConfig} onFilterChange={handleFilterChange} onResetFilters={resetFilters} isResponsive={false} />}
+              </div>
             </div>
           </div>
           {/* Main content */}

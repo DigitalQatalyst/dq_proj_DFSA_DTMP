@@ -140,6 +140,7 @@ export const mockKnowledgeHubItems = [
     tags: ['Marketing', 'Strategy'],
     imageUrl:
       'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
     date: 'April 5, 2023',
     duration: '45 minutes',
   },
@@ -187,6 +188,7 @@ export const mockKnowledgeHubItems = [
     tags: ['Operations', 'Productivity'],
     imageUrl:
       'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
     date: 'May 5, 2023',
     duration: '30 minutes',
     episodes: 25,
@@ -302,6 +304,7 @@ export const mockKnowledgeHubItems = [
     tags: ['Marketing', 'Strategy'],
     imageUrl:
       'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
     date: 'April 5, 2023',
     duration: '45 minutes',
   },
@@ -346,6 +349,7 @@ export const mockKnowledgeHubItems = [
     tags: ['Operations', 'Productivity'],
     imageUrl:
       'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
     date: 'May 5, 2023',
     duration: '30 minutes',
     episodes: 25,
