@@ -6,7 +6,7 @@ import { MarketplaceGrid } from "./MarketplaceGrid";
 import { SearchBar } from "../SearchBar";
 import { FilterIcon, XIcon, HomeIcon, ChevronRightIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { ErrorDisplay, CourseCardSkeleton } from "../SkeletonLoader";
-import { getMarketplaceConfig } from "../../utils/marketplaceConfiguration";
+import { getMarketplaceConfig } from "../../utils/marketplaceConfig";
 import { MarketplaceComparison } from "./MarketplaceComparison";
 import { Header, useAuth } from "../Header";
 import { Footer } from "../Footer";
@@ -21,6 +21,8 @@ import { useQuery } from "@apollo/client/react";
 import { useLocation } from "react-router-dom";
 import { GET_PRODUCTS, GET_FACETS } from "../../services/marketplaceQueries.ts";
 import { fetchMarketplaceFilters } from "../../services/marketplace";
+import { getFallbackKnowledgeHubItems } from "../../utils/fallbackData";
+import { isSupabaseConfigured, getSupabase } from "../../admin-ui/utils/supabaseClient";
 
 
 // Mapping of Media Types to their relevant Format options (uses filter labels)
@@ -171,6 +173,19 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   useEffect(() => {
     const loadFilterOptions = async () => {
       try {
+        if (marketplaceType === 'knowledge-hub') {
+          // Use static config for Knowledge Hub filters (mediaType, category, format, etc.)
+          const filterOptions: FilterConfig[] = config.filterCategories;
+          setFilterConfig(filterOptions);
+
+          // Initialize empty filters based on the configuration
+          const initialFilters: Record<string, string> = {};
+          filterOptions.forEach((fc) => {
+            initialFilters[fc.id] = '';
+          });
+          setFilters(initialFilters);
+          return;
+        }
         if (facetData) {
           // Choose facet codes based on marketplace type
           let facetCodes: string[] = [];
@@ -226,6 +241,82 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
       setError(null);
 
       try {
+        // Knowledge Hub uses Supabase + mock data, not GraphQL products
+        if (marketplaceType === 'knowledge-hub') {
+          const fromSupabase: any[] = [];
+          try {
+            if (isSupabaseConfigured()) {
+              const supabase = getSupabase();
+              const { data, error } = await supabase
+                .from('media_items')
+                .select('*')
+                .eq('status', 'Published')
+                .lte('published_at', new Date().toISOString())
+                .order('published_at', { ascending: false })
+                .limit(200);
+              if (error) throw error;
+              (data || []).forEach((row: any) => {
+                const mapType = (t?: string): string => {
+                  const v = (t || '').toLowerCase();
+                  if (v === 'report') return 'Reports';
+                  if (v === 'podcast') return 'Podcasts';
+                  if (v === 'video') return 'Videos';
+                  if (v === 'event') return 'Events';
+                  if (v === 'tool') return 'Toolkits & Templates';
+                  if (v === 'announcement') return 'News';
+                  return 'News';
+                };
+                fromSupabase.push({
+                  id: String(row.id),
+                  title: row.title,
+                  description: row.body || row.summary || '',
+                  mediaType: mapType(row.type),
+                  provider: {
+                    name: row.provider_name || 'Knowledge Hub',
+                    logoUrl: row.provider_logo_url || '/mzn_logo.png',
+                  },
+                  imageUrl: row.thumbnail_url || row.image_url || undefined,
+                  tags: Array.isArray(row.tags) ? row.tags : [],
+                  date: row.published_at || undefined,
+                  lastUpdated: row.updated_at || undefined,
+                  domain: row.category || undefined,
+                });
+              });
+            }
+          } catch (e) {
+            console.warn('Supabase load failed; using mock only', e);
+          }
+
+          // Mock fallback dataset
+          const mock = getFallbackKnowledgeHubItems();
+
+          // Merge + normalize
+          const merged = [...fromSupabase, ...mock];
+
+          // Apply search + activeFilters
+          const matchesActiveFilters = (item: any): boolean => {
+            if (!activeFilters.length) return true;
+            // Build a set of candidate labels for matching
+            const labels = new Set<string>([item.mediaType, item.domain, item.format, item.popularity, item.businessStage].filter(Boolean));
+            return activeFilters.every((f) => Array.from(labels).some((l) => String(l).toLowerCase() === String(f).toLowerCase()));
+          };
+
+          const filteredKH = merged.filter((item) => {
+            const matchesFilters = matchesActiveFilters(item);
+            const matchesSearch =
+              searchQuery.trim() === '' ||
+              item.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              item.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              (Array.isArray(item.tags) && item.tags.some((t: string) => t.toLowerCase().includes(searchQuery.toLowerCase())));
+            return matchesFilters && matchesSearch;
+          });
+
+          setItems(merged);
+          setFilteredItems(filteredKH);
+          setLoading(false);
+          return;
+        }
+
         if (productData) {
           let filteredServices = productData.products.items;
 
@@ -309,7 +400,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     };
 
     loadItems();
-  }, [productData, filters, searchQuery, marketplaceType]);
+  }, [productData, filters, searchQuery, marketplaceType, activeFilters]);
 
   // Immediately hydrate compare from navigation state when arriving from details page
   useEffect(() => {
@@ -548,7 +639,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
       [categoryId]: !prev[categoryId]
     }));
   }, []);
-  return <div className="min-h-screen flex flex-col bg-gray-50">
+  return (<div className="min-h-screen flex flex-col bg-gray-50">
       <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
       <div className="container mx-auto px-4 py-8 flex-grow">
         {/* Breadcrumbs */}
@@ -685,7 +776,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   </button>
                 </div>
                 <div className="p-4">
-                  {marketplaceType === 'knowledge-hub' ? <div className="space-y-4">
+                  {marketplaceType === 'knowledge-hub' ? (<div className="space-y-4">
                       {filteredKnowledgeHubConfig.map(category => <div key={category.id} className="border-b border-gray-100 pb-3">
                           <h3 className="font-medium text-gray-900 mb-2">
                             {category.title}
@@ -715,7 +806,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                             ))}
                           </div>
                         </div>
-                      ))}
+                      )}
                     </div>
                   ) : (
                     <FilterSidebar

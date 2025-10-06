@@ -104,8 +104,10 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
     });
   }, [filterConfig, filters]);
 
-  return <div className="space-y-2">
-      {filteredFilterConfig.map(config => <AccordionSection key={config.id} title={config.title} isOpen={openSections[config.id] || false} onToggle={() => toggleSection(config.id)}>
+  return (
+    <div className="space-y-2">
+      {filteredFilterConfig.map(config => (
+        <AccordionSection key={config.id} title={config.title} isOpen={openSections[config.id] || false} onToggle={() => toggleSection(config.id)}>
           <div className={spacingClass}>
             {config.options.map((option) => (
               <div key={option.id} className="flex items-center">

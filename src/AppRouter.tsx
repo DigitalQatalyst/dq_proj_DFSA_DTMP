@@ -128,6 +128,12 @@ export function AppRouter() {
             path="/forms/issue-support-letter"
             element={<IssueSupportLetter />}
           />
+            <Route path="/media/:type/:id" element={<MediaDetailPage />} />
+            {/* Embedded Admin UI */}
+            <Route path="/admin-ui/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin-ui/media" element={<AdminMediaList />} />
+            <Route path="/admin-ui/media/new" element={<AdminMediaCreate />} />
+            <Route path="/admin-ui/media/:id" element={<AdminMediaDetail />} />
           <Route path="/404" element={<NotFound />} />
 
           <Route path="*" element={<Navigate to="/404" replace />} />

@@ -631,10 +631,10 @@ export const HomePage: React.FC = () => {
           description:
             'Stay updated with the latest business news and industry insights',
           icon: <Newspaper />,
-          path: '/news',
+          path: '/markeplace/knowledge-hub',
           gradientFrom: 'from-amber-600',
           gradientTo: 'to-amber-400',
-          isActive: false,
+          isActive: true,
         },
         {
           id: 'law',
