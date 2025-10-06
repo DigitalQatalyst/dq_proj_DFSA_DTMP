@@ -40,7 +40,7 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
         CompanyName: "Future Tech",
         Industry: "Technology",
         CompanyStage: "Startup",
-        ContactName: "John Doe",
+        ContactName: "John Smith",
         Phone: "+971501234567",
         Email: "test@digitalqatalyst.com",
       };
