@@ -90,12 +90,14 @@ const GET_PRODUCT = gql`
           name
           source
         }
+        Partner
         CustomerType
         BusinessStage
         Nationality
         LegalStructure
         Industry
         ProcessingTime
+        Steps
         Cost
         RequiredDocuments {
           id

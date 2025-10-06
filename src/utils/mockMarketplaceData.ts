@@ -335,8 +335,7 @@ export const mockFinancialServices = [
     amount: "Up to AED 5 million",
     duration: "5-7 years",
     interestRate: "Starting from 3%",
-    eligibility:
-      "At least 2 years of operation",
+    eligibility: "At least 2 years of operation",
     details: [
       "No collateral required for loans up to AED 1 million",
       "Flexible repayment options",
@@ -363,8 +362,7 @@ export const mockFinancialServices = [
     amount: "AED 500,000 - 2 million",
     duration: "Equity investment",
     interestRate: "N/A (Equity-based)",
-    eligibility:
-      "At least 2 years of operation",
+    eligibility: "At least 2 years of operation",
     details: [
       "Equity investment ranging from 10-25%",
       "Access to Hub71's ecosystem and mentorship",
@@ -447,7 +445,7 @@ export const mockFinancialServices = [
     amount: "Credit limit up to AED 500,000",
     duration: "Revolving credit",
     interestRate: "18% APR",
-    eligibility: "At least 2 years of operation",
+    eligibility: "  Registered businesses with good credit history",
     details: [
       "Business-specific rewards and cashback",
       "Multiple cards for employees with spending controls",
