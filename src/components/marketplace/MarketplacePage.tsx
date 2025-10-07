@@ -164,10 +164,12 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   // Apollo queries for products and facets
+  // Skip GraphQL entirely for Knowledge Hub — it uses Supabase + local data
+  const skipGraph = marketplaceType === 'knowledge-hub'
   const { data: productData, error: productError } =
-    useQuery<GetProductsData>(GET_PRODUCTS);
+    useQuery<GetProductsData>(GET_PRODUCTS, { skip: skipGraph });
   const { data: facetData, error: facetError } =
-    useQuery<GetFacetsData>(GET_FACETS);
+    useQuery<GetFacetsData>(GET_FACETS, { skip: skipGraph });
   // Load filter configurations based on marketplace type
  // ...existing code...
   useEffect(() => {
@@ -945,12 +947,11 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   <CourseCardSkeleton key={idx} />
                 ))}
               </div>
-            ) : error || facetError || productError ? (
+            ) : error || (!skipGraph && (facetError || productError)) ? (
               <ErrorDisplay
                 message={
                   error ||
-                  facetError?.message ||
-                  productError?.message ||
+                  (!skipGraph && (facetError?.message || productError?.message)) ||
                   `Failed to load ${marketplaceType}`
                 }
                 onRetry={retryFetch}
