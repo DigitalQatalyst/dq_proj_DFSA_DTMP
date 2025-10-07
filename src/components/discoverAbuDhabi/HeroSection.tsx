@@ -2335,6 +2335,7 @@ const HeroSection = () => {
       });
     }
   };
+  
   const handleSelectLocation = location => {
     setSelectedLocation(location);
     if (mapRef) {
