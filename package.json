@@ -3,12 +3,12 @@
     "version":  "0.0.1",
     "private":  true,
     "type":  "module",
-    "scripts":  {
+    "scripts": {"dev:api": "node api/server.mjs",
                     "dev":  "npx vite",
                     "build":  "npx vite build",
                     "lint":  "eslint . --ext .js,.jsx,.ts,.tsx",
                     "preview":  "npx vite preview",
-                    "vercel:dev":  "vercel dev"
+                    "vercel:dev":  "vercel dev -l 3001"
                 },
     "dependencies":  {
                          "@apollo/client":  "^4.0.7",
@@ -58,6 +58,7 @@
                             "postcss":  "latest",
                             "tailwindcss":  "3.4.17",
                             "typescript":  "^5.5.4",
+                            "vercel":  "^48.2.2",
                             "vite":  "^7.1.7"
                         },
     "overrides":  {

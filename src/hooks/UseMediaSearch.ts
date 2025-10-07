@@ -219,7 +219,7 @@ export function useMediaSearch({
           const usedImageUrls = new Set<string>((reset ? [] : items).map((i: any) => i.imageUrl).filter(Boolean))
           const mapped = (data || []).map((row: any) =>
             {
-              let img = row.image_url as string | null
+              let img = (row as any).thumbnail_url || (row as any).image_url as string | null
               if (!img || usedImageUrls.has(img)) {
                 img = pickUniqueFallbackImage(row.id, row.type, usedImageUrls)
               } else {
@@ -233,7 +233,8 @@ export function useMediaSearch({
                 provider: { name: row.provider_name || 'Knowledge Hub', logoUrl: row.provider_logo_url || null },
                 imageUrl: img,
                 videoUrl: row.video_url || null,
-                audioUrl: row.audio_url || null,
+                audioUrl: (row as any).podcast_url || (row as any).audio_url || null,
+                downloadUrl: (row as any).document_url || null,
                 tags: (row as any).tags || [],
                 date: row.published_at,
                 lastUpdated: row.updated_at,

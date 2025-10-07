@@ -86,13 +86,51 @@ const MediaDetail: React.FC = () => {
   const charCount = bodyText.length
   const canSave = Boolean((formData.title || '').trim() && (formData.type || '').trim() && (formData.visibility || '').trim()) && isValidSlug((formData.slug || '').trim() || generateSlug(formData.title || ''))
 
+  const handlePublish = async () => {
+    if (!id) return
+    setSaving(true)
+    try {
+      const updated = await mediaService.updateMediaItem(id, {
+        status: 'Published' as any,
+        visibility: 'Public' as any,
+        publishedAt: new Date().toISOString(),
+      })
+      setItem(updated)
+      setFormData(updated)
+      setToast({ message: 'Published', type: 'success' })
+    } catch (e: any) {
+      setToast({ message: e?.message || 'Publish failed', type: 'error' })
+    } finally { setSaving(false) }
+  }
+
+  const handleUnpublish = async () => {
+    if (!id) return
+    setSaving(true)
+    try {
+      const updated = await mediaService.updateMediaItem(id, {
+        status: 'Draft' as any,
+        publishedAt: null,
+      })
+      setItem(updated)
+      setFormData(updated)
+      setToast({ message: 'Unpublished', type: 'success' })
+    } catch (e: any) {
+      setToast({ message: e?.message || 'Unpublish failed', type: 'error' })
+    } finally { setSaving(false) }
+  }
+
   const save = async () => {
     if (!id) return
     setSaving(true)
     try {
       let thumbUrl = thumbnailUrl
       if (pendingThumbFile) {
-        try { setUploadingThumb(true); const { publicUrl } = await mediaService.uploadThumbnail(pendingThumbFile, id); thumbUrl = publicUrl } finally { setUploadingThumb(false) }
+        try {
+          setUploadingThumb(true)
+          const { uploadFile } = await import('../../lib/storageProvider')
+          const r = await uploadFile({ file: pendingThumbFile, dir: 'thumbnails', mediaId: id })
+          thumbUrl = r.publicUrl
+        } finally { setUploadingThumb(false) }
       }
       const payload = {
         ...formData,
@@ -117,7 +155,9 @@ const MediaDetail: React.FC = () => {
         <div className="mb-4 flex items-center justify-between">
           <Link to="/admin-ui/media" className="inline-flex items-center text-blue-600 hover:text-blue-800"><ArrowLeftIcon className="w-4 h-4 mr-2" /> Back to list</Link>
           <div className="flex items-center gap-2">
-            <button onClick={save} disabled={saving || !canSave} className="inline-flex items-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"><SaveIcon className="w-4 h-4 mr-2" /> Save</button>
+            <button onClick={handlePublish} disabled={saving || formData.status==='Published'} className="inline-flex items-center px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 mr-2">Publish</button>
+            <button onClick={handleUnpublish} disabled={saving || formData.status!=='Published'} className="inline-flex items-center px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 mr-2">Unpublish</button>
+            <button onClick={save} disabled={saving || !canSave} className="inline-flex items-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"><SaveIcon className="w-4 h-4 mr-2" /> {(formData.status === 'Published' ? 'Update' : 'Save')}</button>
           </div>
         </div>
 
@@ -148,7 +188,7 @@ const MediaDetail: React.FC = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700">Content</label>
               <div className="mt-1">
-                <Suspense fallback={<div className="border rounded-md p-3 text-sm text-gray-500">Loading editorâ€¦</div>}>
+                <Suspense fallback={<div className="border rounded-md p-3 text-sm text-gray-500">Loading editor…</div>}>
                   <RichTextEditor
                     valueJson={(formData as any).bodyJson || undefined}
                     valueHtml={(formData as any).bodyHtml || formData.body || ''}
@@ -156,7 +196,7 @@ const MediaDetail: React.FC = () => {
                   />
                 </Suspense>
               </div>
-              <div className="mt-2 text-xs text-gray-500">{wordCount} words • {charCount} characters</div>
+              <div className="mt-2 text-xs text-gray-500">{wordCount} words ? {charCount} characters</div>
             </div>
 
             <div>

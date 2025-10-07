@@ -13,8 +13,8 @@ import MediaDetailPage from "./pages/media/MediaDetailPage";
 // Admin UI (integrated)
 import AdminDashboard from "./admin-ui/pages/Dashboard";
 import AdminMediaList from "./admin-ui/pages/MediaList";
-import AdminMediaCreate from "./admin-ui/pages/MediaCreate";
-import AdminMediaDetail from "./admin-ui/pages/MediaDetail";
+import MediaCreate from "./admin-ui/pages/MediaCreate";
+import AdminMediaDetail from "./admin-ui/pages/MediaDetail2";
 import AdminSettings from "./admin-ui/pages/Settings";
 import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
@@ -132,7 +132,7 @@ export function AppRouter() {
             {/* Embedded Admin UI */}
             <Route path="/admin-ui/dashboard" element={<AdminDashboard />} />
             <Route path="/admin-ui/media" element={<AdminMediaList />} />
-            <Route path="/admin-ui/media/new" element={<AdminMediaCreate />} />
+            <Route path="/admin-ui/media/new" element={<MediaCreate />} />
             <Route path="/admin-ui/media/:id" element={<AdminMediaDetail />} />
           <Route path="/404" element={<NotFound />} />
 
