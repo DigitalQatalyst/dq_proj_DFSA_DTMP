@@ -258,14 +258,31 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               (data || []).forEach((row: any) => {
                 const mapType = (t?: string): string => {
                   const v = (t || '').toLowerCase();
-                  if (v === 'report') return 'Reports';
-                  if (v === 'podcast') return 'Podcasts';
-                  if (v === 'video') return 'Videos';
-                  if (v === 'event') return 'Events';
-                  if (v === 'tool') return 'Toolkits & Templates';
-                  if (v === 'announcement') return 'News';
-                  return 'News';
+                  // Return SINGULAR forms to match card rendering expectations
+                  if (v === 'report' || v === 'reports') return 'Report';
+                  if (v === 'guide' || v === 'guides') return 'Guide';
+                  if (v === 'podcast' || v === 'podcasts') return 'Podcast';
+                  if (v === 'video' || v === 'videos') return 'Video';
+                  if (v === 'event' || v === 'events') return 'Event';
+                  if (v === 'tool' || v === 'toolkit' || v === 'toolkits') return 'Toolkits & Templates';
+                  if (v === 'announcement' || v === 'news') return 'News';
+                  // Fallback: capitalize the first letter instead of defaulting to 'News'
+                  return t ? t.charAt(0).toUpperCase() + t.slice(1) : 'News';
                 };
+
+                // Extract filter values from tags array
+                const tags = Array.isArray(row.tags) ? row.tags : [];
+
+                // Define valid filter values for matching
+                const validFormats = ['Quick Reads', 'In-Depth Reports', 'Interactive Tools', 'Downloadable Templates', 'Recorded Media', 'Live Events'];
+                const validPopularity = ['Latest', 'Trending', 'Most Downloaded', "Editor's Pick"];
+                const validBusinessStages = ['Idea Stage', 'Startup', 'Growth', 'Scale-up', 'Established', 'All Stages'];
+
+                // Extract values from tags
+                const format = tags.find((tag: string) => validFormats.includes(tag));
+                const popularity = tags.find((tag: string) => validPopularity.includes(tag));
+                const businessStage = tags.find((tag: string) => validBusinessStages.includes(tag));
+
                 fromSupabase.push({
                   id: String(row.id),
                   title: row.title,
@@ -276,10 +293,13 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                     logoUrl: row.provider_logo_url || '/mzn_logo.png',
                   },
                   imageUrl: row.thumbnail_url || row.image_url || undefined,
-                  tags: Array.isArray(row.tags) ? row.tags : [],
+                  tags: tags,
                   date: row.published_at || undefined,
                   lastUpdated: row.updated_at || undefined,
                   domain: row.category || undefined,
+                  format: format || undefined,
+                  popularity: popularity || undefined,
+                  businessStage: businessStage || undefined,
                 });
               });
             }
@@ -296,9 +316,61 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           // Apply search + activeFilters
           const matchesActiveFilters = (item: any): boolean => {
             if (!activeFilters.length) return true;
-            // Build a set of candidate labels for matching
-            const labels = new Set<string>([item.mediaType, item.domain, item.format, item.popularity, item.businessStage].filter(Boolean));
-            return activeFilters.every((f) => Array.from(labels).some((l) => String(l).toLowerCase() === String(f).toLowerCase()));
+
+            // Normalize function to handle singular/plural matching
+            const normalize = (str: string): string => {
+              const s = String(str).toLowerCase().trim();
+              // Remove trailing 's' for plural normalization
+              return s.endsWith('s') ? s.slice(0, -1) : s;
+            };
+
+            // Group active filters by category
+            // Map filter values to their categories based on filterConfig
+            const filtersByCategory: Record<string, string[]> = {};
+
+            activeFilters.forEach((filterValue) => {
+              // Find which category this filter belongs to
+              const category = filterConfig.find(cat =>
+                cat.options.some(opt => opt.name === filterValue)
+              );
+
+              if (category) {
+                if (!filtersByCategory[category.id]) {
+                  filtersByCategory[category.id] = [];
+                }
+                filtersByCategory[category.id].push(filterValue);
+              }
+            });
+
+            // Build item's searchable values
+            const itemValues: Record<string, string> = {
+              mediaType: item.mediaType,
+              category: item.domain, // 'domain' maps to 'category' filter
+              format: item.format,
+              popularity: item.popularity,
+              businessStage: item.businessStage
+            };
+
+            // Check filters: OR within category, AND across categories
+            return Object.keys(filtersByCategory).every((categoryId) => {
+              const categoryFilters = filtersByCategory[categoryId];
+              const itemValue = itemValues[categoryId];
+
+              if (!itemValue) {
+                // If item doesn't have this field, check tags as fallback
+                if (Array.isArray(item.tags)) {
+                  return categoryFilters.some((filterValue) =>
+                    item.tags.some((tag: string) => normalize(tag) === normalize(filterValue))
+                  );
+                }
+                return false;
+              }
+
+              // OR logic: at least one filter in this category must match
+              return categoryFilters.some((filterValue) =>
+                normalize(itemValue) === normalize(filterValue)
+              );
+            });
           };
 
           const filteredKH = merged.filter((item) => {
