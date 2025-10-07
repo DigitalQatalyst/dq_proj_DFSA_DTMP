@@ -7,6 +7,7 @@ import EnterpriseStages from './EnterpriseStages';
 import Home from './Home';
 import KnowledgeHub from './KnowledgeHub';
 import CallToAction from './CallToAction';
+import KhalifaFundAttribution from './KhalifaFundAttribution';
 
 const HomePage: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -51,6 +52,7 @@ const HomePage: React.FC = () => {
         <CallToAction />
       </main>
       <Footer isLoggedIn={false} />
+      {/* <KhalifaFundAttribution /> */}
     </div>
   );
 };
