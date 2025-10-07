@@ -234,36 +234,36 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           ];
 
           const mappedItems = filteredServices.map((product) => {
-  const randomFallbackLogo =
-    fallbackLogos[Math.floor(Math.random() * fallbackLogos.length)];
+            const randomFallbackLogo =
+              fallbackLogos[Math.floor(Math.random() * fallbackLogos.length)];
 
-  const rawFormUrl = product.customFields?.formUrl; // Raw from backend
-  const finalFormUrl = rawFormUrl || "https://www.tamm.abudhabi/en/login"; // Your logic (unchanged)
+            const rawFormUrl = product.customFields?.formUrl; // Raw from backend
+            const finalFormUrl = rawFormUrl || "https://www.tamm.abudhabi/en/login"; // Your logic (unchanged)
 
-  // Debug log: Check this in browser console for suspect products
-  if (product.id === "133" || !rawFormUrl) { // Or log for all: remove the condition
-    console.log(`Product "${product.name}" (ID: ${product.id}): Raw formUrl =`, rawFormUrl, '| Final =', finalFormUrl);
-  }
-  
-  return {
-    id: product.id,
-    title: product.name,
-    slug: product.slug,
-    description:
-      product.description ||
-      "Through this service, you can easily reallocate your approved loan funds...",
-    facetValues: product.facetValues,
-    tags: [product.customFields.BusinessStage, product.customFields.BusinessStage].filter(Boolean),
-    provider: {
-      name: product.customFields?.Partner || "Khalifa Fund",
-      logoUrl:
-        product.customFields?.logoUrl || randomFallbackLogo,
-      description: "No provider description available",
-    },
-    formUrl: finalFormUrl,
-    ...product.customFields,
-  };
-});
+            // Debug log: Check this in browser console for suspect products
+            if (product.id === "133" || !rawFormUrl) { // Or log for all: remove the condition
+              console.log(`Product "${product.name}" (ID: ${product.id}): Raw formUrl =`, rawFormUrl, '| Final =', finalFormUrl);
+            }
+            
+            return {
+              id: product.id,
+              title: product.name,
+              slug: product.slug,
+              description:
+                product.description ||
+                "Through this service, you can easily reallocate your approved loan funds...",
+              facetValues: product.facetValues,
+              tags: [product.customFields.BusinessStage, product.customFields.BusinessStage].filter(Boolean),
+              provider: {
+                name: product.customFields?.Partner || "Khalifa Fund",
+                logoUrl:
+                  product.customFields?.logoUrl || randomFallbackLogo,
+                description: "No provider description available",
+              },
+              formUrl: finalFormUrl,
+              ...product.customFields,
+            };
+          });
 
           // Apply filters + search (unchanged)
           const filtered = mappedItems.filter((product: any) => {
