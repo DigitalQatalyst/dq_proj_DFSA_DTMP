@@ -57,13 +57,17 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
       formUrl: item.formUrl,
       marketplaceType,
     });
-    // Prepend '/forms/' to backend-provided formUrl, use fallback if undefined
-    const targetUrl = item.formUrl
-      ? item.formUrl.startsWith('/forms/')
-        ? item.formUrl // Already a full path (e.g., from fallback)
-        : `/forms/${item.formUrl}` // Prepend /forms/ for backend relative paths
-      : '/forms/request-for-membership';
-    console.log('Navigating to:', targetUrl);
+    // Apply external fallback if formUrl is null/falsy
+    const effectiveUrl = item.formUrl || "https://www.tamm.abudhabi/en/login";
+    // Handle external: open in new tab
+    if (effectiveUrl.startsWith('http')) {
+      window.open(effectiveUrl, '_blank', 'noopener,noreferrer');
+      console.log('Opening external URL:', effectiveUrl);
+      return;
+    }
+    // Internal route: normalize with /forms/ prefix if needed
+    const targetUrl = effectiveUrl.startsWith('/forms/') ? effectiveUrl : `/forms/${effectiveUrl}`;
+    console.log('Navigating to internal route:', targetUrl);
     navigate(targetUrl);
   };
 

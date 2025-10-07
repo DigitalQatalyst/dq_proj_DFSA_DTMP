@@ -23,10 +23,6 @@ const GET_PRODUCTS = gql`
           code
         }
         customFields {
-          Logo {
-            name
-            source
-          }
           CustomerType
           BusinessStage
           Nationality
@@ -39,10 +35,6 @@ const GET_PRODUCTS = gql`
           Steps
           KeyTermsOfService
           AdditionalTermsOfService
-          Logo {
-            name
-            source
-          }
           RequiredDocuments {
             id
             name
@@ -52,6 +44,7 @@ const GET_PRODUCTS = gql`
             id
           }
          formUrl
+         logoUrl
         }
       }
     }
