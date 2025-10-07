@@ -491,7 +491,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                     </div>
                   )}
                 </div>
-                <button
+                {/* <button
                   onClick={handleToggleBookmark}
                   className={`p-1.5 rounded-full ${
                     isBookmarked
@@ -505,7 +505,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                     size={18}
                     className={isBookmarked ? "fill-yellow-600" : ""}
                   />
-                </button>
+                </button> */}
               </div>
               {/* Description */}
               <p className="text-gray-700 mb-6 max-w-2xl">{itemDescription}</p>

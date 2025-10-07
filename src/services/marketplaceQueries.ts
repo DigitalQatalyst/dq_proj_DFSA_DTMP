@@ -121,5 +121,21 @@ const GET_PRODUCT = gql`
     }
   }
 `;
+const BOOKMARK_SERVICE = gql`
+mutation ToggleFavorite($productId: ID!) {
+  toggleFavorite(productId: $productId) {
+    items {
+      id
+      createdAt
+      product {
+        id
+        name
+        slug
+      }
+    }
+    totalItems
+  }
+}
+`
 
-export { GET_PRODUCTS, GET_FACETS, GET_PRODUCT };
+export { GET_PRODUCTS, GET_FACETS, GET_PRODUCT, BOOKMARK_SERVICE };

@@ -8,9 +8,9 @@ import { ApolloProvider } from "@apollo/client/react";
 
 const client = new ApolloClient({
   link: new HttpLink({
-    uri: "https://90va0q4bccgp.share.zrok.io/services-api",
+    uri: "https://b0e4e435962f.ngrok-free.app/services-api",
     // Avoid ngrok browser warning interstitials from breaking preflight
-    headers: { skip_zrok_interstitial: "1" },
+    // headers: { skip_zrok_interstitial: "1" },
     // Ensure CORS mode
     fetchOptions: { mode: "cors" },
   }),
