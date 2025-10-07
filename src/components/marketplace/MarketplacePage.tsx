@@ -244,6 +244,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   if (product.id === "133" || !rawFormUrl) { // Or log for all: remove the condition
     console.log(`Product "${product.name}" (ID: ${product.id}): Raw formUrl =`, rawFormUrl, '| Final =', finalFormUrl);
   }
+  
 
   return {
     id: product.id,
