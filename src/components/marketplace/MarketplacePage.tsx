@@ -245,7 +245,6 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     console.log(`Product "${product.name}" (ID: ${product.id}): Raw formUrl =`, rawFormUrl, '| Final =', finalFormUrl);
   }
   
-
   return {
     id: product.id,
     title: product.name,
