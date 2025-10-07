@@ -292,7 +292,7 @@ const EnterpriseStages: React.FC = () => {
     {
       id: 'launch',
       title: 'Launch',
-      description: 'Set up and launch your business in Abu Dhabi',
+      description: 'Set up and launch your business in Abu Dhabi swiftly',
       detailedDescription:
         'The Launch stage is where your business takes its first steps into the market. This phase involves establishing your legal entity, securing initial funding, setting up operations, and making your first sales. Our platform streamlines the launch process with dedicated support for business registration, licensing, and initial setup requirements specific to Abu Dhabi.',
       benefits: [

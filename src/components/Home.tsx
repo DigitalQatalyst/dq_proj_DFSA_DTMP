@@ -462,7 +462,7 @@ export const HomePage: React.FC = () => {
           title: 'Business Savings',
           description:
             'Explore savings accounts and investment vehicles for your enterprise',
-          icon: <PiggyBank />,
+          icon: <BadgeDollarSign />,
           path: '/savings',
           gradientFrom: 'from-blue-600',
           gradientTo: 'to-blue-400',
@@ -596,7 +596,7 @@ export const HomePage: React.FC = () => {
           title: 'Corporate Venturing',
           description:
             'Collaborate with established corporations for innovation and growth',
-          icon: <div />,
+          icon: <Share2 />,
           path: '/corporate-venturing',
           gradientFrom: 'from-teal-600',
           gradientTo: 'to-teal-400',
