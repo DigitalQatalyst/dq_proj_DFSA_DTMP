@@ -749,14 +749,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             </li>
           </ol>
         </nav>
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">
-          {config.title}
-        </h1>
-        <p className="text-gray-600 mb-6">{config.description}</p>
-        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="w-full">
-            <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-          </div>
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-3xl font-bold text-gray-800">
+            {config.title}
+          </h1>
           {marketplaceType === 'knowledge-hub' && !isLoading && user && (
             <Link
               to="/admin-ui/media/new"
@@ -765,6 +761,12 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               Add Content
             </Link>
           )}
+        </div>
+        <p className="text-gray-600 mb-6">{config.description}</p>
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="w-full">
+            <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+          </div>
         </div>
         {/* Comparison bar */}
         {compareItems.length > 0 && (
