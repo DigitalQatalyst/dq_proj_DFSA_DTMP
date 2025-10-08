@@ -257,7 +257,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             // tags: [course.businessStage, course.serviceCategory].filter(Boolean),
             provider: {
               name: course.partner || "Unknown Partner",
-              logoUrl: course.logoUrl || "/default_logo.png",
+              logoUrl: course.logoUrl || "/mzn_logo.png",
               description: "No provider description available",
             },
             formUrl: null, // Courses may not have formUrl; adjust as needed
