@@ -910,8 +910,8 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           </div>
           {/* Filter sidebar - desktop - always visible */}
           <div className="hidden xl:block xl:w-1/4">
-            <div className="bg-white rounded-lg shadow sticky top-24">
-              <div className="flex justify-between items-center p-4 border-b border-gray-200">
+            <div className="bg-white rounded-lg shadow sticky top-24 max-h-[calc(100vh-7rem)] flex flex-col">
+              <div className="flex justify-between items-center p-4 border-b border-gray-200 flex-shrink-0">
                 <h2 className="text-lg font-semibold">Filters</h2>
                 {(Object.values(filters).some((f) => f !== "") ||
                   activeFilters.length > 0) && (
@@ -923,7 +923,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   </button>
                 )}
               </div>
-              <div className="p-4">
+              <div className="p-4 overflow-y-auto scrollbar-hide">
                 {marketplaceType === 'knowledge-hub' ? <div className="space-y-2">
                     {filteredKnowledgeHubConfig.map(category => {
                       const isCollapsed = collapsedCategories[category.id];

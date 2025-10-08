@@ -8,6 +8,15 @@
   overflow: hidden;
 }
 
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
 /* TipTap content gets readable defaults similar to public page */
 .tiptap :where(p)       { @apply my-3; }
 .tiptap :where(h2)      { @apply text-2xl font-bold mt-6 mb-3; }
