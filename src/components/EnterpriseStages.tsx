@@ -262,7 +262,7 @@ const EnterpriseStages: React.FC = () => {
       title: 'Ideation',
       description: 'Transform your business idea into a viable concept',
       detailedDescription:
-        'The Ideation stage is where your business journey begins. This crucial phase is all about developing and refining your business concept, validating market demand, and laying the groundwork for a successful venture. Our platform provides specialized tools and expert guidance to help you transform your ideas into viable business opportunities.',
+        'The Ideation stage is where entrepreneurs turn initial concepts into viable solutions. MZN-EJP-v2 helps founders validate ideas, conduct market research, and analyze opportunities, providing essential resources to shape and refine business models before launch.',
       benefits: [
         'Idea validation workshops',
         'Market research support',
@@ -294,7 +294,7 @@ const EnterpriseStages: React.FC = () => {
       title: 'Launch',
       description: 'Set up and launch your business in Abu Dhabi swiftly',
       detailedDescription:
-        'The Launch stage is where your business takes its first steps into the market. This phase involves establishing your legal entity, securing initial funding, setting up operations, and making your first sales. Our platform streamlines the launch process with dedicated support for business registration, licensing, and initial setup requirements specific to Abu Dhabi.',
+        'The Launch stage focuses on transforming your business concept into an operational entity. MZN-EJP-v2 streamlines registration, funding, and MVP development, guiding startups through the critical steps needed to establish a strong foundation and begin operations confidently.',
       benefits: [
         'Business registration support',
         'Startup funding access',
@@ -326,7 +326,7 @@ const EnterpriseStages: React.FC = () => {
       title: 'Growth',
       description: 'Scale your operations and expand your customer base',
       detailedDescription:
-        "The Growth stage focuses on scaling your business operations, expanding your customer base, and increasing revenue. During this phase, you'll need to build efficient systems, develop your team, and implement effective marketing strategies. Our platform provides targeted resources to help you overcome growth challenges and capitalize on new opportunities.",
+        "The Growth stage is where your business gains traction and scales operations. MZN-EJP-v2 supports customer acquisition, product optimization, and feedback-driven improvements, enabling businesses to expand their reach and strengthen their market position.",
       benefits: [
         'Growth financing options',
         'Marketing & sales support',
@@ -358,7 +358,7 @@ const EnterpriseStages: React.FC = () => {
       title: 'Expansion',
       description: 'Enter new markets and diversify your business',
       detailedDescription:
-        'The Expansion stage is about taking your successful business model to new horizons. This might involve entering international markets, diversifying your product line, or expanding into new customer segments. Our platform offers specialized resources for market entry, strategic partnerships, and managing the complexities of a multi-market operation.',
+        'The Expansion stage centers on extending your business reach through new markets, products, or partnerships. MZN-EJP-v2 offers strategic planning tools and resources to help businesses diversify offerings, form valuable partnerships, and sustain consistent growth.',
       benefits: [
         'International market entry',
         'Product diversification',
@@ -390,7 +390,7 @@ const EnterpriseStages: React.FC = () => {
       title: 'Optimization',
       description: 'Streamline operations and maximize efficiency',
       detailedDescription:
-        'The Optimization stage focuses on refining your business operations to enhance efficiency, reduce costs, and improve overall performance. This phase involves analyzing your current processes, identifying bottlenecks, and implementing solutions to streamline your business. Our platform provides tools and expertise to help you optimize every aspect of your operations.',
+        'The Optimization stage focuses on refining business processes for greater efficiency and performance. MZN-EJP-v2 provides analytics, automation, and integration solutions, helping businesses reduce costs, improve productivity, and maximize operational effectiveness.',
       benefits: [
         'Process optimization',
         'Technology integration',
@@ -422,7 +422,7 @@ const EnterpriseStages: React.FC = () => {
       title: 'Transformation',
       description: 'Reinvent your business model for future growth',
       detailedDescription:
-        'The Transformation stage is about reinventing your business to adapt to changing markets, technologies, and customer needs. This might involve digital transformation, sustainability integration, or complete business model innovation. Our platform supports your transformation journey with cutting-edge resources and expertise to help you stay ahead of industry disruptions.',
+        'The Transformation stage involves reinventing aspects of your business to adapt to market changes and new opportunities. MZN-EJP-v2 supports digital transformation, innovation, and strategic pivots, empowering businesses to stay resilient and drive long-term success.',
       benefits: [
         'Digital transformation',
         'Business model innovation',
