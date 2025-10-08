@@ -20,6 +20,9 @@ type MediaFormData = Partial<MediaItem> & {
   eventDate?: string;
   eventLocation?: string;
   eventTime?: string;
+  eventLocationDetails?: string;
+  eventRegistrationInfo?: string;
+  eventAgenda?: any;
   announcementDate?: string;
   downloadUrl?: string;
   fileSize?: string;
@@ -42,13 +45,17 @@ const isHttpUrl = (s: string) => {
   }
 };
 
-type TabKey = 'Article' | 'Video' | 'Podcast' | 'Report';
+type TabKey = 'Article' | 'Video' | 'Podcast' | 'Report' | 'News' | 'Guide' | 'Event' | 'Toolkit';
 
 const tabs: { key: TabKey; label: string; description: string }[] = [
   { key: 'Article', label: 'Articles', description: 'Write and format articles' },
+  { key: 'News', label: 'News', description: 'Quick news updates and announcements' },
+  { key: 'Guide', label: 'Guides', description: 'How-to guides and tutorials' },
   { key: 'Video', label: 'Videos', description: 'Video content with preview' },
   { key: 'Podcast', label: 'Podcasts', description: 'Audio or video podcast episodes' },
-  { key: 'Report', label: 'Reports', description: 'Reports or guides (PDF/DOCX)' },
+  { key: 'Event', label: 'Events', description: 'Upcoming events and webinars' },
+  { key: 'Report', label: 'Reports', description: 'Reports and documents (PDF/DOCX)' },
+  { key: 'Toolkit', label: 'Toolkits & Templates', description: 'Downloadable templates and tools' },
 ];
 
 const generateSlug = (title: string) =>
@@ -117,12 +124,8 @@ const MediaCreate: React.FC<MediaCreateProps> = ({ existingItem }) => {
 
   const getInitialTab = (): TabKey => {
     if (existingItem) {
-      if (existingItem.type === 'Report') return 'Report';
-      if (
-        existingItem.type === 'Article' ||
-        existingItem.type === 'Video' ||
-        existingItem.type === 'Podcast'
-      ) {
+      const validTypes: TabKey[] = ['Article', 'News', 'Guide', 'Video', 'Podcast', 'Event', 'Report', 'Toolkit'];
+      if (validTypes.includes(existingItem.type as TabKey)) {
         return existingItem.type as TabKey;
       }
       return 'Article';
@@ -432,6 +435,24 @@ const MediaCreate: React.FC<MediaCreateProps> = ({ existingItem }) => {
         ((formData.downloadUrl || '').trim() && isValidUrl(formData.downloadUrl || '')) ||
           reportFile
       );
+    }
+    if (activeTab === 'Guide') {
+      return Boolean(
+        ((formData.downloadUrl || '').trim() && isValidUrl(formData.downloadUrl || '')) ||
+          reportFile
+      );
+    }
+    if (activeTab === 'Toolkit') {
+      return Boolean(
+        ((formData.downloadUrl || '').trim() && isValidUrl(formData.downloadUrl || '')) ||
+          reportFile
+      );
+    }
+    if (activeTab === 'Event') {
+      return Boolean((formData.eventDate || '').trim());
+    }
+    if (activeTab === 'News') {
+      return true; // News only requires base fields (title, slug, visibility)
     }
     return true;
   };
@@ -837,6 +858,236 @@ const MediaCreate: React.FC<MediaCreateProps> = ({ existingItem }) => {
                 </div>
               )}
 
+              {/* News Tab */}
+              {activeTab === 'News' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label htmlFor="source" className="block text-sm font-medium text-gray-700">
+                        Source
+                      </label>
+                      <input
+                        id="source"
+                        name="source"
+                        value={formData.source || ''}
+                        onChange={handleChange}
+                        placeholder="e.g., Abu Dhabi Times"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="announcementDate" className="block text-sm font-medium text-gray-700">
+                        Announcement Date
+                      </label>
+                      <input
+                        id="announcementDate"
+                        name="announcementDate"
+                        type="date"
+                        value={formData.announcementDate || ''}
+                        onChange={handleChange}
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label htmlFor="canonicalUrl" className="block text-sm font-medium text-gray-700">
+                        External Link (optional)
+                      </label>
+                      <input
+                        id="canonicalUrl"
+                        name="canonicalUrl"
+                        type="url"
+                        value={formData.canonicalUrl || ''}
+                        onChange={handleChange}
+                        placeholder="https://example.com/news-article"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        Link to external news article if applicable
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Guide Tab */}
+              {activeTab === 'Guide' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label htmlFor="downloadUrl" className="block text-sm font-medium text-gray-700">
+                        Guide URL
+                      </label>
+                      <input
+                        id="downloadUrl"
+                        name="downloadUrl"
+                        value={formData.downloadUrl || ''}
+                        onChange={handleChange}
+                        type="url"
+                        placeholder="https://example.com/guide.pdf"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="fileSize" className="block text-sm font-medium text-gray-700">
+                        File Size (optional)
+                      </label>
+                      <input
+                        id="fileSize"
+                        name="fileSize"
+                        value={formData.fileSize || ''}
+                        onChange={handleChange}
+                        placeholder="e.g., 2.5 MB"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700">Upload Guide</label>
+                      <input
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        className="mt-1 text-sm"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0] || null;
+                          setReportFile(f);
+                          setReportPreviewName(f ? f.name : '');
+                        }}
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        Provide a URL or upload a file. PDF/DOCX supported.
+                      </p>
+                    </div>
+                  </div>
+
+                  {(reportPreviewName || formData.downloadUrl) && (
+                    <div className="border rounded-md p-2 bg-gray-50 text-sm text-gray-700">
+                      {reportPreviewName && (
+                        <div>
+                          Selected file: <strong>{reportPreviewName}</strong>
+                        </div>
+                      )}
+                      {formData.downloadUrl && (
+                        <div>
+                          Link:{' '}
+                          <a
+                            href={formData.downloadUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-blue-600 hover:text-blue-800"
+                          >
+                            Open
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Event Tab */}
+              {activeTab === 'Event' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label htmlFor="eventDate" className="block text-sm font-medium text-gray-700">
+                        Event Date <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        id="eventDate"
+                        name="eventDate"
+                        type="date"
+                        value={formData.eventDate || ''}
+                        onChange={handleChange}
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="eventTime" className="block text-sm font-medium text-gray-700">
+                        Event Time
+                      </label>
+                      <input
+                        id="eventTime"
+                        name="eventTime"
+                        type="text"
+                        value={formData.eventTime || ''}
+                        onChange={handleChange}
+                        placeholder="e.g., 9:00 AM - 5:00 PM"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        Enter time range or specific time
+                      </p>
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label htmlFor="eventLocation" className="block text-sm font-medium text-gray-700">
+                        Location
+                      </label>
+                      <input
+                        id="eventLocation"
+                        name="eventLocation"
+                        value={formData.eventLocation || ''}
+                        onChange={handleChange}
+                        placeholder="e.g., Abu Dhabi National Exhibition Centre"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label htmlFor="eventLocationDetails" className="block text-sm font-medium text-gray-700">
+                        Location Details (optional)
+                      </label>
+                      <input
+                        id="eventLocationDetails"
+                        name="eventLocationDetails"
+                        value={(formData as any).eventLocationDetails || ''}
+                        onChange={handleChange}
+                        placeholder="e.g., Hall 5, Gate 3"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label htmlFor="eventRegistrationInfo" className="block text-sm font-medium text-gray-700">
+                        Registration Information (optional)
+                      </label>
+                      <textarea
+                        id="eventRegistrationInfo"
+                        name="eventRegistrationInfo"
+                        value={(formData as any).eventRegistrationInfo || ''}
+                        onChange={handleChange}
+                        rows={3}
+                        placeholder="e.g., Free for Abu Dhabi business license holders, AED 500 for others"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label htmlFor="canonicalUrl" className="block text-sm font-medium text-gray-700">
+                        Registration/Event URL
+                      </label>
+                      <input
+                        id="canonicalUrl"
+                        name="canonicalUrl"
+                        type="url"
+                        value={formData.canonicalUrl || ''}
+                        onChange={handleChange}
+                        placeholder="https://example.com/register"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        Link to registration page or event details
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Report Tab */}
               {activeTab === 'Report' && (
                 <div className="space-y-4">
@@ -884,6 +1135,82 @@ const MediaCreate: React.FC<MediaCreateProps> = ({ existingItem }) => {
                       />
                       <p className="mt-1 text-xs text-gray-500">
                         Provide a URL or upload a file. PDF/DOCX/PPT supported.
+                      </p>
+                    </div>
+                  </div>
+
+                  {(reportPreviewName || formData.downloadUrl) && (
+                    <div className="border rounded-md p-2 bg-gray-50 text-sm text-gray-700">
+                      {reportPreviewName && (
+                        <div>
+                          Selected file: <strong>{reportPreviewName}</strong>
+                        </div>
+                      )}
+                      {formData.downloadUrl && (
+                        <div>
+                          Link:{' '}
+                          <a
+                            href={formData.downloadUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-blue-600 hover:text-blue-800"
+                          >
+                            Open
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Toolkit Tab */}
+              {activeTab === 'Toolkit' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label htmlFor="downloadUrl" className="block text-sm font-medium text-gray-700">
+                        Template/Tool URL
+                      </label>
+                      <input
+                        id="downloadUrl"
+                        name="downloadUrl"
+                        value={formData.downloadUrl || ''}
+                        onChange={handleChange}
+                        type="url"
+                        placeholder="https://example.com/template.xlsx"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="fileSize" className="block text-sm font-medium text-gray-700">
+                        File Size (optional)
+                      </label>
+                      <input
+                        id="fileSize"
+                        name="fileSize"
+                        value={formData.fileSize || ''}
+                        onChange={handleChange}
+                        placeholder="e.g., 1.2 MB"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700">Upload Template/Tool</label>
+                      <input
+                        type="file"
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.zip"
+                        className="mt-1 text-sm"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0] || null;
+                          setReportFile(f);
+                          setReportPreviewName(f ? f.name : '');
+                        }}
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        Provide a URL or upload a file. PDF/DOCX/XLSX/ZIP supported.
                       </p>
                     </div>
                   </div>

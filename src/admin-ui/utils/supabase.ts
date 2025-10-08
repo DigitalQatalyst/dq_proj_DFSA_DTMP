@@ -36,6 +36,12 @@ export interface MediaItem {
   documentUrl?: string | null;
   durationSec?: number | null;
   fileSizeBytes?: number | null;
+  eventDate?: string | null;
+  eventTime?: string | null;
+  eventLocation?: string | null;
+  eventLocationDetails?: string | null;
+  eventRegistrationInfo?: string | null;
+  eventAgenda?: any | null;
 }
 
 export interface Asset {
@@ -283,6 +289,12 @@ export const mediaService = {
       document_url: (data as any).documentUrl || null,
       duration_sec: (data as any).durationSec || null,
       file_size_bytes: (data as any).fileSizeBytes || null,
+      event_date: data.eventDate || null,
+      event_time: data.eventTime || null,
+      event_location: data.eventLocation || null,
+      event_location_details: data.eventLocationDetails || null,
+      event_registration_info: data.eventRegistrationInfo || null,
+      event_agenda: data.eventAgenda || null,
       tags: Array.from(
         new Set(
           [...(data.tags || []), data.type, data.category].filter(Boolean),
@@ -410,6 +422,12 @@ export const mediaService = {
       document_url: (data as any).documentUrl,
       duration_sec: (data as any).durationSec as any,
       file_size_bytes: (data as any).fileSizeBytes as any,
+      event_date: data.eventDate,
+      event_time: data.eventTime,
+      event_location: data.eventLocation,
+      event_location_details: data.eventLocationDetails,
+      event_registration_info: data.eventRegistrationInfo,
+      event_agenda: data.eventAgenda,
         tags: Array.from(
           new Set(
             [...(data.tags || []), data.type, data.category].filter(Boolean),

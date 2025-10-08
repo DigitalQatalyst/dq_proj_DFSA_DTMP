@@ -146,6 +146,12 @@ const MediaDetailPage: React.FC = () => {
       tags: row.tags || [],
       date: row.published_at,
       lastUpdated: row.updated_at,
+      eventDate: row.event_date || null,
+      eventTime: row.event_time || null,
+      eventLocation: row.event_location || null,
+      eventLocationDetails: row.event_location_details || null,
+      eventRegistrationInfo: row.event_registration_info || null,
+      eventAgenda: row.event_agenda || null,
     })
     const fetchMediaDetails = async () => {
       setLoading(true)
@@ -208,14 +214,17 @@ const MediaDetailPage: React.FC = () => {
   }, [id, type])
   // Countdown timer effect for events
   useEffect(() => {
-    if (!item?.date || type !== 'event') return
+    if (type !== 'event') return
+    // Use eventDate if available, otherwise fallback to published date
+    const dateToUse = item?.eventDate || item?.date
+    if (!dateToUse) return
 
     const calculateCountdown = () => {
       // Parse the date string - handle multiple formats
       let eventDate: Date
 
       // Check if date is in "Month Day-Day, Year" format (e.g., "November 5-7, 2025")
-      const rangeMatch = item.date.match(
+      const rangeMatch = dateToUse.match(
         /(\w+)\s+(\d+)(?:-\d+)?,\s+(\d{4})/,
       )
       if (rangeMatch) {
@@ -224,7 +233,7 @@ const MediaDetailPage: React.FC = () => {
         eventDate = new Date(`${month} ${day}, ${year}`)
       } else {
         // Try parsing as-is (handles YYYY-MM-DD and other standard formats)
-        eventDate = new Date(item.date)
+        eventDate = new Date(dateToUse)
       }
 
       // Check if date is valid
@@ -2202,20 +2211,22 @@ const MediaDetailPage: React.FC = () => {
                             <div className="py-6 text-center">
                               <span className="text-6xl font-bold text-gray-900">
                                 {(() => {
-                                  if (!item.date) return '15'
-                                  const rangeMatch = item.date.match(
+                                  const dateToDisplay = item.eventDate || item.date
+                                  if (!dateToDisplay) return '15'
+                                  const rangeMatch = dateToDisplay.match(
                                     /(\w+)\s+(\d+)(?:-(\d+))?,\s+(\d{4})/,
                                   )
                                   if (rangeMatch) {
                                     return rangeMatch[2] // Start day
                                   }
-                                  return new Date(item.date).getDate()
+                                  return new Date(dateToDisplay).getDate()
                                 })()}
                               </span>
                               <p className="text-gray-600 font-medium mt-1">
                                 {(() => {
-                                  if (!item.date) return 'Thursday'
-                                  const rangeMatch = item.date.match(
+                                  const dateToDisplay = item.eventDate || item.date
+                                  if (!dateToDisplay) return 'Thursday'
+                                  const rangeMatch = dateToDisplay.match(
                                     /(\w+)\s+(\d+)(?:-(\d+))?,\s+(\d{4})/,
                                   )
                                   if (rangeMatch) {
@@ -2226,7 +2237,7 @@ const MediaDetailPage: React.FC = () => {
                                       weekday: 'long',
                                     })
                                   }
-                                  return new Date(item.date).toLocaleString(
+                                  return new Date(dateToDisplay).toLocaleString(
                                     'default',
                                     { weekday: 'long' },
                                   )
@@ -2234,14 +2245,15 @@ const MediaDetailPage: React.FC = () => {
                               </p>
                               <p className="text-gray-500 mt-1">
                                 {(() => {
-                                  if (!item.date) return '2023'
-                                  const rangeMatch = item.date.match(
+                                  const dateToDisplay = item.eventDate || item.date
+                                  if (!dateToDisplay) return '2023'
+                                  const rangeMatch = dateToDisplay.match(
                                     /(\w+)\s+(\d+)(?:-(\d+))?,\s+(\d{4})/,
                                   )
                                   if (rangeMatch) {
                                     return rangeMatch[4] // Year
                                   }
-                                  return new Date(item.date).getFullYear()
+                                  return new Date(dateToDisplay).getFullYear()
                                 })()}
                               </p>
                               {(() => {
@@ -2380,12 +2392,14 @@ const MediaDetailPage: React.FC = () => {
                                 Location
                               </h4>
                               <p className="text-gray-700">
-                                {item.location ||
+                                {(item as any).eventLocation || item.location ||
                                   'Abu Dhabi National Exhibition Centre'}
                               </p>
-                              <p className="text-gray-600 text-sm">
-                                Hall 5, Gate 3
-                              </p>
+                              {(item as any).eventLocationDetails && (
+                                <p className="text-gray-600 text-sm">
+                                  {(item as any).eventLocationDetails}
+                                </p>
+                              )}
                               <a
                                 href="#"
                                 className="text-blue-600 hover:text-blue-800 text-sm flex items-center mt-1"
@@ -2421,37 +2435,53 @@ const MediaDetailPage: React.FC = () => {
                             </div>
                           </div>
                           {/* Time Card */}
-                          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex">
-                            <div className="mr-4 text-blue-600">
-                              <Clock size={24} />
+                          {((item as any).eventTime || true) && (
+                            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex">
+                              <div className="mr-4 text-blue-600">
+                                <Clock size={24} />
+                              </div>
+                              <div>
+                                <h4 className="font-semibold text-gray-900">
+                                  Time
+                                </h4>
+                                <p className="text-gray-700">
+                                  {(item as any).eventTime || '9:00 AM - 5:00 PM'}
+                                </p>
+                                {!(item as any).eventTime && (
+                                  <p className="text-gray-600 text-sm">
+                                    Check-in starts at 8:30 AM
+                                  </p>
+                                )}
+                              </div>
                             </div>
-                            <div>
-                              <h4 className="font-semibold text-gray-900">
-                                Time
-                              </h4>
-                              <p className="text-gray-700">9:00 AM - 5:00 PM</p>
-                              <p className="text-gray-600 text-sm">
-                                Check-in starts at 8:30 AM
-                              </p>
-                            </div>
-                          </div>
+                          )}
                           {/* Registration Info Card */}
-                          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex">
-                            <div className="mr-4 text-blue-600">
-                              <FileTextIcon size={24} />
+                          {((item as any).eventRegistrationInfo || true) && (
+                            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex">
+                              <div className="mr-4 text-blue-600">
+                                <FileTextIcon size={24} />
+                              </div>
+                              <div>
+                                <h4 className="font-semibold text-gray-900">
+                                  Registration
+                                </h4>
+                                {(item as any).eventRegistrationInfo ? (
+                                  <p className="text-gray-700 whitespace-pre-line">
+                                    {(item as any).eventRegistrationInfo}
+                                  </p>
+                                ) : (
+                                  <>
+                                    <p className="text-gray-700">
+                                      Free for Abu Dhabi business license holders
+                                    </p>
+                                    <p className="text-gray-600 text-sm">
+                                      AED 500 for others
+                                    </p>
+                                  </>
+                                )}
+                              </div>
                             </div>
-                            <div>
-                              <h4 className="font-semibold text-gray-900">
-                                Registration
-                              </h4>
-                              <p className="text-gray-700">
-                                Free for Abu Dhabi business license holders
-                              </p>
-                              <p className="text-gray-600 text-sm">
-                                AED 500 for others
-                              </p>
-                            </div>
-                          </div>
+                          )}
                         </div>
                       </div>
                     </div>
