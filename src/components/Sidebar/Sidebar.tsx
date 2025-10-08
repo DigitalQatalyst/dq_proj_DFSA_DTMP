@@ -172,7 +172,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     } else {
       items.push({
         id: "overview",
-        label: "overview",
+        label: "Overview",
         icon: <Home size={20} />,
         href: "/dashboard/overview",
       });
