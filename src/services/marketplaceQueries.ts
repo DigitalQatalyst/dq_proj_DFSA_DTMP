@@ -117,4 +117,27 @@ const GET_PRODUCT = gql`
   }
 `;
 
-export { GET_PRODUCTS, GET_FACETS, GET_PRODUCT };
+// GraphQL Query for Courses
+const GET_ALL_COURSES = gql`
+  query GetAllCourses {
+    courses(options: { take: 10, skip: 0, sort: { rating: DESC } }) {
+      items {
+        id
+        name
+        description
+        partner
+        rating
+        reviewCount
+        cost
+        duration
+        logoUrl
+        businessStage
+        pricingModel
+        serviceCategory
+      }
+      totalItems
+    }
+  }
+`;
+
+export { GET_PRODUCTS, GET_FACETS, GET_PRODUCT, GET_ALL_COURSES };

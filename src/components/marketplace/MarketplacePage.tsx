@@ -19,8 +19,7 @@ import {
 } from "../../utils/comparisonStorage";
 import { useQuery } from "@apollo/client/react";
 import { useLocation } from "react-router-dom";
-import { GET_PRODUCTS, GET_FACETS } from "../../services/marketplaceQueries.ts";
-import { fetchMarketplaceFilters } from "../../services/marketplace";
+import { GET_PRODUCTS, GET_FACETS, GET_ALL_COURSES } from "../../services/marketplaceQueries.ts";
 
 // Type for comparison items
 interface ComparisonItem {
@@ -116,12 +115,36 @@ interface GetProductsData {
   };
 }
 
+// Types for GET_ALL_COURSES query
+interface Course {
+  id: string;
+  name: string;
+  description: string;
+  partner: string;
+  rating: number;
+  reviewCount: number;
+  cost: number;
+  duration: string;
+  logoUrl: string;
+  businessStage: string;
+  pricingModel: string;
+  serviceCategory: string;
+}
+
+interface GetCoursesData {
+  courses: {
+    items: Course[];
+    totalItems: number;
+  };
+}
+
 export interface MarketplacePageProps {
   marketplaceType: "courses" | "financial" | "non-financial" | "knowledge-hub";
   title: string;
   description: string;
   promoCards?: any[];
 }
+
 export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   marketplaceType,
   promoCards = [],
@@ -149,11 +172,15 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   // Loading and error states
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  // Apollo queries for products and facets
-  const { data: productData, error: productError } =
-    useQuery<GetProductsData>(GET_PRODUCTS);
-  const { data: facetData, error: facetError } =
-    useQuery<GetFacetsData>(GET_FACETS);
+  // Apollo queries
+  const { data: productData, error: productError } = useQuery<GetProductsData>(GET_PRODUCTS, {
+    skip: marketplaceType === "courses", // Skip products query for courses
+  });
+  const { data: courseData, error: courseError } = useQuery<GetCoursesData>(GET_ALL_COURSES, {
+    skip: marketplaceType !== "courses", // Only run for courses
+  });
+  const { data: facetData, error: facetError } = useQuery<GetFacetsData>(GET_FACETS);
+
   // Load filter configurations based on marketplace type
   useEffect(() => {
     const loadFilterOptions = async () => {
@@ -161,12 +188,14 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
         if (facetData) {
           // Choose facet codes based on marketplace type
           let facetCodes: string[] = [];
-          if (marketplaceType === 'financial') {
-            facetCodes = ['service-category', 'business-stage', 'provided-by', 'pricing-model'];
-          } else if (marketplaceType === 'non-financial') {
-            facetCodes = ['sector-tag-2', 'business-stage', 'provided-by', 'pricing-model'];
+          if (marketplaceType === "financial") {
+            facetCodes = ["service-category", "business-stage", "provided-by", "pricing-model"];
+          } else if (marketplaceType === "non-financial") {
+            facetCodes = ["sector-tag-2", "business-stage", "provided-by", "pricing-model"];
+          } else if (marketplaceType === "courses") {
+            facetCodes = ["service-category", "business-stage", "provided-by", "pricing-model"];
           } else {
-            facetCodes = ['service-category', 'business-stage', 'provided-by', 'pricing-model'];
+            facetCodes = ["service-category", "business-stage", "provided-by", "pricing-model"];
           }
 
           const filterOptions: FilterConfig[] = facetData.facets.items
@@ -179,13 +208,13 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 name: value.name,
               })),
             }));
-          console.log('filterOptions:', filterOptions); // Log filterOptions for debugging
+          console.log("filterOptions:", filterOptions); // Log filterOptions for debugging
           setFilterConfig(filterOptions);
 
           // Initialize empty filters based on the configuration
           const initialFilters: Record<string, string> = {};
           filterOptions.forEach((config) => {
-            initialFilters[config.id] = '';
+            initialFilters[config.id] = "";
           });
           setFilters(initialFilters);
         }
@@ -211,7 +240,70 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
       setError(null);
 
       try {
-        if (productData) {
+        if (marketplaceType === "courses" && courseData) {
+          // Handle courses data
+          const mappedItems = courseData.courses.items.map((course) => ({
+            id: course.id,
+            title: course.name,
+            slug: `courses/${course.id}`, // Assuming a slug pattern for courses
+            description: course.description || "No description available",
+            facetValues: [
+              // Map course fields to facetValues for filtering compatibility
+              { code: "service-category", name: course.serviceCategory },
+              { code: "business-stage", name: course.businessStage },
+              { code: "provided-by", name: course.partner },
+              { code: "pricing-model", name: course.pricingModel },
+            ].filter((fv) => fv.name), // Only include non-empty facet values
+            // tags: [course.businessStage, course.serviceCategory].filter(Boolean),
+            provider: {
+              name: course.partner || "Unknown Partner",
+              logoUrl: course.logoUrl || "/default_logo.png",
+              description: "No provider description available",
+            },
+            formUrl: null, // Courses may not have formUrl; adjust as needed
+            Cost: course.cost,
+            BusinessStage: course.businessStage,
+            rating: course.rating,
+            reviewCount: course.reviewCount,
+            duration: course.duration,
+            pricingModel: course.pricingModel,
+            serviceCategory: course.serviceCategory,
+          }));
+
+          // Apply filters + search
+          const filtered = mappedItems.filter((course: any) => {
+            const matchesAllFacets = Object.keys(filters).every((facetCode) => {
+              const selectedValue = filters[facetCode];
+              if (!selectedValue) return true;
+              return (
+                course.facetValues.some(
+                  (facetValue: any) => facetValue.code === facetCode && facetValue.name === selectedValue
+                ) ||
+                (facetCode === "pricing-model" &&
+                  selectedValue === "one-time-fee" &&
+                  course.Cost &&
+                  course.Cost > 0) ||
+                (facetCode === "business-stage" &&
+                  course.BusinessStage &&
+                  selectedValue === course.BusinessStage)
+              );
+            });
+
+            const matchesSearch =
+              searchQuery.trim() === "" ||
+              course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              course.facetValues.some((facetValue: any) =>
+                facetValue.name.toLowerCase().includes(searchQuery.toLowerCase())
+              );
+
+            return matchesAllFacets && matchesSearch;
+          });
+
+          setItems(mappedItems);
+          setFilteredItems(filtered);
+          setLoading(false);
+        } else if (productData) {
+          // Handle products data (existing logic)
           let filteredServices = productData.products.items;
 
           if (marketplaceType === "financial") {
@@ -237,14 +329,18 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             const randomFallbackLogo =
               fallbackLogos[Math.floor(Math.random() * fallbackLogos.length)];
 
-            const rawFormUrl = product.customFields?.formUrl; // Raw from backend
-            const finalFormUrl = rawFormUrl || "https://www.tamm.abudhabi/en/login"; // Your logic (unchanged)
+            const rawFormUrl = product.customFields?.formUrl;
+            const finalFormUrl = rawFormUrl || "https://www.tamm.abudhabi/en/login";
 
-            // Debug log: Check this in browser console for suspect products
-            if (product.id === "133" || !rawFormUrl) { // Or log for all: remove the condition
-              console.log(`Product "${product.name}" (ID: ${product.id}): Raw formUrl =`, rawFormUrl, '| Final =', finalFormUrl);
+            if (product.id === "133" || !rawFormUrl) {
+              console.log(
+                `Product "${product.name}" (ID: ${product.id}): Raw formUrl =`,
+                rawFormUrl,
+                "| Final =",
+                finalFormUrl
+              );
             }
-            
+
             return {
               id: product.id,
               title: product.name,
@@ -256,8 +352,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               tags: [product.customFields.BusinessStage, product.customFields.BusinessStage].filter(Boolean),
               provider: {
                 name: product.customFields?.Partner || "Khalifa Fund",
-                logoUrl:
-                  product.customFields?.logoUrl || randomFallbackLogo,
+                logoUrl: product.customFields?.logoUrl || randomFallbackLogo,
                 description: "No provider description available",
               },
               formUrl: finalFormUrl,
@@ -265,7 +360,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             };
           });
 
-          // Apply filters + search (unchanged)
+          // Apply filters + search
           const filtered = mappedItems.filter((product: any) => {
             const matchesAllFacets = Object.keys(filters).every((facetCode) => {
               const selectedValue = filters[facetCode];
@@ -288,15 +383,13 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               searchQuery.trim() === "" ||
               product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
               product.facetValues.some((facetValue: any) =>
-                facetValue.name
-                  .toLowerCase()
-                  .includes(searchQuery.toLowerCase())
+                facetValue.name.toLowerCase().includes(searchQuery.toLowerCase())
               );
 
             return matchesAllFacets && matchesSearch;
           });
 
-          // ✅ Force ID 133 to the front
+          // Prioritize ID 133
           const prioritized = filtered.sort((a, b) => {
             if (a.id === "133") return -1;
             if (b.id === "133") return 1;
@@ -317,8 +410,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     };
 
     loadItems();
-  }, [productData, filters, searchQuery, marketplaceType]);
-
+  }, [productData, courseData, filters, searchQuery, marketplaceType]);
 
   // Handle filter changes
   const handleFilterChange = useCallback(
@@ -330,6 +422,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     },
     []
   );
+
   // Reset all filters
   const resetFilters = useCallback(() => {
     const emptyFilters: Record<string, string> = {};
@@ -340,16 +433,19 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     setSearchQuery("");
     setActiveFilters([]);
   }, [filterConfig]);
+
   // Toggle sidebar visibility (only on mobile)
   const toggleFilters = useCallback(() => {
     setShowFilters((prev) => !prev);
   }, []);
+
   // Clear all comparison selections
   const handleClearComparison = useCallback(() => {
     setCompareItems([]);
     storageClearCompare(marketplaceType);
     setShowComparison(false);
   }, [marketplaceType]);
+
   // Toggle bookmark for an item
   const toggleBookmark = useCallback((itemId: string) => {
     setBookmarkedItems((prev) => {
@@ -358,6 +454,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
         : [...prev, itemId];
     });
   }, []);
+
   // Add an item to comparison
   const handleAddToComparison = useCallback(
     (item: any) => {
@@ -366,12 +463,12 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
         !compareItems.some((c) => c.id === item.id)
       ) {
         setCompareItems((prev) => [...prev, item]);
-        // Persist to storage
         storageAddCompareId(marketplaceType, item.id);
       }
     },
     [compareItems, marketplaceType]
   );
+
   // Remove an item from comparison
   const handleRemoveFromComparison = useCallback(
     (itemId: string) => {
@@ -380,11 +477,13 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     },
     [marketplaceType]
   );
+
   // Retry loading items after an error
   const retryFetch = useCallback(() => {
     setError(null);
     setLoading(true);
   }, []);
+
   // Handle Knowledge Hub specific filter changes
   const handleKnowledgeHubFilterChange = useCallback((filter: string) => {
     setActiveFilters((prev) => {
@@ -395,10 +494,12 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
       }
     });
   }, []);
+
   // Clear Knowledge Hub filters
   const clearKnowledgeHubFilters = useCallback(() => {
     setActiveFilters([]);
   }, []);
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header
@@ -505,15 +606,17 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           </div>
           {/* Filter sidebar - mobile/tablet */}
           <div
-            className={`fixed inset-0 bg-gray-800 bg-opacity-75 z-30 transition-opacity duration-300 xl:hidden ${showFilters ? "opacity-100" : "opacity-0 pointer-events-none"
-              }`}
+            className={`fixed inset-0 bg-gray-800 bg-opacity-75 z-30 transition-opacity duration-300 xl:hidden ${
+              showFilters ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
             onClick={toggleFilters}
             aria-hidden={!showFilters}
           >
             <div
               id="filter-sidebar"
-              className={`fixed inset-y-0 left-0 w-full max-w-sm bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${showFilters ? "translate-x-0" : "-translate-x-full"
-                }`}
+              className={`fixed inset-y-0 left-0 w-full max-w-sm bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
+                showFilters ? "translate-x-0" : "-translate-x-full"
+              }`}
               onClick={(e) => e.stopPropagation()}
               role="dialog"
               aria-modal="true"
@@ -649,12 +752,13 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   <CourseCardSkeleton key={idx} />
                 ))}
               </div>
-            ) : error || facetError || productError ? (
+            ) : error || facetError || productError || courseError ? (
               <ErrorDisplay
                 message={
                   error ||
                   facetError?.message ||
                   productError?.message ||
+                  courseError?.message ||
                   `Failed to load ${marketplaceType}`
                 }
                 onRetry={retryFetch}
@@ -689,4 +793,5 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     </div>
   );
 };
+
 export default MarketplacePage;
