@@ -463,7 +463,7 @@ export const mockProfileData = {
       fields: assignFieldStatuses([
         { label: "Contact Name", value: "John Smith" },
         { label: "Position", value: "Chief Executive Officer" },
-        { label: "Email", value: "john.smith@futuretech.com" },
+        { label: "Email", value: "test@digitalqatalyst.com" },
         { label: "Phone", value: "+971 50 123 4567" },
         { label: "Nationality", value: "British" },
         { label: "Languages", value: "English, Arabic" },
@@ -1060,10 +1060,6 @@ export const mockProfileData = {
           value: "Contributing to UAE Cloud Computing Standards",
         },
         { label: "Industry Events", value: "GITEX, Abu Dhabi Technology Week" },
-        {
-          label: "Research Partnerships",
-          value: "Khalifa University, Mohamed bin Zayed University of AI",
-        },
         {
           label: "Industry Publications",
           value: "Quarterly Technology Trend Reports",

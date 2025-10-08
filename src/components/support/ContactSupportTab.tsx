@@ -140,7 +140,7 @@ export default function ContactSupportTab() {
                         href="tel:+18001234567"
                         className="mt-1 sm:mt-2 text-blue-600 font-medium text-sm sm:text-base"
                     >
-                        +1 (800) 123-4567
+                        (800) 123-4567
                     </a>
                 </div>
                 <div className="bg-white p-3 sm:p-4 border border-gray-200 rounded-md flex flex-col items-center text-center">
@@ -171,7 +171,7 @@ export default function ContactSupportTab() {
                         href="mailto:support@example.com"
                         className="mt-1 sm:mt-2 text-blue-600 font-medium text-sm sm:text-base"
                     >
-                        support@example.com
+                        support@ejp.com
                     </a>
                 </div>
             </div>

@@ -6,10 +6,9 @@ const initialProfiles = [
     {
         id: 1,
         name: 'Abu Dhabi Global Market',
-        logo: 'https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bG9nb3xlbnwwfHwwfHx8MA%3D%3D',
+        logo: '/logo/global.jpg',
         category: 'Finance',
-        description:
-            'International financial center located on Al Maryah Island, providing a broad range of financial services.',
+        description: `Abu Dhabi Global Market (ADGM) is an international financial center on Al Maryah Island, designed to host a broad spectrum of financial services—from banking, asset and wealth management to fintech, sustainable finance, and professional services. It operates under an English common law framework with an independent courts system and the Financial Services Regulatory Authority (FSRA), offering clear, business-friendly regulation and robust investor protection. ADGM is known for efficient company setup (including SPVs and foundations), strong governance standards, and a thriving fintech ecosystem that supports innovation sandboxes and digital-first ventures. With modern infrastructure and a strategic location linking East and West, ADGM provides a stable, transparent platform for regional and global growth.`,
         phone: '+971 2 333 8888',
         email: 'contact@adgm.com',
         website: 'adgm.com',
@@ -27,7 +26,7 @@ const initialProfiles = [
     {
         id: 2,
         name: 'Masdar',
-        logo: 'https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bG9nb3xlbnwwfHwwfHx8MA%3D%3D',
+        logo: '/logo/masdar.webp',
         category: 'Energy',
         description:
             'Renewable energy company that advances the development, commercialization and deployment of clean energy solutions.',
@@ -48,7 +47,7 @@ const initialProfiles = [
     {
         id: 3,
         name: 'Hub71',
-        logo: 'https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bG9nb3xlbnwwfHwwfHx8MA%3D%3D',
+        logo: '/logo/hub71.png',
         category: 'Technology',
         description:
             'Global tech ecosystem that enables startups to scale globally through access to funding, networks, and business opportunities.',
@@ -68,7 +67,7 @@ const initialProfiles = [
     {
         id: 4,
         name: 'Cleveland Clinic Abu Dhabi',
-        logo: 'https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bG9nb3xlbnwwfHwwfHx8MA%3D%3D',
+        logo: '/logo/cleave.png',
         category: 'Healthcare',
         description:
             'Multispecialty hospital offering patients the highest level of specialized care across 40+ medical and surgical specialties.',
@@ -89,7 +88,7 @@ const initialProfiles = [
     {
         id: 5,
         name: 'Yas Mall',
-        logo: 'https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bG9nb3xlbnwwfHwwfHx8MA%3D%3D',
+        logo: '/logo/yas.webp',
         category: 'Retail',
         description:
             'Premier shopping, dining and entertainment destination located on Yas Island, featuring over 370 international brands.',
@@ -104,7 +103,7 @@ const initialProfiles = [
     {
         id: 6,
         name: 'Emirates Palace',
-        logo: 'https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bG9nb3xlbnwwfHwwfHx8MA%3D%3D',
+        logo: '/logo/palace.webp',
         category: 'Tourism',
         description:
             'Luxury hotel located in the heart of Abu Dhabi, offering world-class hospitality and stunning Arabian Gulf views.',
@@ -319,7 +318,7 @@ const DirectorySection = () => {
                         </div>
                         {filteredProfiles.length > 0 && hasMoreProfiles && (
                             <div className="mt-16 text-center">
-                                <button
+                                {/* <button
                                     className={`px-10 py-4 bg-white border-2 border-primary text-primary font-body font-medium rounded-lg hover:bg-primary hover:text-white transition-colors shadow-sm hover:shadow-md ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
                                     onClick={handleLoadMore}
                                     disabled={isLoading}
@@ -332,7 +331,7 @@ const DirectorySection = () => {
                                     ) : (
                                         'Load More'
                                     )}
-                                </button>
+                                </button> */}
                             </div>
                         )}
                     </>

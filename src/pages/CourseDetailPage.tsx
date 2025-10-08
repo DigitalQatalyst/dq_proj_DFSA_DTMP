@@ -1,535 +1,1053 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { BookmarkIcon, ScaleIcon, Clock, Calendar, DollarSign, MapPin, ArrowLeftIcon, StarIcon, CheckCircleIcon, ExternalLinkIcon, ChevronRightIcon, HomeIcon } from 'lucide-react';
-import { RelatedCourses } from '../components/RelatedCourses';
-import { Header } from '../components/Header';
-import { Footer } from '../components/Footer';
-import { graphqlClient } from '../services/graphql/client';
-import { GET_COURSE_DETAILS, GET_RELATED_COURSES } from '../services/graphql/queries';
-import { CourseType } from '../components/CourseMarketplace';
-import { ErrorDisplay } from '../components/SkeletonLoader';
-interface CourseDetailPageProps {
-  bookmarkedCourses: string[];
-  onToggleBookmark: (courseId: string) => void;
-  onAddToComparison: (course: CourseType) => void;
-}
-export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
-  bookmarkedCourses = [],
-  onToggleBookmark = () => {},
-  onAddToComparison = () => {}
-}) => {
-  const {
-    courseId
-  } = useParams<{
-    courseId: string;
-  }>();
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const shouldEnroll = searchParams.get('enroll') === 'true';
-  const [course, setCourse] = useState<CourseType | null>(null);
-  const [relatedCourses, setRelatedCourses] = useState<CourseType[]>([]);
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  // Generate a random rating between 4.0 and 5.0
-  const rating = (4 + Math.random()).toFixed(1);
-  const reviewCount = Math.floor(Math.random() * 50) + 10;
-  useEffect(() => {
-    const fetchCourseDetails = async () => {
-      if (!courseId) return;
-      setLoading(true);
-      setError(null);
-      try {
-        // Fetch course details
-        const {
-          course
-        } = await graphqlClient.request(GET_COURSE_DETAILS, {
-          id: courseId
-        });
-        if (course) {
-          setCourse(course);
-          setIsBookmarked(bookmarkedCourses.includes(course.id));
-          // Fetch related courses
-          const {
-            relatedCourses
-          } = await graphqlClient.request(GET_RELATED_COURSES, {
-            id: courseId,
-            category: course.category,
-            provider: course.provider.name
-          });
-          setRelatedCourses(relatedCourses || []);
-          // If the enroll parameter is true, scroll to the enrollment section
-          if (shouldEnroll) {
-            setTimeout(() => {
-              const enrollSection = document.getElementById('enroll-section');
-              if (enrollSection) {
-                enrollSection.scrollIntoView({
-                  behavior: 'smooth'
-                });
-              }
-            }, 100);
-          }
-        } else {
-          // Course not found
-          setError('Course not found');
-          setTimeout(() => {
-            navigate('/courses');
-          }, 3000);
-        }
-      } catch (err) {
-        console.error('Error fetching course details:', err);
-        setError('Failed to load course details');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCourseDetails();
-  }, [courseId, bookmarkedCourses, shouldEnroll, navigate]);
-  const handleToggleBookmark = () => {
-    if (course) {
-      onToggleBookmark(course.id);
-      setIsBookmarked(!isBookmarked);
-    }
-  };
-  const handleAddToComparison = () => {
-    if (course) {
-      onAddToComparison(course);
-    }
-  };
-  const retryFetch = () => {
-    setError(null);
-    // Re-fetch by triggering the useEffect
-    if (courseId) {
-      setLoading(true);
-    }
-  };
-  if (loading) {
-    return <div className="min-h-screen flex flex-col bg-gray-50">
-        <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
-        <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[300px] flex-grow">
-          <div className="animate-pulse flex flex-col items-center">
-            <div className="h-8 w-32 bg-gray-200 rounded mb-4"></div>
-            <div className="h-4 w-48 bg-gray-200 rounded"></div>
-          </div>
-        </div>
-        <Footer isLoggedIn={false} />
-      </div>;
-  }
-  if (error) {
-    return <div className="min-h-screen flex flex-col bg-gray-50">
-        <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
-        <div className="container mx-auto px-4 py-8 flex-grow">
-          <ErrorDisplay message={error} onRetry={retryFetch} />
-        </div>
-        <Footer isLoggedIn={false} />
-      </div>;
-  }
-  if (!course) {
-    return <div className="min-h-screen flex flex-col bg-gray-50">
-        <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
-        <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[300px] flex-grow">
-          <div className="text-center">
-            <h2 className="text-xl font-medium text-gray-900 mb-2">
-              Course Not Found
-            </h2>
-            <p className="text-gray-500 mb-4">
-              The course you're looking for doesn't exist or has been removed.
-            </p>
-            <button onClick={() => navigate('/courses')} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
-              Back to Courses
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+  cloneElement,
+  Component,
+} from 'react'
+import { useNavigate } from 'react-router-dom'
+import {
+  BookOpen,
+  DollarSign,
+  Briefcase,
+  Users,
+  Newspaper,
+  Lightbulb,
+  TrendingUp,
+  Briefcase as JobIcon,
+  Globe,
+  Calendar,
+  BookIcon,
+  Award,
+  MessageCircle,
+  X,
+  Clock,
+  Compass,
+  HeartHandshake,
+  Building,
+  Lock,
+  ArrowRight,
+  ChevronRight,
+  Landmark,
+  GraduationCap,
+  BarChart,
+  CreditCard,
+  PiggyBank,
+  LineChart,
+  BadgeDollarSign,
+  Wallet,
+  Calculator,
+  Receipt,
+  Coins,
+  BriefcaseBusiness,
+  Target,
+  BarChart2,
+  Network,
+  PieChart,
+  ClipboardList,
+  Handshake,
+  BarChartHorizontal,
+  Building2,
+  Share2,
+  Store,
+  Truck,
+  ShoppingBag,
+  Megaphone,
+  Rocket,
+  PanelRight,
+  Laptop,
+  FileCode,
+  Database,
+  FileText,
+  Presentation,
+  BookMarked,
+  GraduationCap as GraduationCapIcon,
+  Layers,
+  LayoutPanelLeft,
+  Gauge,
+  Microscope,
+  BookCopy,
+  Library,
+  ChevronLeft,
+} from 'lucide-react'
+import {
+  FadeInUpOnScroll,
+  StaggeredFadeIn,
+  AnimatedCounter,
+  useInView,
+} from './AnimationUtils'
+// AI Chatbot component
+const AIChatbot = () => {
+  const [isOpen, setIsOpen] = useState(false)
+  return (
+    <>
+      {/* Floating button */}
+      <button
+        onClick={() => setIsOpen(true)}
+        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 z-50 animate-pulse hover:animate-none"
+        aria-label="Open AI Assistant"
+      >
+        <MessageCircle size={24} />
+      </button>
+      {/* Chat modal */}
+      {isOpen && (
+        <div className="fixed bottom-24 right-6 w-80 sm:w-96 bg-white rounded-lg shadow-xl z-50 overflow-hidden border border-gray-200 animate-fade-in-up">
+          <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-4 text-white flex justify-between items-center">
+            <h3 className="font-medium">AI Assistant</h3>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="text-white hover:text-gray-200 transition-colors"
+            >
+              <X size={18} />
             </button>
           </div>
+          <div className="p-4 h-80 overflow-y-auto bg-gray-50">
+            <div className="bg-blue-100 p-3 rounded-lg rounded-tl-none inline-block max-w-[85%] animate-fade-in">
+              <p className="text-gray-800">
+                Hi there! How can I help you navigate the Abu Dhabi Enterprise
+                Journey Platform?
+              </p>
+            </div>
+            <div className="mt-4">
+              <input
+                type="text"
+                placeholder="Type your question here..."
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
+                autoFocus
+              />
+            </div>
+          </div>
         </div>
-        <Footer isLoggedIn={false} />
-      </div>;
+      )}
+    </>
+  )
+}
+// Service Category Card Component
+const ServiceCard = ({ service, onClick, isComingSoon = false }) => {
+  const [isHovered, setIsHovered] = useState(false)
+  return (
+    <div
+      className={`rounded-xl shadow-md overflow-hidden transition-all duration-500 transform p-6 h-full ${isComingSoon ? 'bg-gradient-to-br from-gray-400 to-gray-500 opacity-75 hover:opacity-85' : `bg-gradient-to-br ${service.gradientFrom} ${service.gradientTo} hover:shadow-lg hover:-translate-y-1 hover:scale-102 cursor-pointer`}`}
+      onClick={isComingSoon ? undefined : onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="flex flex-col h-full relative">
+        {isComingSoon && (
+          <div className="absolute top-0 right-0 bg-yellow-400 text-xs font-bold px-2 py-1 rounded-full text-gray-800 flex items-center animate-pulse">
+            <Clock size={12} className="mr-1" />
+            Coming Soon
+          </div>
+        )}
+        <div
+          className={`w-14 h-14 rounded-full flex items-center justify-center mb-4 shadow-sm transition-all duration-500 ${isHovered ? 'transform -translate-y-2 animate-pulse' : ''}`}
+          style={{
+            background: 'white',
+          }}
+        >
+          <div className={isComingSoon ? 'text-gray-500' : 'text-blue-600'}>
+            {cloneElement(service.icon, {
+              size: 24,
+              className: isComingSoon ? 'text-gray-500' : 'text-blue-600',
+            })}
+          </div>
+        </div>
+        <h2 className="text-lg font-semibold text-white mb-1">
+          {service.title}
+        </h2>
+        <p className="text-sm text-white/90 mb-4 flex-grow">
+          {service.description}
+        </p>
+        <button
+          className={`mt-auto px-4 py-2 rounded-md font-medium w-full transition-all duration-500 flex items-center justify-center ${isComingSoon ? 'bg-white text-gray-500 cursor-not-allowed' : 'bg-white text-blue-700 hover:bg-blue-50 border border-white/20'} ${isHovered && !isComingSoon ? 'opacity-100' : 'opacity-80'}`}
+          disabled={isComingSoon}
+          onClick={(e) => {
+            if (!isComingSoon) {
+              e.stopPropagation()
+              onClick()
+            }
+          }}
+        >
+          {isComingSoon ? <Lock size={14} className="mr-2" /> : 'Explore Now'}
+          {!isComingSoon && (
+            <ChevronRight
+              size={16}
+              className={`ml-2 transition-transform duration-300 ${isHovered ? 'translate-x-1' : ''}`}
+            />
+          )}
+        </button>
+        {/* Background animation on hover */}
+        {!isComingSoon && (
+          <div
+            className="absolute inset-0 bg-white/5 opacity-0 transition-opacity duration-500"
+            style={{
+              opacity: isHovered ? 1 : 0,
+            }}
+          ></div>
+        )}
+      </div>
+    </div>
+  )
+}
+// Category Header Component
+const CategoryHeader = ({ icon, title, count = null }) => {
+  const [isHovered, setIsHovered] = useState(false)
+  const [ref, isInView] = useInView({
+    threshold: 0.1,
+  })
+  return (
+    <div
+      className="mb-6"
+      ref={ref}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="flex items-center mb-2">
+        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3 text-blue-600">
+          {icon}
+        </div>
+        <h2 className="text-2xl font-bold text-gray-800 group relative">
+          {title}
+          <span
+            className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group"
+            style={{
+              width: isHovered ? '100%' : '0%',
+            }}
+          ></span>
+        </h2>
+      </div>
+      {count !== null && (
+        <div className="ml-13 text-gray-600">
+          <span className="font-semibold mr-1">
+            <AnimatedCounter value={count} />+
+          </span>
+          services available in this category
+        </div>
+      )}
+    </div>
+  )
+}
+// Carousel Component
+const ServiceCarousel = ({ services, handleServiceClick }) => {
+  const carouselRef = useRef(null)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [visibleCount, setVisibleCount] = useState(4)
+  // Update visible count based on screen size
+  useEffect(() => {
+    const updateVisibleCount = () => {
+      if (window.innerWidth < 640) {
+        setVisibleCount(1)
+      } else if (window.innerWidth < 1024) {
+        setVisibleCount(2)
+      } else {
+        setVisibleCount(4)
+      }
+    }
+    updateVisibleCount()
+    window.addEventListener('resize', updateVisibleCount)
+    return () => window.removeEventListener('resize', updateVisibleCount)
+  }, [])
+  const totalSlides = Math.ceil(services.length / visibleCount)
+  const scrollToIndex = (index) => {
+    if (carouselRef.current) {
+      const scrollAmount = index * carouselRef.current.offsetWidth
+      carouselRef.current.scrollTo({
+        left: scrollAmount,
+        behavior: 'smooth',
+      })
+    }
   }
-  return <div className="bg-white min-h-screen flex flex-col">
-      <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
-      <main className="flex-grow">
-        {/* Breadcrumbs */}
-        <div className="container mx-auto px-4 py-4">
-          <nav className="flex" aria-label="Breadcrumb">
-            <ol className="inline-flex items-center space-x-1 md:space-x-2">
-              <li className="inline-flex items-center">
-                <a href="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center">
-                  <HomeIcon size={16} className="mr-1" />
-                  <span>Home</span>
-                </a>
-              </li>
-              <li>
-                <div className="flex items-center">
-                  <ChevronRightIcon size={16} className="text-gray-400" />
-                  <a href="/courses" className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2">
-                    Courses
-                  </a>
+  const handleNext = () => {
+    const nextIndex = Math.min(activeIndex + 1, totalSlides - 1)
+    setActiveIndex(nextIndex)
+    scrollToIndex(nextIndex)
+  }
+  const handlePrev = () => {
+    const prevIndex = Math.max(activeIndex - 1, 0)
+    setActiveIndex(prevIndex)
+    scrollToIndex(prevIndex)
+  }
+  // Handle scroll event to update active index
+  useEffect(() => {
+    const handleScroll = () => {
+      if (carouselRef.current) {
+        const scrollPosition = carouselRef.current.scrollLeft
+        const slideWidth = carouselRef.current.offsetWidth
+        const newIndex = Math.round(scrollPosition / slideWidth)
+        if (newIndex !== activeIndex) {
+          setActiveIndex(newIndex)
+        }
+      }
+    }
+    const carousel = carouselRef.current
+    if (carousel) {
+      carousel.addEventListener('scroll', handleScroll)
+      return () => carousel.removeEventListener('scroll', handleScroll)
+    }
+  }, [activeIndex])
+  return (
+    <div className="relative">
+      {/* Carousel container */}
+      <div
+        ref={carouselRef}
+        className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth pb-6"
+        style={{
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        }}
+      >
+        {/* Create pages of cards */}
+        {Array.from({
+          length: totalSlides,
+        }).map((_, pageIndex) => (
+          <div
+            key={`page-${pageIndex}`}
+            className="flex-shrink-0 w-full flex gap-6 snap-center"
+          >
+            {services
+              .slice(pageIndex * visibleCount, (pageIndex + 1) * visibleCount)
+              .map((service, serviceIndex) => (
+                <div key={service.id} className={`flex-1 min-w-0`}>
+                  <FadeInUpOnScroll delay={(serviceIndex % visibleCount) * 0.1}>
+                    <ServiceCard
+                      service={service}
+                      onClick={() => handleServiceClick(service.path)}
+                      isComingSoon={!service.isActive}
+                    />
+                  </FadeInUpOnScroll>
                 </div>
-              </li>
-              <li aria-current="page">
-                <div className="flex items-center">
-                  <ChevronRightIcon size={16} className="text-gray-400" />
-                  <span className="ml-1 text-gray-500 md:ml-2 truncate max-w-[200px]">
-                    {course.title}
-                  </span>
-                </div>
-              </li>
-            </ol>
-          </nav>
-        </div>
-
-        {/* Hero Banner */}
-        <div className="w-full bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200">
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex flex-col lg:flex-row items-start gap-8">
-              {/* Left side - Course info */}
-              <div className="lg:w-2/3">
-                <div className="flex items-center mb-3">
-                  <img src={course.provider.logoUrl} alt={`${course.provider.name} logo`} className="h-12 w-12 object-contain mr-3 rounded-md shadow-sm" />
-                  <span className="text-gray-600 font-medium">
-                    {course.provider.name}
-                  </span>
-                </div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-4 leading-tight">
-                  {course.title}
-                </h1>
-                {/* Tags */}
-                <div className="flex flex-wrap gap-2 mb-5">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-100">
-                    {course.category}
-                  </span>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-50 text-green-700 border border-green-100">
-                    {course.deliveryMode}
-                  </span>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-50 text-purple-700 border border-purple-100">
-                    {course.businessStage}
-                  </span>
-                </div>
-                {/* Rating */}
-                <div className="flex items-center mb-5">
-                  <div className="flex items-center">
-                    {[1, 2, 3, 4, 5].map(star => <StarIcon key={star} size={16} className={`${parseFloat(rating) >= star ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />)}
-                  </div>
-                  <span className="ml-2 text-sm font-medium text-gray-700">
-                    {rating}
-                  </span>
-                  <span className="mx-1.5 text-gray-500">·</span>
-                  <span className="text-sm text-gray-500">
-                    {reviewCount} reviews
-                  </span>
-                </div>
-                <p className="text-gray-700 mb-6 max-w-2xl">
-                  {course.description}
-                </p>
-                {/* Actions */}
-                <div className="flex flex-wrap gap-3 mb-6">
-                  <button className="px-6 py-3 text-white font-bold rounded-md bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600 hover:from-teal-600 hover:via-blue-600 hover:to-purple-700 transition-colors shadow-md">
-                    Enroll Now
-                  </button>
-                  <button className="px-6 py-3 text-blue-600 font-medium bg-white border border-blue-600 rounded-md hover:bg-blue-50 transition-colors flex items-center">
-                    View Provider
-                    <ExternalLinkIcon size={16} className="ml-2" />
-                  </button>
-                  <div className="flex items-center space-x-3 ml-auto">
-                    <button onClick={handleToggleBookmark} className={`p-2 rounded-full ${isBookmarked ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`} aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'} title={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}>
-                      <BookmarkIcon size={20} className={isBookmarked ? 'fill-yellow-600' : ''} />
-                    </button>
-                    <button onClick={handleAddToComparison} className="p-2 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200" aria-label="Add to comparison" title="Add to comparison">
-                      <ScaleIcon size={20} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-              {/* Right side - Image */}
-              <div className="lg:w-1/3 w-full">
-                <div className="relative rounded-lg overflow-hidden shadow-lg aspect-video">
-                  <img src={`https://source.unsplash.com/random/800x450?${course.category.toLowerCase()},education`} alt={course.title} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
-                </div>
-              </div>
-            </div>
+              ))}
+            {/* Fill empty slots on the last page */}
+            {pageIndex === totalSlides - 1 &&
+              Array.from({
+                length: (pageIndex + 1) * visibleCount - services.length,
+              }).map((_, i) => (
+                <div key={`empty-${i}`} className="flex-1 min-w-0"></div>
+              ))}
           </div>
-        </div>
-
-        {/* Main content with sticky sidebar */}
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Main content */}
-            <div className="lg:w-2/3">
-              {/* Course Highlights Section */}
-              <section className="mb-12">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-                  <span className="bg-blue-100 text-blue-700 rounded-full w-8 h-8 inline-flex items-center justify-center mr-3">
-                    <CheckCircleIcon size={18} />
-                  </span>
-                  Key Highlights
-                </h2>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {course.learningOutcomes.slice(0, 4).map((outcome, index) => <div key={index} className="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-100 h-full">
-                      <CheckCircleIcon size={20} className="text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">{outcome}</span>
-                    </div>)}
-                </div>
-              </section>
-
-              {/* Description Section */}
-              <section className="mb-12">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  About This Course
-                </h2>
-                <div className="prose max-w-none">
-                  <p className="text-gray-700 mb-5">
-                    This comprehensive course is designed to provide you with
-                    the skills and knowledge needed to excel in{' '}
-                    {course.category}. Whether you're just starting out or
-                    looking to advance your existing skills, this course offers
-                    practical insights and hands-on experience to help you
-                    achieve your goals.
-                  </p>
-                  <p className="text-gray-700">
-                    The course is structured to accommodate{' '}
-                    {course.businessStage} businesses, with a focus on practical
-                    applications that you can implement immediately. Our
-                    experienced instructors bring real-world expertise to help
-                    you navigate the challenges of modern business environments.
-                  </p>
-                </div>
-              </section>
-
-              {/* Learning Outcomes Section */}
-              <section className="mb-12 bg-gray-50 rounded-xl p-6 border border-gray-100">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  What You'll Learn
-                </h2>
-                <div className="grid gap-4">
-                  {course.learningOutcomes.map((outcome, index) => <div key={index} className="flex items-start bg-white p-5 rounded-lg shadow-sm">
-                      <div className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center mr-4 flex-shrink-0 mt-0.5">
-                        <span className="text-sm font-bold">{index + 1}</span>
-                      </div>
-                      <span className="text-gray-700">{outcome}</span>
-                    </div>)}
-                </div>
-              </section>
-
-              {/* Course Schedule */}
-              <section className="mb-12">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  Course Schedule
-                </h2>
-                <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-                  <div className="flex flex-col md:flex-row md:items-center mb-6 bg-blue-50 p-3 rounded-lg">
-                    <Calendar className="text-blue-600 mr-3 mb-2 md:mb-0" size={20} />
-                    <div className="flex-grow">
-                      <p className="font-medium text-gray-800">
-                        Start Date:{' '}
-                        <span className="text-blue-700">
-                          {course.startDate}
-                        </span>
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Duration: {course.duration}
-                      </p>
-                    </div>
-                    <div className="mt-2 md:mt-0 md:ml-auto">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-50 text-green-700 border border-green-100">
-                        {course.deliveryMode}
-                      </span>
-                    </div>
-                  </div>
-                  {/* Timeline view */}
-                  <div className="space-y-4">
-                    <div className="relative pl-8 pb-4 border-l-2 border-blue-200">
-                      <div className="absolute left-[-8px] top-0 w-4 h-4 rounded-full bg-blue-500"></div>
-                      <h4 className="font-semibold text-gray-900">Week 1</h4>
-                      <p className="text-gray-700">
-                        Introduction and foundation concepts
-                      </p>
-                    </div>
-                    <div className="relative pl-8 pb-4 border-l-2 border-blue-200">
-                      <div className="absolute left-[-8px] top-0 w-4 h-4 rounded-full bg-blue-500"></div>
-                      <h4 className="font-semibold text-gray-900">Week 2</h4>
-                      <p className="text-gray-700">
-                        Core principles and practical exercises
-                      </p>
-                    </div>
-                    {course.durationType === 'Medium' || course.durationType === 'Long' ? <div className="relative pl-8 pb-4 border-l-2 border-blue-200">
-                        <div className="absolute left-[-8px] top-0 w-4 h-4 rounded-full bg-blue-500"></div>
-                        <h4 className="font-semibold text-gray-900">
-                          Week 3-4
-                        </h4>
-                        <p className="text-gray-700">
-                          Advanced techniques and final projects
-                        </p>
-                      </div> : null}
-                    {course.durationType === 'Long' ? <div className="relative pl-8">
-                        <div className="absolute left-[-8px] top-0 w-4 h-4 rounded-full bg-blue-500"></div>
-                        <h4 className="font-semibold text-gray-900">
-                          Final Week
-                        </h4>
-                        <p className="text-gray-700">
-                          Project presentations and certification
-                        </p>
-                      </div> : null}
-                  </div>
-                  {/* Location if applicable */}
-                  {course.location && <div className="mt-4 pt-4 border-t border-gray-100">
-                      <div className="flex items-center">
-                        <MapPin className="text-blue-600 mr-2" size={18} />
-                        <h4 className="font-medium text-gray-800">Location</h4>
-                      </div>
-                      <p className="text-gray-700 mt-1 ml-6">
-                        {course.location}
-                      </p>
-                    </div>}
-                </div>
-              </section>
-
-              {/* Provider Section */}
-              <section className="mb-12">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  About the Provider
-                </h2>
-                <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-                  <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
-                    <img src={course.provider.logoUrl} alt={course.provider.name} className="h-16 w-16 object-contain rounded-lg shadow-sm" />
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900">
-                        {course.provider.name}
-                      </h3>
-                      <p className="text-gray-600 text-sm">
-                        Leading provider of business education
-                      </p>
-                    </div>
-                    <div className="md:ml-auto flex flex-col md:items-end">
-                      <div className="text-sm text-gray-500">Credibility</div>
-                      <div className="flex items-center">
-                        <span className="font-bold text-blue-600 mr-2">
-                          500+
-                        </span>
-                        <span className="text-gray-700">SMEs trained</span>
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-gray-700 mb-4">
-                    {course.provider.description}
-                  </p>
-                  <button className="text-blue-600 font-medium hover:text-blue-800 transition-colors flex items-center">
-                    Visit Provider Website
-                    <ExternalLinkIcon size={16} className="ml-1" />
-                  </button>
-                </div>
-              </section>
+        ))}
+      </div>
+      {/* Navigation controls */}
+      <div className="absolute top-1/2 left-0 right-0 flex justify-between items-center transform -translate-y-1/2 pointer-events-none px-2">
+        <button
+          onClick={handlePrev}
+          disabled={activeIndex === 0}
+          className={`w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-800 pointer-events-auto transition-opacity ${activeIndex === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
+          aria-label="Previous services"
+        >
+          <ChevronLeft size={20} />
+        </button>
+        <button
+          onClick={handleNext}
+          disabled={activeIndex === totalSlides - 1}
+          className={`w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-800 pointer-events-auto transition-opacity ${activeIndex === totalSlides - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
+          aria-label="Next services"
+        >
+          <ChevronRight size={20} />
+        </button>
+      </div>
+      {/* Pagination indicators */}
+      <div className="flex justify-center mt-4 gap-2">
+        {Array.from({
+          length: totalSlides,
+        }).map((_, index) => (
+          <button
+            key={`indicator-${index}`}
+            className={`w-2 h-2 rounded-full transition-all ${activeIndex === index ? 'bg-blue-600 w-6' : 'bg-gray-300'}`}
+            onClick={() => {
+              setActiveIndex(index)
+              scrollToIndex(index)
+            }}
+            aria-label={`Go to slide ${index + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+export const HomePage: React.FC = () => {
+  const navigate = useNavigate()
+  // Define all services with categories
+  const allServices = useMemo(() => {
+    return {
+      finance: [
+        {
+          id: 'funding',
+          title: 'Business Funding',
+          description:
+            'Access loans, grants, and investment opportunities tailored for Abu Dhabi businesses',
+          icon: <DollarSign />,
+          path: '/marketplace/financial',
+          gradientFrom: 'from-blue-600',
+          gradientTo: 'to-blue-400',
+          isActive: true,
+        },
+        {
+          id: 'financial',
+          title: 'Financial Services',
+          description:
+            'Access financial products to fuel your business growth and sustainability',
+          icon: <Landmark />,
+          path: '/marketplace/financial',
+          gradientFrom: 'from-blue-600',
+          gradientTo: 'to-blue-400',
+          isActive: true,
+        },
+        {
+          id: 'investments',
+          title: 'Investment Marketplace',
+          description:
+            'Find investment opportunities and funding options for your business',
+          icon: <TrendingUp />,
+          path: '/investments',
+          gradientFrom: 'from-blue-600',
+          gradientTo: 'to-blue-400',
+          isActive: false,
+        },
+        {
+          id: 'grants',
+          title: 'Grants Directory',
+          description:
+            'Find grants and funding opportunities for your business',
+          icon: <Award />,
+          path: '/grants',
+          gradientFrom: 'from-blue-600',
+          gradientTo: 'to-blue-400',
+          isActive: false,
+        },
+        {
+          id: 'credit-cards',
+          title: 'Business Credit Cards',
+          description:
+            'Compare and apply for business credit cards with special benefits',
+          icon: <CreditCard />,
+          path: '/credit-cards',
+          gradientFrom: 'from-blue-600',
+          gradientTo: 'to-blue-400',
+          isActive: false,
+        },
+        {
+          id: 'savings',
+          title: 'Business Savings',
+          description:
+            'Explore savings accounts and investment vehicles for your enterprise',
+          icon: <PiggyBank />,
+          path: '/savings',
+          gradientFrom: 'from-blue-600',
+          gradientTo: 'to-blue-400',
+          isActive: false,
+        },
+        {
+          id: 'equity',
+          title: 'Equity Financing',
+          description: 'Connect with angel investors and venture capital firms',
+          icon: <LineChart />,
+          path: '/equity-financing',
+          gradientFrom: 'from-blue-600',
+          gradientTo: 'to-blue-400',
+          isActive: false,
+        },
+        {
+          id: 'microfinance',
+          title: 'Microfinance Solutions',
+          description:
+            'Small-scale funding options for startups and micro-enterprises',
+          icon: <BadgeDollarSign />,
+          path: '/microfinance',
+          gradientFrom: 'from-blue-600',
+          gradientTo: 'to-blue-400',
+          isActive: false,
+        },
+        {
+          id: 'payment',
+          title: 'Payment Solutions',
+          description:
+            'Discover payment processing and digital transaction solutions',
+          icon: <Wallet />,
+          path: '/payment-solutions',
+          gradientFrom: 'from-blue-600',
+          gradientTo: 'to-blue-400',
+          isActive: false,
+        },
+        {
+          id: 'tax',
+          title: 'Tax Planning',
+          description: 'Strategic tax planning and optimization services',
+          icon: <Calculator />,
+          path: '/tax-planning',
+          gradientFrom: 'from-blue-600',
+          gradientTo: 'to-blue-400',
+          isActive: false,
+        },
+        {
+          id: 'invoice',
+          title: 'Invoice Financing',
+          description: 'Convert unpaid invoices into immediate working capital',
+          icon: <Receipt />,
+          path: '/invoice-financing',
+          gradientFrom: 'from-blue-600',
+          gradientTo: 'to-blue-400',
+          isActive: false,
+        },
+        {
+          id: 'forex',
+          title: 'Foreign Exchange',
+          description: 'Currency exchange and international payment solutions',
+          icon: <Coins />,
+          path: '/forex',
+          gradientFrom: 'from-blue-600',
+          gradientTo: 'to-blue-400',
+          isActive: false,
+        },
+        {
+          id: 'insurance',
+          title: 'Business Insurance',
+          description:
+            'Comprehensive insurance solutions to protect your enterprise',
+          icon: <BriefcaseBusiness />,
+          path: '/business-insurance',
+          gradientFrom: 'from-blue-600',
+          gradientTo: 'to-blue-400',
+          isActive: false,
+        },
+      ],
+      advisory: [
+        {
+          id: 'mentorship',
+          title: 'Expert Mentorship',
+          description:
+            'Connect with experienced business mentors who can guide your growth strategy',
+          icon: <HeartHandshake />,
+          path: '/marketplace/mentorship',
+          gradientFrom: 'from-purple-600',
+          gradientTo: 'to-purple-400',
+          isActive: false,
+        },
+        {
+          id: 'business-services',
+          title: 'Business Services',
+          description:
+            'Find professional services to support and grow your business',
+          icon: <Briefcase />,
+          path: '/marketplace/non-financial',
+          gradientFrom: 'from-purple-600',
+          gradientTo: 'to-purple-400',
+          isActive: true,
+        },
+        {
+          id: 'opportunities',
+          title: 'Strategy Advisory',
+          description:
+            'Discover new business opportunities and strategic partnerships',
+          icon: <Lightbulb />,
+          path: '/opportunities',
+          gradientFrom: 'from-purple-600',
+          gradientTo: 'to-purple-400',
+          isActive: false,
+        },
+        {
+          id: 'performance',
+          title: 'Performance Analytics',
+          description:
+            'Data-driven insights to optimize your business performance',
+          icon: <Target />,
+          path: '/performance',
+          gradientFrom: 'from-purple-600',
+          gradientTo: 'to-purple-400',
+          isActive: false,
+        },
+        {
+          id: 'market-research',
+          title: 'Market Research',
+          description:
+            'In-depth market analysis and consumer behavior insights',
+          icon: <BarChart2 />,
+          path: '/market-research',
+          gradientFrom: 'from-purple-600',
+          gradientTo: 'to-purple-400',
+          isActive: false,
+        },
+        {
+          id: 'networking',
+          title: 'Business Networking',
+          description:
+            'Connect with other businesses for collaboration and growth',
+          icon: <Network />,
+          path: '/networking',
+          gradientFrom: 'from-purple-600',
+          gradientTo: 'to-purple-400',
+          isActive: false,
+        },
+        {
+          id: 'competitive',
+          title: 'Competitive Analysis',
+          description:
+            'Understand your competitors and identify market advantages',
+          icon: <PieChart />,
+          path: '/competitive-analysis',
+          gradientFrom: 'from-purple-600',
+          gradientTo: 'to-purple-400',
+          isActive: false,
+        },
+        {
+          id: 'business-planning',
+          title: 'Business Planning',
+          description:
+            'Develop comprehensive business plans and growth strategies',
+          icon: <ClipboardList />,
+          path: '/business-planning',
+          gradientFrom: 'from-purple-600',
+          gradientTo: 'to-purple-400',
+          isActive: false,
+        },
+        {
+          id: 'partnerships',
+          title: 'Strategic Partnerships',
+          description:
+            'Forge valuable business partnerships and collaborations',
+          icon: <Handshake />,
+          path: '/partnerships',
+          gradientFrom: 'from-purple-600',
+          gradientTo: 'to-purple-400',
+          isActive: false,
+        },
+      ],
+      growth: [
+        {
+          id: 'expansion',
+          title: 'Global Expansion',
+          description:
+            "Leverage Abu Dhabi's strategic location to expand your business internationally",
+          icon: <Compass />,
+          path: '/marketplace/expansion',
+          gradientFrom: 'from-teal-600',
+          gradientTo: 'to-teal-400',
+          isActive: false,
+        },
+        {
+          id: 'communities',
+          title: 'Business Communities',
+          description:
+            'Connect with business networks and expand your professional connections',
+          icon: <Users />,
+          path: '/communities',
+          gradientFrom: 'from-teal-600',
+          gradientTo: 'to-teal-400',
+          isActive: true,
+        },
+        {
+          id: 'events',
+          title: 'Networking Events',
+          description:
+            'Discover and join business events and networking opportunities',
+          icon: <Calendar />,
+          path: '/events',
+          gradientFrom: 'from-teal-600',
+          gradientTo: 'to-teal-400',
+          isActive: false,
+        },
+        {
+          id: 'jobs',
+          title: 'Jobs Marketplace',
+          description: 'Find talent or explore career opportunities',
+          icon: <JobIcon />,
+          path: '/jobs',
+          gradientFrom: 'from-teal-600',
+          gradientTo: 'to-teal-400',
+          isActive: false,
+        },
+        {
+          id: 'performance-metrics',
+          title: 'Performance Metrics',
+          description:
+            'Track and analyze key performance indicators for your business',
+          icon: <BarChartHorizontal />,
+          path: '/performance-metrics',
+          gradientFrom: 'from-teal-600',
+          gradientTo: 'to-teal-400',
+          isActive: false,
+        },
+        {
+          id: 'franchising',
+          title: 'Franchising Opportunities',
+          description:
+            'Explore franchising options to scale your business model',
+          icon: <Building2 />,
+          path: '/franchising',
+          gradientFrom: 'from-teal-600',
+          gradientTo: 'to-teal-400',
+          isActive: false,
+        },
+        {
+          id: 'corporate-venturing',
+          title: 'Corporate Venturing',
+          description:
+            'Collaborate with established corporations for innovation and growth',
+          icon: <div />,
+          path: '/corporate-venturing',
+          gradientFrom: 'from-teal-600',
+          gradientTo: 'to-teal-400',
+          isActive: false,
+        },
+        {
+          id: 'export-development',
+          title: 'Export Development',
+          description:
+            'Develop strategies to export your products to international markets',
+          icon: <Share2 />,
+          path: '/export-development',
+          gradientFrom: 'from-teal-600',
+          gradientTo: 'to-teal-400',
+          isActive: false,
+        },
+        {
+          id: 'retail-expansion',
+          title: 'Retail Expansion',
+          description:
+            'Strategies and support for expanding your retail presence',
+          icon: <Store />,
+          path: '/retail-expansion',
+          gradientFrom: 'from-teal-600',
+          gradientTo: 'to-teal-400',
+          isActive: false,
+        },
+        {
+          id: 'supply-chain',
+          title: 'Supply Chain Optimization',
+          description: 'Improve your supply chain efficiency and reduce costs',
+          icon: <Truck />,
+          path: '/supply-chain',
+          gradientFrom: 'from-teal-600',
+          gradientTo: 'to-teal-400',
+          isActive: false,
+        },
+        {
+          id: 'market-entry',
+          title: 'Market Entry Strategies',
+          description: 'Develop effective strategies to enter new markets',
+          icon: <ShoppingBag />,
+          path: '/market-entry',
+          gradientFrom: 'from-teal-600',
+          gradientTo: 'to-teal-400',
+          isActive: false,
+        },
+      ],
+      learning: [
+        {
+          id: 'courses',
+          title: 'Learning & Development',
+          description:
+            'Discover courses and training programs to enhance your business skills',
+          icon: <BookOpen />,
+          path: '/marketplace/courses',
+          gradientFrom: 'from-amber-600',
+          gradientTo: 'to-amber-400',
+          isActive: true,
+        },
+        {
+          id: 'digital',
+          title: 'Digital Solutions',
+          description: 'Explore digital tools and solutions for your business',
+          icon: <Globe />,
+          path: '/digital-services',
+          gradientFrom: 'from-amber-600',
+          gradientTo: 'to-amber-400',
+          isActive: false,
+        },
+        {
+          id: 'news',
+          title: 'Knowledge Hub',
+          description:
+            'Stay updated with the latest business news and industry insights',
+          icon: <Newspaper />,
+          path: '/news',
+          gradientFrom: 'from-amber-600',
+          gradientTo: 'to-amber-400',
+          isActive: false,
+        },
+        {
+          id: 'law',
+          title: 'Legal & Compliance',
+          description: 'Access resources on UAE business laws and regulations',
+          icon: <BookIcon />,
+          path: '/law',
+          gradientFrom: 'from-amber-600',
+          gradientTo: 'to-amber-400',
+          isActive: false,
+        },
+        {
+          id: 'marketing',
+          title: 'Marketing Academy',
+          description:
+            'Learn effective marketing strategies for business growth',
+          icon: <Megaphone />,
+          path: '/marketing-academy',
+          gradientFrom: 'from-amber-600',
+          gradientTo: 'to-amber-400',
+          isActive: false,
+        },
+        {
+          id: 'startup',
+          title: 'Startup Accelerator',
+          description:
+            'Accelerate your startup growth with specialized programs',
+          icon: <Rocket />,
+          path: '/startup-accelerator',
+          gradientFrom: 'from-amber-600',
+          gradientTo: 'to-amber-400',
+          isActive: false,
+        },
+        {
+          id: 'innovation',
+          title: 'Innovation Lab',
+          description:
+            'Explore innovation methodologies and creative problem-solving',
+          icon: <PanelRight />,
+          path: '/innovation-lab',
+          gradientFrom: 'from-amber-600',
+          gradientTo: 'to-amber-400',
+          isActive: false,
+        },
+        {
+          id: 'tech-training',
+          title: 'Technology Training',
+          description:
+            'Develop technical skills essential for digital transformation',
+          icon: <Laptop />,
+          path: '/tech-training',
+          gradientFrom: 'from-amber-600',
+          gradientTo: 'to-amber-400',
+          isActive: false,
+        },
+        {
+          id: 'coding',
+          title: 'Coding Bootcamps',
+          description: 'Intensive coding programs for entrepreneurs and teams',
+          icon: <FileCode />,
+          path: '/coding-bootcamps',
+          gradientFrom: 'from-amber-600',
+          gradientTo: 'to-amber-400',
+          isActive: false,
+        },
+        {
+          id: 'data-analytics',
+          title: 'Data Analytics',
+          description:
+            'Learn to leverage data for better business decision-making',
+          icon: <Database />,
+          path: '/data-analytics',
+          gradientFrom: 'from-amber-600',
+          gradientTo: 'to-amber-400',
+          isActive: false,
+        },
+        {
+          id: 'business-writing',
+          title: 'Business Writing',
+          description: 'Improve your business communication and writing skills',
+          icon: <FileText />,
+          path: '/business-writing',
+          gradientFrom: 'from-amber-600',
+          gradientTo: 'to-amber-400',
+          isActive: false,
+        },
+        {
+          id: 'leadership',
+          title: 'Leadership Development',
+          description:
+            'Enhance your leadership skills to drive organizational success',
+          icon: <Presentation />,
+          path: '/leadership',
+          gradientFrom: 'from-amber-600',
+          gradientTo: 'to-amber-400',
+          isActive: false,
+        },
+        {
+          id: 'certifications',
+          title: 'Professional Certifications',
+          description:
+            'Earn industry-recognized certifications to boost your credentials',
+          icon: <BookMarked />,
+          path: '/certifications',
+          gradientFrom: 'from-amber-600',
+          gradientTo: 'to-amber-400',
+          isActive: false,
+        },
+        {
+          id: 'executive-education',
+          title: 'Executive Education',
+          description: 'Advanced programs designed for senior business leaders',
+          icon: <GraduationCapIcon />,
+          path: '/executive-education',
+          gradientFrom: 'from-amber-600',
+          gradientTo: 'to-amber-400',
+          isActive: false,
+        },
+        {
+          id: 'industry-research',
+          title: 'Industry Research',
+          description:
+            'Access in-depth research on industry trends and developments',
+          icon: <Microscope />,
+          path: '/industry-research',
+          gradientFrom: 'from-amber-600',
+          gradientTo: 'to-amber-400',
+          isActive: false,
+        },
+        {
+          id: 'business-library',
+          title: 'Business Library',
+          description:
+            'Comprehensive collection of business resources and references',
+          icon: <Library />,
+          path: '/business-library',
+          gradientFrom: 'from-amber-600',
+          gradientTo: 'to-amber-400',
+          isActive: false,
+        },
+      ],
+    }
+  }, [])
+  // Function to handle service click
+  const handleServiceClick = (path) => {
+    navigate(path)
+  }
+  return (
+    <div className="bg-white py-16">
+      <div className="container mx-auto px-4">
+        {/* Marketplaces by Category */}
+        <div className="mb-16">
+          <FadeInUpOnScroll className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">
+              Services & Marketplaces
+            </h2>
+            <div className="relative">
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+                Discover tailored solutions organized by category to accelerate
+                your business growth in Abu Dhabi
+              </p>
+              <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-blue-500 to-teal-400"></div>
             </div>
-
-            {/* Sticky sidebar */}
-            <div className="lg:w-1/3">
-              <div className="lg:sticky lg:top-4 bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4 text-white">
-                  <h3 className="font-bold text-lg">Course Details</h3>
-                </div>
-                <div className="p-5">
-                  <div className="mb-4">
-                    <div className="flex justify-between mb-2">
-                      <span className="text-gray-600">Price:</span>
-                      <span className="font-bold text-gray-900">
-                        {course.price || 'Free'}
-                      </span>
-                    </div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-gray-600">Duration:</span>
-                      <span className="font-bold text-gray-900">
-                        {course.duration}
-                      </span>
-                    </div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-gray-600">Start Date:</span>
-                      <span className="font-bold text-gray-900">
-                        {course.startDate}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Delivery:</span>
-                      <span className="font-bold text-gray-900">
-                        {course.deliveryMode}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="border-t border-gray-200 pt-4 mb-4">
-                    <h4 className="font-semibold text-gray-800 mb-2">
-                      This course includes:
-                    </h4>
-                    <ul className="space-y-2">
-                      <li className="flex items-start">
-                        <CheckCircleIcon size={16} className="text-green-500 mr-2 mt-1 flex-shrink-0" />
-                        <span className="text-gray-700 text-sm">
-                          Comprehensive course materials
-                        </span>
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCircleIcon size={16} className="text-green-500 mr-2 mt-1 flex-shrink-0" />
-                        <span className="text-gray-700 text-sm">
-                          Expert-led sessions
-                        </span>
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCircleIcon size={16} className="text-green-500 mr-2 mt-1 flex-shrink-0" />
-                        <span className="text-gray-700 text-sm">
-                          Certificate of completion
-                        </span>
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCircleIcon size={16} className="text-green-500 mr-2 mt-1 flex-shrink-0" />
-                        <span className="text-gray-700 text-sm">
-                          Access to exclusive resources
-                        </span>
-                      </li>
-                    </ul>
-                  </div>
-                  <button id="enroll-section" className="w-full px-4 py-3 text-white font-bold rounded-md bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600 hover:from-teal-600 hover:via-blue-600 hover:to-purple-700 transition-colors shadow-md mb-3">
-                    Enroll Now
-                  </button>
-                  <button onClick={handleAddToComparison} className="w-full px-4 py-3 text-blue-600 font-medium bg-white border border-blue-600 rounded-md hover:bg-blue-50 transition-colors flex items-center justify-center">
-                    <ScaleIcon size={16} className="mr-2" />
-                    Add to Comparison
-                  </button>
-                </div>
-              </div>
-            </div>
+          </FadeInUpOnScroll>
+          {/* Finance & Funding Category */}
+          <div className="mb-10">
+            <FadeInUpOnScroll>
+              <CategoryHeader
+                icon={<DollarSign size={24} />}
+                title="Finance & Funding"
+                count={13}
+              />
+            </FadeInUpOnScroll>
+            <ServiceCarousel
+              services={allServices.finance}
+              handleServiceClick={handleServiceClick}
+            />
           </div>
-        </div>
-
-        {/* Related Courses */}
-        <section className="bg-gray-50 py-10 border-t border-gray-200">
-          <div className="container mx-auto px-4">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                Related Courses
-              </h2>
-              <a href="/courses" className="text-blue-600 font-medium hover:text-blue-800 flex items-center">
-                See All Courses
-                <ChevronRightIcon size={16} className="ml-1" />
-              </a>
-            </div>
-            {relatedCourses.length > 0 ? <RelatedCourses currentCourse={course} courses={relatedCourses} onCourseSelect={selectedCourse => navigate(`/courses/${selectedCourse.id}`)} bookmarkedCourses={bookmarkedCourses} onToggleBookmark={onToggleBookmark} /> : <div className="text-center py-8 bg-white rounded-lg shadow">
-                <p className="text-gray-500">No related courses found</p>
-              </div>}
+          {/* Advisory & Expertise Category */}
+          <div className="mb-10">
+            <FadeInUpOnScroll>
+              <CategoryHeader
+                icon={<BarChart size={24} />}
+                title="Advisory & Expertise"
+                count={9}
+              />
+            </FadeInUpOnScroll>
+            <ServiceCarousel
+              services={allServices.advisory}
+              handleServiceClick={handleServiceClick}
+            />
           </div>
-        </section>
-      </main>
-
-      {/* Sticky mobile CTA */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 md:hidden z-30">
-        <div className="flex items-center justify-between">
-          <div className="mr-3">
-            <div className="text-gray-900 font-bold">
-              {course.price || 'Free'}
-            </div>
-            <div className="text-sm text-gray-600">{course.duration}</div>
+          {/* Growth & Expansion Category */}
+          <div className="mb-10">
+            <FadeInUpOnScroll>
+              <CategoryHeader
+                icon={<Globe size={24} />}
+                title="Growth & Expansion"
+                count={11}
+              />
+            </FadeInUpOnScroll>
+            <ServiceCarousel
+              services={allServices.growth}
+              handleServiceClick={handleServiceClick}
+            />
           </div>
-          <button className="flex-1 px-4 py-3 text-white font-bold rounded-md bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600 hover:from-teal-600 hover:via-blue-600 hover:to-purple-700 transition-colors shadow-md">
-            Enroll Now
-          </button>
+          {/* Learning & Enablement Category */}
+          <div className="mb-10">
+            <FadeInUpOnScroll>
+              <CategoryHeader
+                icon={<GraduationCap size={24} />}
+                title="Learning & Enablement"
+                count={16}
+              />
+            </FadeInUpOnScroll>
+            <ServiceCarousel
+              services={allServices.learning}
+              handleServiceClick={handleServiceClick}
+            />
+          </div>
         </div>
       </div>
-      <Footer isLoggedIn={false} />
-    </div>;
-};
+      {/* AI Chatbot */}
+      <AIChatbot />
+      {/* Add keyframes for animations */}
+      <style jsx>{`
+        @keyframes fade-in-up {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        @keyframes scale-in {
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        @keyframes pulse {
+          0%,
+          100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.05);
+          }
+        }
+        .animate-fade-in-up {
+          animation: fade-in-up 0.5s ease-out forwards;
+        }
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out forwards;
+        }
+        .animate-scale-in {
+          animation: scale-in 0.3s ease-out forwards;
+        }
+        .animate-pulse {
+          animation: pulse 2s infinite;
+        }
+        .hover\:scale-102:hover {
+          transform: scale(1.02);
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
+    </div>
+  )
+}
+export default HomePage

@@ -22,24 +22,23 @@ export const IssueSupportLetterSchema: FormSchema = {
               id: "applicantFullName",
               label: "Full Name",
               type: "text",
+              placeholder: "John Smith",
+              required: true,
               validation: { minLength: 2 },
-              //   required: true,
             },
             {
               id: "applicantEmail",
               label: "Email Address",
               type: "email",
-              //   required: true,
+              placeholder: "john.smith@email.com",
+              required: true,
             },
             {
               id: "applicantPhone",
               label: "Phone Number",
               type: "tel",
-              validation: {
-                pattern:
-                  "^[+]*[0-9]{1,4}[\\s\\-]?[0-9]{1,3}[\\s\\-]?[0-9]{1,4}$",
-              },
-              //   required: true,
+              required: true,
+              placeholder: "+1 234 567 8900",
             },
             {
               id: "dateOfBirth",
@@ -50,7 +49,7 @@ export const IssueSupportLetterSchema: FormSchema = {
               id: "nationality",
               label: "Nationality",
               type: "select",
-              globalOptionSet: "countries", // Use global option set
+              globalOptionSet: "countries",
             },
           ],
         },
@@ -61,6 +60,7 @@ export const IssueSupportLetterSchema: FormSchema = {
               id: "roleInBusiness",
               label: "Role in Business",
               type: "select",
+              required: true,
               options: [
                 { value: "owner", label: "Owner/Founder" },
                 { value: "ceo", label: "CEO" },
@@ -72,6 +72,7 @@ export const IssueSupportLetterSchema: FormSchema = {
               id: "yearsOfExperience",
               label: "Years of Business Experience",
               type: "number",
+              placeholder: "5",
               validation: { min: 0, max: 50 },
             },
           ],
@@ -89,6 +90,7 @@ export const IssueSupportLetterSchema: FormSchema = {
             {
               id: "supportLetterType",
               label: "Type of Support Letter",
+              required: true,
               type: "select",
               options: [
                 { value: "employment", label: "Employment Verification" },
@@ -110,13 +112,15 @@ export const IssueSupportLetterSchema: FormSchema = {
               id: "letterRecipient",
               label: "Recipient of the Support Letter",
               type: "text",
+              placeholder: "John Smith",
+              required: true,
               validation: { minLength: 2 },
             },
             {
               id: "letterDateNeededBy",
               label: "Date Needed By",
               type: "date",
-              //   required: true,
+              required: true,
             },
             {
               id: "letterContentSpecifics",
@@ -139,10 +143,22 @@ export const IssueSupportLetterSchema: FormSchema = {
           fields: [
             {
               id: "supportingDocuments",
-              label: "Supporting Documents (optional)",
-              type: "file",
-              //   maxFileSize: 5000000, // Max 5MB
+              label: "Supporting Documents",
+              type: "multi-file",
               required: false,
+              validation: {
+                max: 5, // Maximum 5 files
+                maxFileSize: 5242880, // 5MB in bytes
+                fileTypes: [
+                  ".pdf",
+                  ".doc",
+                  ".docx",
+                  ".jpg",
+                  ".jpeg",
+                  ".png",
+                  ".txt",
+                ],
+              },
             },
             {
               id: "additionalNotes",
@@ -159,36 +175,29 @@ export const IssueSupportLetterSchema: FormSchema = {
       stepDescription: "Review your information and submit the request.",
       groups: [
         {
-          groupTitle: "COFIRMATION",
+          groupTitle: "CONFIRMATION",
           fields: [
-            {
-              id: "reviewSummary",
-              label: "Review Your Information",
-              type: "text",
-              //   display: "summary", // Display the summary of the form data for review
-            },
+            // {
+            //   id: "reviewSummary",
+            //   label: "Review Your Information",
+            //   type: "text",
+            // },
             {
               id: "confirmationCheckbox",
               label:
                 "I confirm that the information provided is accurate and complete.",
               type: "consent",
-              //   required: true,
+              required: true,
             },
             {
               id: "termsAndConditions",
               label: "I agree to the Terms and Conditions",
               type: "consent",
-              //   required: true,
+              required: true,
             },
           ],
         },
       ],
-      //   actions: [
-      //     {
-      //       buttonLabel: "Submit Request",
-      //       buttonAction: "submit", // Submit the form
-      //     },
-      //   ],
     },
   ],
 };

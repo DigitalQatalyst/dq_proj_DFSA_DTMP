@@ -3,7 +3,7 @@ import { gql } from "@apollo/client";
 // GraphQL Query for Products
 const GET_PRODUCTS = gql`
   query getProducts {
-    products {
+    products(options:{sort:{id:DESC}}) {
       items {
         id
         assets {
@@ -23,25 +23,18 @@ const GET_PRODUCTS = gql`
           code
         }
         customFields {
-          Logo {
-            name
-            source
-          }
           CustomerType
           BusinessStage
           Nationality
           LegalStructure
           Industry
+          Partner
           ProcessingTime
           RegistrationValidity
           Cost
           Steps
           KeyTermsOfService
           AdditionalTermsOfService
-          Logo {
-            name
-            source
-          }
           RequiredDocuments {
             id
             name
@@ -50,6 +43,8 @@ const GET_PRODUCTS = gql`
           RelatedServices {
             id
           }
+         formUrl
+         logoUrl
         }
       }
     }
@@ -59,7 +54,7 @@ const GET_PRODUCTS = gql`
 // GraphQL Query for Facets
 const GET_FACETS = gql`
   query GetFacets {
-    facets(options: { take: 100 }) {
+    facets {
       items {
         id
         name
@@ -138,4 +133,27 @@ mutation ToggleFavorite($productId: ID!) {
 }
 `
 
-export { GET_PRODUCTS, GET_FACETS, GET_PRODUCT, BOOKMARK_SERVICE };
+// GraphQL Query for Courses
+const GET_ALL_COURSES = gql`
+  query GetAllCourses {
+    courses(options: { take: 10, skip: 0, sort: { rating: DESC } }) {
+      items {
+        id
+        name
+        description
+        partner
+        rating
+        reviewCount
+        cost
+        duration
+        logoUrl
+        businessStage
+        pricingModel
+        serviceCategory
+      }
+      totalItems
+    }
+  }
+`;
+
+export { GET_PRODUCTS, GET_FACETS, GET_PRODUCT, GET_ALL_COURSES };

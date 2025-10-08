@@ -39,7 +39,7 @@ export function DocumentsPage({
   return (
     <div className="space-y-0">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-gray-100 py-3 px-4 lg:px-6 border-b border-gray-200 shadow-sm">
+      <div className="sticky top-0 z-20 py-3 px-4 lg:px-6">
         <div className="flex flex-row items-center justify-between">
           <div className='flex gap-4'>
             <div className='lg:hidden'>
@@ -60,6 +60,7 @@ export function DocumentsPage({
                 onClick={() => setShowNotifications(!showNotifications)}
                 className="p-2 text-gray-500 hover:text-blue-600 rounded-full hover:bg-gray-100 relative"
               >
+                
                 <BellIcon size={20} />
                 {expiringDocuments.length > 0 && (
                   <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
