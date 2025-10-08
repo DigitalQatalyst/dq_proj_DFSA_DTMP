@@ -36,6 +36,12 @@ export interface Database {
           document_url: string | null
           duration_sec: number | null
           file_size_bytes: number | null
+          event_date: string | null
+          event_time: string | null
+          event_location: string | null
+          event_location_details: string | null
+          event_registration_info: string | null
+          event_agenda: Json | null
         }
         Insert: {
           id?: string
@@ -63,6 +69,12 @@ export interface Database {
           document_url?: string | null
           duration_sec?: number | null
           file_size_bytes?: number | null
+          event_date?: string | null
+          event_time?: string | null
+          event_location?: string | null
+          event_location_details?: string | null
+          event_registration_info?: string | null
+          event_agenda?: Json | null
         }
         Update: {
           id?: string
@@ -90,6 +102,12 @@ export interface Database {
           document_url?: string | null
           duration_sec?: number | null
           file_size_bytes?: number | null
+          event_date?: string | null
+          event_time?: string | null
+          event_location?: string | null
+          event_location_details?: string | null
+          event_registration_info?: string | null
+          event_agenda?: Json | null
         }
         Relationships: []
       }

@@ -233,6 +233,17 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     };
     loadFilterOptions();
   }, [facetData, marketplaceType, config]);
+
+  // Initialize all filter categories as collapsed by default
+  useEffect(() => {
+    if (filterConfig.length > 0) {
+      const initialCollapsed: Record<string, boolean> = {};
+      filterConfig.forEach(category => {
+        initialCollapsed[category.id] = true;
+      });
+      setCollapsedCategories(initialCollapsed);
+    }
+  }, [filterConfig]);
 // ...existing code...
 
 
@@ -743,7 +754,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
         </h1>
         <p className="text-gray-600 mb-6">{config.description}</p>
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="w-full xl:w-1/4">
+          <div className="w-full">
             <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
           </div>
           {marketplaceType === 'knowledge-hub' && !isLoading && user && (
@@ -897,8 +908,8 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           </div>
           {/* Filter sidebar - desktop - always visible */}
           <div className="hidden xl:block xl:w-1/4">
-            <div className="bg-white rounded-lg shadow sticky top-24 max-h-[calc(100vh-7rem)] flex flex-col">
-              <div className="flex justify-between items-center p-4 border-b border-gray-200 flex-shrink-0">
+            <div className="bg-white rounded-lg shadow sticky top-24">
+              <div className="flex justify-between items-center p-4 border-b border-gray-200">
                 <h2 className="text-lg font-semibold">Filters</h2>
                 {(Object.values(filters).some((f) => f !== "") ||
                   activeFilters.length > 0) && (
@@ -910,7 +921,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   </button>
                 )}
               </div>
-              <div className="overflow-y-auto flex-grow p-4">
+              <div className="p-4">
                 {marketplaceType === 'knowledge-hub' ? <div className="space-y-2">
                     {filteredKnowledgeHubConfig.map(category => {
                       const isCollapsed = collapsedCategories[category.id];
