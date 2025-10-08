@@ -85,6 +85,7 @@ interface ProductCustomFields {
   RelatedServices?: RelatedService[];
   formUrl?: string;
   logoUrl?: string;
+  Addtags?: string;
 }
 
 interface ProductFacetValue {
@@ -349,7 +350,9 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 product.description ||
                 "Through this service, you can easily reallocate your approved loan funds...",
               facetValues: product.facetValues,
-              tags: [product.customFields.BusinessStage, product.customFields.BusinessStage].filter(Boolean),
+              tags: [product.customFields.Addtags, 
+                // product.customFields.BusinessStage
+                 ].filter(Boolean),
               provider: {
                 name: product.customFields?.Partner || "Khalifa Fund",
                 logoUrl: product.customFields?.logoUrl || randomFallbackLogo,

@@ -45,6 +45,7 @@ const GET_PRODUCTS = gql`
           }
          formUrl
          logoUrl
+         Addtags
         }
       }
     }
