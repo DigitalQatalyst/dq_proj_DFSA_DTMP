@@ -296,10 +296,17 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 const popularity = tags.find((tag: string) => validPopularity.includes(tag));
                 const businessStage = tags.find((tag: string) => validBusinessStages.includes(tag));
 
+                // Strip HTML tags from description
+                const stripHtml = (html: string): string => {
+                  const tmp = document.createElement('div');
+                  tmp.innerHTML = html;
+                  return tmp.textContent || tmp.innerText || '';
+                };
+
                 fromSupabase.push({
                   id: String(row.id),
                   title: row.title,
-                  description: row.body || row.summary || '',
+                  description: stripHtml(row.body || row.summary || ''),
                   mediaType: mapType(row.type),
                   provider: {
                     name: row.provider_name || 'Knowledge Hub',
