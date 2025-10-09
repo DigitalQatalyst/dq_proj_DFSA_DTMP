@@ -28,6 +28,7 @@ import { isSupabaseConfigured, getSupabase } from "../../admin-ui/utils/supabase
 // Mapping of Media Types to their relevant Format options (uses filter labels)
 const MEDIA_TYPE_FORMAT_MAPPING: Record<string, string[]> = {
   'News': ['Quick Reads'],
+  'Article': ['Quick Reads', 'In-Depth Reports'],
   'Reports': ['In-Depth Reports', 'Downloadable Templates'],
   'Toolkits & Templates': ['Interactive Tools', 'Downloadable Templates'],
   'Guides': ['Quick Reads', 'In-Depth Reports'],
@@ -323,6 +324,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   if (v === 'event' || v === 'events') return 'Event';
                   if (v === 'tool' || v === 'toolkit' || v === 'toolkits') return 'Toolkits & Templates';
                   if (v === 'announcement' || v === 'news') return 'News';
+                  if (v === 'article') return 'Article';
                   // Fallback: capitalize the first letter instead of defaulting to 'News'
                   return t ? t.charAt(0).toUpperCase() + t.slice(1) : 'News';
                 };
