@@ -2322,48 +2322,48 @@ const MediaDetailPage: React.FC = () => {
                                 </p>
                               </div>
                             ) : (
-                              <div className="flex justify-center space-x-2">
+                              <div className="flex justify-center gap-1 sm:gap-2">
                                 {/* Days */}
-                                <div className="flex flex-col items-center">
-                                  <div className="bg-white w-14 h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
-                                    <span className="text-xl font-bold text-gray-800">
+                                <div className="flex flex-col items-center flex-1 min-w-0">
+                                  <div className="bg-white w-full max-w-[56px] h-12 sm:h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
+                                    <span className="text-lg sm:text-xl font-bold text-gray-800">
                                       {String(countdown.days).padStart(2, '0')}
                                     </span>
                                   </div>
-                                  <span className="text-xs text-gray-600 mt-1">
+                                  <span className="text-[10px] sm:text-xs text-gray-600 mt-1">
                                     Days
                                   </span>
                                 </div>
                                 {/* Hours */}
-                                <div className="flex flex-col items-center">
-                                  <div className="bg-white w-14 h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
-                                    <span className="text-xl font-bold text-gray-800">
+                                <div className="flex flex-col items-center flex-1 min-w-0">
+                                  <div className="bg-white w-full max-w-[56px] h-12 sm:h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
+                                    <span className="text-lg sm:text-xl font-bold text-gray-800">
                                       {String(countdown.hours).padStart(2, '0')}
                                     </span>
                                   </div>
-                                  <span className="text-xs text-gray-600 mt-1">
+                                  <span className="text-[10px] sm:text-xs text-gray-600 mt-1">
                                     Hours
                                   </span>
                                 </div>
                                 {/* Minutes */}
-                                <div className="flex flex-col items-center">
-                                  <div className="bg-white w-14 h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
-                                    <span className="text-xl font-bold text-gray-800">
+                                <div className="flex flex-col items-center flex-1 min-w-0">
+                                  <div className="bg-white w-full max-w-[56px] h-12 sm:h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
+                                    <span className="text-lg sm:text-xl font-bold text-gray-800">
                                       {String(countdown.minutes).padStart(2, '0')}
                                     </span>
                                   </div>
-                                  <span className="text-xs text-gray-600 mt-1">
+                                  <span className="text-[10px] sm:text-xs text-gray-600 mt-1">
                                     Minutes
                                   </span>
                                 </div>
                                 {/* Seconds */}
-                                <div className="flex flex-col items-center">
-                                  <div className="bg-white w-14 h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
-                                    <span className="text-xl font-bold text-gray-800">
+                                <div className="flex flex-col items-center flex-1 min-w-0">
+                                  <div className="bg-white w-full max-w-[56px] h-12 sm:h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
+                                    <span className="text-lg sm:text-xl font-bold text-gray-800">
                                       {String(countdown.seconds).padStart(2, '0')}
                                     </span>
                                   </div>
-                                  <span className="text-xs text-gray-600 mt-1">
+                                  <span className="text-[10px] sm:text-xs text-gray-600 mt-1">
                                     Seconds
                                   </span>
                                 </div>
@@ -2487,16 +2487,39 @@ const MediaDetailPage: React.FC = () => {
                           {/* Registration Info Card */}
                           {((item as any).eventRegistrationInfo || true) && (
                             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex">
-                              <div className="mr-4 text-blue-600">
+                              <div className="mr-4 text-blue-600 flex-shrink-0">
                                 <FileTextIcon size={24} />
                               </div>
-                              <div>
+                              <div className="flex-1 min-w-0">
                                 <h4 className="font-semibold text-gray-900">
                                   Registration
                                 </h4>
                                 {(item as any).eventRegistrationInfo ? (
-                                  <p className="text-gray-700 whitespace-pre-line">
-                                    {(item as any).eventRegistrationInfo}
+                                  <p className="text-gray-700 whitespace-pre-line break-words">
+                                    {(item as any).eventRegistrationInfo.split(' ').map((word: string, index: number, array: string[]) => {
+                                      // Check if word looks like a URL
+                                      const urlPattern = /^(https?:\/\/[^\s]+|www\.[^\s]+|[a-zA-Z0-9][a-zA-Z0-9-]+\.[a-zA-Z]{2,}[^\s]*)$/
+                                      const isUrl = urlPattern.test(word)
+
+                                      if (isUrl) {
+                                        // Add protocol if missing
+                                        const href = word.startsWith('http') ? word : `https://${word}`
+                                        return (
+                                          <span key={index}>
+                                            <a
+                                              href={href}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              className="text-blue-600 hover:text-blue-800 underline break-all"
+                                            >
+                                              {word}
+                                            </a>
+                                            {index < array.length - 1 ? ' ' : ''}
+                                          </span>
+                                        )
+                                      }
+                                      return word + (index < array.length - 1 ? ' ' : '')
+                                    })}
                                   </p>
                                 ) : (
                                   <>
