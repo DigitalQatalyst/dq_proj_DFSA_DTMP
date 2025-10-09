@@ -760,14 +760,14 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           <h1 className="text-3xl font-bold text-gray-800">
             {config.title}
           </h1>
-          {marketplaceType === 'knowledge-hub' && !isLoading && user && (
+          {/* {marketplaceType === 'knowledge-hub' && !isLoading && user && (
             <Link
               to="/admin-ui/media/new"
               className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
             >
               Add Content
             </Link>
-          )}
+          )} */}
         </div>
         <p className="text-gray-600 mb-6">{config.description}</p>
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">

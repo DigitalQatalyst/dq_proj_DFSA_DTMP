@@ -40,6 +40,10 @@ import {
   isAudioItem,
   isVideoItem,
 } from '../../utils/mediaSelectors'
+import {
+  extractDocumentMetadata,
+  formatFileSize,
+} from '../../utils/documentMetadata'
 // Helper function to resolve the primary audio URL
 const resolveAudioUrl = (item: any): string | null => {
   return getAudioUrl(item)
@@ -103,6 +107,13 @@ const MediaDetailPage: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const videoUrlRef = useRef<string | null>(null)
   const videoInitializedRef = useRef(false)
+  // Document viewer state
+  const [documentLoading, setDocumentLoading] = useState(true)
+  const [documentError, setDocumentError] = useState<string | null>(null)
+  // Document metadata extraction state
+  const [extractedFileSize, setExtractedFileSize] = useState<string | null>(null)
+  const [extractedPageCount, setExtractedPageCount] = useState<number | null>(null)
+  const [metadataLoading, setMetadataLoading] = useState(false)
   // Minimal HTML sanitizer for rendering stored rich text safely on client
   const sanitizeHtml = useCallback((html: string): string => {
     try {
@@ -152,6 +163,9 @@ const MediaDetailPage: React.FC = () => {
       eventLocationDetails: row.event_location_details || null,
       eventRegistrationInfo: row.event_registration_info || null,
       eventAgenda: row.event_agenda || null,
+      fileSizeBytes: (row as any).file_size_bytes || null,
+      fileSize: formatFileSize((row as any).file_size_bytes) || null,
+      downloadCount: (row as any).download_count || null,
     })
     const fetchMediaDetails = async () => {
       setLoading(true)
@@ -560,6 +574,21 @@ const MediaDetailPage: React.FC = () => {
       setVolume(0.75)
     }
   }, [audioAvailable])
+  // Handle document download
+  const handleDownload = useCallback(() => {
+    if (!item?.downloadUrl) {
+      console.error('No download URL available')
+      return
+    }
+    // Open the document URL in a new tab to trigger browser download
+    const link = document.createElement('a')
+    link.href = item.downloadUrl
+    link.target = '_blank'
+    link.download = item.title || 'document'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }, [item])
   // Add keyboard accessibility
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -596,6 +625,38 @@ const MediaDetailPage: React.FC = () => {
     skipBackward,
     toggleMute,
   ])
+  // Extract document metadata (file size and page count)
+  useEffect(() => {
+    const extractMetadata = async () => {
+      if (!item?.downloadUrl) return
+
+      // Only extract for report/guide/toolkits types
+      const t = String(type).toLowerCase()
+      const isDocumentType = ['report', 'guide', 'toolkits-templates', 'infographic'].includes(t)
+
+      if (!isDocumentType || documentError) return
+
+      setMetadataLoading(true)
+
+      try {
+        const isPDF = item.downloadUrl && (
+          item.downloadUrl.toLowerCase().endsWith('.pdf') ||
+          item.downloadUrl.includes('/pdf/')
+        )
+
+        const metadata = await extractDocumentMetadata(item.downloadUrl, isPDF)
+
+        setExtractedFileSize(metadata.fileSize)
+        setExtractedPageCount(metadata.pageCount)
+      } catch (error) {
+        console.error('Error extracting document metadata:', error)
+      } finally {
+        setMetadataLoading(false)
+      }
+    }
+
+    extractMetadata()
+  }, [item?.downloadUrl, type, documentError])
   // Get the icon based on media type
   const getMediaTypeIcon = () => {
     if (!type) return null
@@ -1309,8 +1370,114 @@ const MediaDetailPage: React.FC = () => {
       case 'guide':
       case 'toolkits-templates':
       case 'infographic':
+        const documentUrl = item.downloadUrl
+        const isDocumentAvailable = Boolean(documentUrl)
+        const isPDF = documentUrl && (documentUrl.toLowerCase().endsWith('.pdf') || documentUrl.includes('/pdf/'))
+        const isWordDoc = documentUrl && (documentUrl.toLowerCase().endsWith('.doc') || documentUrl.toLowerCase().endsWith('.docx'))
+
         return (
           <div>
+            {/* Document Viewer */}
+            {isDocumentAvailable && (
+              <div className="mb-8">
+                <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                  <div className="bg-gray-100 px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                    <h3 className="font-semibold text-gray-900 flex items-center">
+                      <FileTextIcon size={18} className="mr-2 text-blue-600" />
+                      Document Preview
+                    </h3>
+                    <button
+                      onClick={handleDownload}
+                      className="px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md flex items-center transition-colors"
+                    >
+                      <Download size={16} className="mr-1.5" />
+                      Download
+                    </button>
+                  </div>
+
+                  {isPDF ? (
+                    <div className="relative bg-gray-50" style={{ minHeight: '600px' }}>
+                      {documentLoading && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
+                          <div className="text-center">
+                            <Loader className="animate-spin h-8 w-8 text-blue-600 mx-auto mb-2" />
+                            <p className="text-gray-600">Loading document...</p>
+                          </div>
+                        </div>
+                      )}
+                      {documentError ? (
+                        <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
+                          <div className="text-center p-8">
+                            <AlertCircleIcon className="h-12 w-12 text-red-500 mx-auto mb-3" />
+                            <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                              Unable to Load Document
+                            </h4>
+                            <p className="text-gray-600 mb-4">
+                              {documentError}
+                            </p>
+                            <button
+                              onClick={handleDownload}
+                              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md inline-flex items-center"
+                            >
+                              <Download size={18} className="mr-2" />
+                              Download Document
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <iframe
+                          src={documentUrl}
+                          className="w-full border-0"
+                          style={{ height: '600px' }}
+                          title={item.title}
+                          onLoad={() => setDocumentLoading(false)}
+                          onError={() => {
+                            setDocumentLoading(false)
+                            setDocumentError('The document could not be displayed in the browser.')
+                          }}
+                        />
+                      )}
+                    </div>
+                  ) : isWordDoc ? (
+                    <div className="p-8 text-center bg-gray-50">
+                      <FileTextIcon className="h-16 w-16 text-blue-600 mx-auto mb-4" />
+                      <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                        Word Document
+                      </h4>
+                      <p className="text-gray-600 mb-4">
+                        This document is in Word format and cannot be previewed in the browser.
+                        Please download it to view the full content.
+                      </p>
+                      <button
+                        onClick={handleDownload}
+                        className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md inline-flex items-center"
+                      >
+                        <Download size={18} className="mr-2" />
+                        Download Document
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="p-8 text-center bg-gray-50">
+                      <FileTextIcon className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+                      <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                        Document Available
+                      </h4>
+                      <p className="text-gray-600 mb-4">
+                        Click the download button to access this document.
+                      </p>
+                      <button
+                        onClick={handleDownload}
+                        className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md inline-flex items-center"
+                      >
+                        <Download size={18} className="mr-2" />
+                        Download Document
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="flex flex-col md:flex-row gap-6 mb-8">
               <div className="md:w-2/3">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">
@@ -1363,34 +1530,58 @@ const MediaDetailPage: React.FC = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Format:</span>
-                    <span className="text-gray-900 font-medium">PDF</span>
+                    <span className="text-gray-900 font-medium">
+                      {isPDF ? 'PDF' : isWordDoc ? 'Word' : 'Document'}
+                    </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Pages:</span>
-                    <span className="text-gray-900 font-medium">42</span>
-                  </div>
+                  {(extractedPageCount || metadataLoading) && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Pages:</span>
+                      <span className="text-gray-900 font-medium">
+                        {metadataLoading ? (
+                          <span className="text-gray-400">Loading...</span>
+                        ) : (
+                          extractedPageCount
+                        )}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span className="text-gray-600">File Size:</span>
                     <span className="text-gray-900 font-medium">
-                      {item.fileSize || '4.2 MB'}
+                      {metadataLoading ? (
+                        <span className="text-gray-400">Loading...</span>
+                      ) : (
+                        extractedFileSize || item.fileSize || <span className="text-gray-400">Unknown</span>
+                      )}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Last Updated:</span>
                     <span className="text-gray-900 font-medium">
-                      {item.date || 'January 2024'}
+                      {item.date ? new Date(item.date).toLocaleDateString() : 'January 2024'}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Downloads:</span>
-                    <span className="text-gray-900 font-medium">
-                      {item.downloadCount || '1,247'}
-                    </span>
-                  </div>
+                  {item.downloadCount && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Downloads:</span>
+                      <span className="text-gray-900 font-medium">
+                        {item.downloadCount}
+                      </span>
+                    </div>
+                  )}
                   <div className="mt-4 pt-4 border-t border-gray-200">
-                    <button className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md flex items-center justify-center">
+                    <button
+                      onClick={handleDownload}
+                      disabled={!isDocumentAvailable}
+                      className={`w-full py-2 px-4 font-medium rounded-md flex items-center justify-center transition-colors ${
+                        isDocumentAvailable
+                          ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      }`}
+                    >
                       <Download size={18} className="mr-2" />
-                      Download Now
+                      {isDocumentAvailable ? 'Download Now' : 'No Document Available'}
                     </button>
                   </div>
                 </div>
@@ -1872,7 +2063,7 @@ const MediaDetailPage: React.FC = () => {
                   {item.date && (
                     <div className="flex items-center">
                       <Calendar size={16} className="mr-1 text-gray-500" />
-                      <span>{item.date}</span>
+                      <span>{new Date(item.date).toLocaleDateString()}</span>
                     </div>
                   )}
                   {item.duration && (
