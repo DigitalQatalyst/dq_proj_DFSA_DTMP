@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { OnboardingStep } from './OnboardingStep';
 
-import { AlertCircleIcon, ArrowLeftIcon, XIcon } from 'lucide-react';
+import { ArrowLeftIcon } from 'lucide-react';
 import { onboardingSteps } from '../../../config/onboardingSteps';
 import { useAutoSave } from '../../../hooks/useAutoSave';
 import { useOnboardingForm } from '../../../hooks/useOnboardingForm';
@@ -21,9 +21,9 @@ export function OnboardingForm({ onComplete, isRevisit = false }) {
         isEditingWelcome,
         showStepsDropdown,
         loading,
-        submitError,
         setCurrentStep,
         setShowStepsDropdown,
+        setIsEditingWelcome,
         handleInputChange,
         validateCurrentStep,
         validateField,
@@ -31,7 +31,6 @@ export function OnboardingForm({ onComplete, isRevisit = false }) {
         handleSubmit: submitForm,
         handleJumpToStep,
         getStepCompletionStatus,
-        clearSubmitError,
     } = useOnboardingForm(onboardingSteps, onComplete, isRevisit);
 
     const {
@@ -132,25 +131,6 @@ export function OnboardingForm({ onComplete, isRevisit = false }) {
                     onJumpToStep={handleJumpToStep}
                     getStepCompletionStatus={getStepCompletionStatus}
                 />
-
-                {/* Error Display */}
-                {submitError && (
-                    <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-                        <div className="flex items-start">
-                            <AlertCircleIcon size={20} className="text-red-500 mt-0.5 mr-3 flex-shrink-0" />
-                            <div className="flex-1">
-                                <h3 className="text-sm font-medium text-red-800 mb-1">Submission Error</h3>
-                                <p className="text-sm text-red-700">{submitError}</p>
-                            </div>
-                            <button
-                                onClick={clearSubmitError}
-                                className="ml-2 text-red-400 hover:text-red-600"
-                            >
-                                <XIcon size={16} />
-                            </button>
-                        </div>
-                    </div>
-                )}
 
                 {/* Main Card */}
                 <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 md:p-10 relative">

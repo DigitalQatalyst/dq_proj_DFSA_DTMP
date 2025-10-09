@@ -489,16 +489,6 @@ const StagePopup: React.FC<StagePopupProps> = ({
             </div>
             {/* Available Services Section */}
             <AvailableServices stageId={stage.id} />
-            {/* CTA Button */}
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={onCTAClick}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium py-2 px-6 rounded-md transition-all duration-300 flex items-center"
-              >
-                {stage.ctaText}
-                <ArrowRight size={16} className="ml-2" />
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -532,12 +522,8 @@ const StageCard: React.FC<StageCardProps> = ({
   const isActive = index === activeIndex
   return (
     <div
-      className={`bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 min-w-[300px] flex-shrink-0 md:min-w-0 relative cursor-pointer ${isActive ? 'shadow-lg transform scale-105 md:scale-100 border-2 border-blue-500' : 'hover:shadow-lg hover:-translate-y-1'}`}
+      className={`bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 min-w-[300px] flex-shrink-0 md:min-w-0 relative ${isActive ? 'shadow-lg transform scale-105 md:scale-100 border-2 border-blue-500' : 'hover:shadow-lg hover:-translate-y-1'}`}
       onMouseEnter={() => setActiveIndex(index)}
-      onClick={(e) => {
-        e.preventDefault()
-        onClick()
-      }}
     >
       <div className="p-6 flex flex-col h-full">
         <div className="flex items-center mb-4">
@@ -566,8 +552,8 @@ const StageCard: React.FC<StageCardProps> = ({
         </div>
         <button
           onClick={(e) => {
-            e.stopPropagation() // Prevent card click event (navigation)
-            onShowDetails() // Now the button shows details popup instead of navigating
+            e.stopPropagation()
+            onShowDetails()
           }}
           className={`mt-auto text-white font-medium py-2 px-4 rounded-md transition-all duration-300 flex items-center justify-center overflow-hidden group ${isActive ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800' : 'bg-blue-600 hover:bg-blue-700'}`}
         >
@@ -668,7 +654,7 @@ const EnterpriseStages: React.FC = () => {
     {
       id: 'launch',
       title: 'Launch',
-      description: 'Set up and launch your business in Abu Dhabi',
+      description: 'Set up and launch your business in Abu Dhabi swiftly',
       detailedDescription:
         'The Launch stage is where your business takes its first steps into the market. This phase involves establishing your legal entity, securing initial funding, setting up operations, and making your first sales. Our platform streamlines the launch process with dedicated support for business registration, licensing, and initial setup requirements specific to Abu Dhabi.',
       benefits: [

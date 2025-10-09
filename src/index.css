@@ -7,3 +7,14 @@
 .no-scroll {
   overflow: hidden;
 }
+
+/* TipTap content gets readable defaults similar to public page */
+.tiptap :where(p)       { @apply my-3; }
+.tiptap :where(h2)      { @apply text-2xl font-bold mt-6 mb-3; }
+.tiptap :where(h3)      { @apply text-xl font-semibold mt-5 mb-2; }
+.tiptap :where(ul)      { @apply list-disc pl-6 my-3; }
+.tiptap :where(ol)      { @apply list-decimal pl-6 my-3; }
+.tiptap :where(blockquote) { @apply border-l-4 pl-4 italic text-slate-600 my-4; }
+.tiptap :where(a)       { @apply text-blue-600 underline; }
+.tiptap :where(strong)  { @apply font-semibold; }
+.tiptap :where(hr)      { @apply my-6 border-slate-200; }

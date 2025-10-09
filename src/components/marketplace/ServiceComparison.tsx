@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { ServiceItem } from "../../types/marketplace";
 import { XIcon, Check, Minus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { getMarketplaceConfig } from "../../utils/marketplaceConfiguration";
+import { getMarketplaceConfig } from "../../utils/marketplaceConfig";
 interface ServiceComparisonProps {
   services: ServiceItem[];
   onClose: () => void;
