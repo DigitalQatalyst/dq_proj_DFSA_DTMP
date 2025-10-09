@@ -1061,10 +1061,6 @@ export const mockProfileData = {
         },
         { label: "Industry Events", value: "GITEX, Abu Dhabi Technology Week" },
         {
-          label: "Research Partnerships",
-          value: "Khalifa University, Mohamed bin Zayed University of AI",
-        },
-        {
           label: "Industry Publications",
           value: "Quarterly Technology Trend Reports",
         },

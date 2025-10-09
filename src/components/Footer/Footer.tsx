@@ -80,7 +80,7 @@ export function Footer({
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-blue-100 hover:text-white transition-colors text-sm block">
+                  <a href="/discover-abudhabi" className="text-blue-100 hover:text-white transition-colors text-sm block">
                     Discover Abu Dhabi
                   </a>
                 </li>
@@ -99,17 +99,17 @@ export function Footer({
             <AccordionSection title="For You">
               <ul className="space-y-3">
                 <li>
-                  <a href="#" className="text-blue-100 hover:text-white transition-colors text-sm block">
+                  <a href="/marketplace/financial" className="text-blue-100 hover:text-white transition-colors text-sm block">
                     Financial Services
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-blue-100 hover:text-white transition-colors text-sm block">
+                  <a href="/marketplace/non-financial" className="text-blue-100 hover:text-white transition-colors text-sm block">
                     Non-Financial Services
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-blue-100 hover:text-white transition-colors text-sm block">
+                  <a href="https://ujs.qxk.mybluehost.me/website_e550b4e3/" className="text-blue-100 hover:text-white transition-colors text-sm block">
                     Communities
                   </a>
                 </li>
@@ -194,7 +194,7 @@ export function Footer({
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-blue-100 hover:text-white transition-colors text-sm">
+                  <a href="/discover-abudhabi" className="text-blue-100 hover:text-white transition-colors text-sm">
                     Discover Abu Dhabi
                   </a>
                 </li>
@@ -215,17 +215,17 @@ export function Footer({
               <h3 className="font-semibold text-lg mb-6">For You</h3>
               <ul className="space-y-4">
                 <li>
-                  <a href="#" className="text-blue-100 hover:text-white transition-colors text-sm">
+                  <a href="/marketplace/financial" className="text-blue-100 hover:text-white transition-colors text-sm">
                     Financial Services
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-blue-100 hover:text-white transition-colors text-sm">
+                  <a href="/marketplace/non-financial" className="text-blue-100 hover:text-white transition-colors text-sm">
                     Non-Financial Services
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-blue-100 hover:text-white transition-colors text-sm">
+                  <a href="https://ujs.qxk.mybluehost.me/website_e550b4e3/" className="text-blue-100 hover:text-white transition-colors text-sm">
                     Communities
                   </a>
                 </li>

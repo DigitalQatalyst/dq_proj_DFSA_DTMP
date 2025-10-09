@@ -28,5 +28,6 @@ EXPOSE 3000
 
 # Step 7: Define the command to run the app
 
-CMD ["npm", "run", "preview"]
+CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0"]
+
 

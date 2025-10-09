@@ -23,25 +23,18 @@ const GET_PRODUCTS = gql`
           code
         }
         customFields {
-          Logo {
-            name
-            source
-          }
           CustomerType
           BusinessStage
           Nationality
           LegalStructure
           Industry
+          Partner
           ProcessingTime
           RegistrationValidity
           Cost
           Steps
           KeyTermsOfService
           AdditionalTermsOfService
-          Logo {
-            name
-            source
-          }
           RequiredDocuments {
             id
             name
@@ -51,6 +44,8 @@ const GET_PRODUCTS = gql`
             id
           }
          formUrl
+         logoUrl
+         Addtags
         }
       }
     }
@@ -122,5 +117,71 @@ const GET_PRODUCT = gql`
     }
   }
 `;
+const BOOKMARK_SERVICE = gql`
+mutation ToggleFavorite($productId: ID!) {
+  toggleFavorite(productId: $productId) {
+    items {
+      id
+      createdAt
+      product {
+        id
+        name
+        slug
+      }
+    }
+    totalItems
+  }
+}
+`
+const GET_COURSE = gql`
+  query GetCourse($id:ID!) {
+  course(id:$id) {
+    id
+    name
+    description
+    topicTitle
+    skillsGained
+    prerequisite
+    courseTimeline
+    uponCompletion
+    partner
+    rating
+    reviewCount
+    startDate
+    cost
+    keyHighlights
+    duration
+    logoUrl
+    businessStage
+    pricingModel
+    serviceCategory
+    learningObjectives
+    learningOutcomes
+    resources    
+    }    
+  }
+`
+// GraphQL Query for Courses
+const GET_ALL_COURSES = gql`
+  query GetAllCourses {
+    courses(options: { take: 10, skip: 0, sort: { rating: DESC } }) {
+      items {
+        id
+        name
+        description
+        partner
+        rating
+        reviewCount
+        cost
+        duration
+        logoUrl
+        businessStage
+        pricingModel
+        serviceCategory
+      }
+      totalItems
+    }
+  }
+`;
 
-export { GET_PRODUCTS, GET_FACETS, GET_PRODUCT };
+export { GET_PRODUCTS, GET_FACETS, GET_PRODUCT, GET_ALL_COURSES, GET_COURSE };

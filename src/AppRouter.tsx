@@ -85,15 +85,15 @@ export function AppRouter() {
           {/** Forms routes */}
           <Route
             path="/forms/needs-assessment"
-            element={<NeedsAssessmentForm />}
+            element={<ProtectedRoute><NeedsAssessmentForm /></ProtectedRoute>}
           />
           <Route
             path="/forms/request-for-membership"
-            element={<RequestForMembership />}
+            element={<ProtectedRoute><RequestForMembership /></ProtectedRoute>}
           />
           <Route
             path="/forms/request-for-funding"
-            element={<RequestForFunding />}
+            element={<ProtectedRoute><RequestForFunding /></ProtectedRoute>}
           />
           <Route
             path="/forms/book-consultation"
@@ -102,31 +102,31 @@ export function AppRouter() {
           <Route path="/forms/cancel-loan" element={<CancelLoan />} />
           <Route
             path="/forms/collateral-user-guide"
-            element={<CollateralUserGuide />}
+            element={<ProtectedRoute><CollateralUserGuide /></ProtectedRoute>}
           />
           <Route
             path="/forms/disburse-approved-loan"
-            element={<DisburseApprovedLoan />}
+            element={<ProtectedRoute><DisburseApprovedLoan /></ProtectedRoute>}
           />
           <Route
             path="/forms/facilitate-communication"
-            element={<FacilitateCommunication />}
+            element={<ProtectedRoute><FacilitateCommunication /></ProtectedRoute>}
           />
           <Route
             path="/forms/reallocation-of-loan-disbursement"
-            element={<ReallocationOfLoanDisbursement />}
+            element={<ProtectedRoute><ReallocationOfLoanDisbursement /></ProtectedRoute>}
           />
           <Route
             path="/forms/request-to-amend-existing-loan-details"
-            element={<RequestToAmendExistingLoanDetails />}
+            element={<ProtectedRoute><RequestToAmendExistingLoanDetails /></ProtectedRoute>}
           />
           <Route
             path="/forms/training-in-entrepreneurship"
-            element={<TrainingInEntrepreneurship />}
+            element={<ProtectedRoute><TrainingInEntrepreneurship /></ProtectedRoute>}
           />
           <Route
             path="/forms/issue-support-letter"
-            element={<IssueSupportLetter />}
+            element={<ProtectedRoute><IssueSupportLetter /></ProtectedRoute>}
           />
             <Route path="/media/:type/:id" element={<MediaDetailPage />} />
             {/* Embedded Admin UI */}
