@@ -967,74 +967,12 @@ const MediaDetailPage: React.FC = () => {
             </div>
             {videoAvailable && (
               <>
-                {/* Interactive transcript highlights */}
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
-                  <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-                    <FileTextIcon size={18} className="mr-2 text-blue-600" />
-                    Transcript Highlights
-                  </h3>
-                  <div className="space-y-3">
-                    {[
-                      {
-                        time: '00:45',
-                        title: "Introduction to Abu Dhabi's business ecosystem",
-                      },
-                      {
-                        time: '03:12',
-                        title: 'Key growth sectors and opportunities',
-                      },
-                      {
-                        time: '08:27',
-                        title: 'Government support initiatives for businesses',
-                      },
-                      {
-                        time: '15:33',
-                        title: 'Case studies of successful enterprises',
-                      },
-                      {
-                        time: '21:05',
-                        title: 'Practical steps for business development',
-                      },
-                    ].map((highlight, index) => (
-                      <button
-                        key={index}
-                        className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors flex items-start group"
-                        onClick={() => {
-                          if (videoRef.current) {
-                            // Parse time string to seconds
-                            const [min, sec] = highlight.time
-                              .split(':')
-                              .map(Number)
-                            const timeInSeconds = min * 60 + sec
-                            // Set current time and play
-                            videoRef.current.currentTime = timeInSeconds
-                            handlePlayVideo()
-                          }
-                        }}
-                      >
-                        <div className="flex-shrink-0 w-16 text-blue-600 font-medium">
-                          {highlight.time}
-                        </div>
-                        <div className="flex-grow">{highlight.title}</div>
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                          <PlayCircleIcon size={18} className="text-blue-600" />
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
                 {/* Video description */}
                 <div className="mb-8">
                   <h2 className="text-xl font-bold text-gray-900 mb-4">
                     Video Description
                   </h2>
                   <p className="text-gray-700 mb-4">{item.description}</p>
-                  <p className="text-gray-700">
-                    In this insightful video, experts discuss the latest trends
-                    and opportunities in Abu Dhabi's business landscape. Learn
-                    about key strategies for growth and how to leverage
-                    available resources.
-                  </p>
                 </div>
               </>
             )}
@@ -2270,82 +2208,12 @@ const MediaDetailPage: React.FC = () => {
               <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
                 {type === 'video' ? (
                   <>
-                    {/* Transcript highlights for video type */}
-                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
-                      <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-                        <FileTextIcon
-                          size={18}
-                          className="mr-2 text-blue-600"
-                        />
-                        Transcript Highlights
-                      </h3>
-                      <div className="space-y-3">
-                        {[
-                          {
-                            time: '00:45',
-                            title:
-                              "Introduction to Abu Dhabi's business ecosystem",
-                          },
-                          {
-                            time: '03:12',
-                            title: 'Key growth sectors and opportunities',
-                          },
-                          {
-                            time: '08:27',
-                            title:
-                              'Government support initiatives for businesses',
-                          },
-                          {
-                            time: '15:33',
-                            title: 'Case studies of successful enterprises',
-                          },
-                          {
-                            time: '21:05',
-                            title: 'Practical steps for business development',
-                          },
-                        ].map((highlight, index) => (
-                          <button
-                            key={index}
-                            className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors flex items-start group"
-                            onClick={() => {
-                              if (videoRef.current) {
-                                // Parse time string to seconds
-                                const [min, sec] = highlight.time
-                                  .split(':')
-                                  .map(Number)
-                                const timeInSeconds = min * 60 + sec
-                                // Set current time and play
-                                videoRef.current.currentTime = timeInSeconds
-                                handlePlayVideo()
-                              }
-                            }}
-                          >
-                            <div className="flex-shrink-0 w-16 text-blue-600 font-medium">
-                              {highlight.time}
-                            </div>
-                            <div className="flex-grow">{highlight.title}</div>
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                              <PlayCircleIcon
-                                size={18}
-                                className="text-blue-600"
-                              />
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
                     {/* Video description */}
                     <div className="mb-8">
                       <h2 className="text-xl font-bold text-gray-900 mb-4">
                         Video Description
                       </h2>
                       <p className="text-gray-700 mb-4">{item.description}</p>
-                      <p className="text-gray-700">
-                        In this insightful video, experts discuss the latest
-                        trends and opportunities in Abu Dhabi's business
-                        landscape. Learn about key strategies for growth and how
-                        to leverage available resources.
-                      </p>
                     </div>
                   </>
                 ) : type === 'event' ? (
@@ -2513,13 +2381,6 @@ const MediaDetailPage: React.FC = () => {
                           </h3>
                           <p className="text-gray-700 mb-4">
                             {item.description}
-                          </p>
-                          <p className="text-gray-700">
-                            Join industry leaders and experts for this exclusive
-                            event focused on business growth opportunities in
-                            Abu Dhabi. Network with peers, gain valuable
-                            insights, and discover resources to accelerate your
-                            business journey.
                           </p>
                         </div>
                         {/* Enhanced Registration Button */}
