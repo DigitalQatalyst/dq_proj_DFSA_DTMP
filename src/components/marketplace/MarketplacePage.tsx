@@ -431,6 +431,34 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     loadItems();
   }, [productData, courseData, filters, searchQuery, marketplaceType]);
 
+  // Reset hydration flag when marketplace type changes so we rehydrate compare state for that type
+  useEffect(() => {
+    setHasHydratedCompare(false);
+  }, [marketplaceType]);
+
+  // Hydrate comparison items from localStorage once items are loaded
+  useEffect(() => {
+    if (hasHydratedCompare) return;
+    // Only attempt when we have items fetched/mapped
+    if (!items || items.length === 0) return;
+
+    const storedIds = getStoredCompareIds(marketplaceType);
+    if (storedIds.length === 0) {
+      setHasHydratedCompare(true);
+      return;
+    }
+
+    const hydrated = storedIds
+      .map((id) => items.find((it) => it.id === id))
+      .filter(Boolean)
+      .slice(0, 3) as ComparisonItem[];
+
+    if (hydrated.length > 0) {
+      setCompareItems(hydrated);
+    }
+    setHasHydratedCompare(true);
+  }, [items, marketplaceType, hasHydratedCompare]);
+
   // Handle filter changes
   const handleFilterChange = useCallback((filterType: string, value: string) => {
     setFilters(prev => {
