@@ -117,7 +117,50 @@ const GET_PRODUCT = gql`
     }
   }
 `;
-
+const BOOKMARK_SERVICE = gql`
+mutation ToggleFavorite($productId: ID!) {
+  toggleFavorite(productId: $productId) {
+    items {
+      id
+      createdAt
+      product {
+        id
+        name
+        slug
+      }
+    }
+    totalItems
+  }
+}
+`
+const GET_COURSE = gql`
+  query GetCourse($id:ID!) {
+  course(id:$id) {
+    id
+    name
+    description
+    topicTitle
+    skillsGained
+    prerequisite
+    courseTimeline
+    uponCompletion
+    partner
+    rating
+    reviewCount
+    startDate
+    cost
+    keyHighlights
+    duration
+    logoUrl
+    businessStage
+    pricingModel
+    serviceCategory
+    learningObjectives
+    learningOutcomes
+    resources    
+    }    
+  }
+`
 // GraphQL Query for Courses
 const GET_ALL_COURSES = gql`
   query GetAllCourses {
@@ -141,4 +184,4 @@ const GET_ALL_COURSES = gql`
   }
 `;
 
-export { GET_PRODUCTS, GET_FACETS, GET_PRODUCT, GET_ALL_COURSES };
+export { GET_PRODUCTS, GET_FACETS, GET_PRODUCT, GET_ALL_COURSES, GET_COURSE };

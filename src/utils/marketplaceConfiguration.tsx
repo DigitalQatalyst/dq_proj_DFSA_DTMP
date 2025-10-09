@@ -196,11 +196,31 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
     }, {
       key: 'startDate',
       label: 'Starts',
-      icon: <Calendar size={18} className="mr-2" />
+      icon: <Calendar size={18} className="mr-2" />,
+      formatter: (val: any) => {
+        if (!val) return '';
+        try {
+          const d = new Date(val);
+          if (isNaN(d.getTime())) return String(val);
+          return d.toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          });
+        } catch {
+          return String(val);
+        }
+      }
     }, {
       key: 'price',
       label: 'Cost',
-      icon: <DollarSign size={18} className="mr-2" />
+      icon: <DollarSign size={18} className="mr-2" />,
+      formatter: (val: any) => {
+        if (val === undefined || val === null || val === '') return '';
+        const num = typeof val === 'number' ? val : parseFloat(String(val));
+        if (!isNaN(num)) return `AED ${Math.round(num).toLocaleString()}`;
+        return String(val);
+      }
     }, {
       key: 'location',
       label: 'Location',
