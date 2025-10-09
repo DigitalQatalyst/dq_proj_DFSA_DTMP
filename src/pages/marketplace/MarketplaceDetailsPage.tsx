@@ -17,7 +17,7 @@ import EligibilityTermsTab from "../../components/marketplace/details/tabs/Eligi
 import ApplicationProcessTab from "../../components/marketplace/details/tabs/ApplicationProcessTab";
 import SummaryCard from "../../components/marketplace/details/SummaryCard";
 import TabsNav from "../../components/marketplace/details/TabsNav";
-import { getMarketplaceConfig } from "../../utils/marketplaceConfig";
+import { getMarketplaceConfig } from "../../utils/marketplaceConfiguration";
 import { addCompareId } from "../../utils/comparisonStorage";
 import { ErrorDisplay } from "../../components/SkeletonLoader";
 import { Link } from "react-router-dom";
