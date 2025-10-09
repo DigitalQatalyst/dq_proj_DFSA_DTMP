@@ -465,7 +465,9 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
       const newFilters = {
         ...prev,
         [filterType]: value === prev[filterType] ? "" : value,
-      }));
+      };
+      return newFilters;
+    });
     },
     []
   );
