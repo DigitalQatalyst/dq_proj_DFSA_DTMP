@@ -49,7 +49,7 @@ const marketplaces = [
     description:
       "News, articles, and updates on Abu Dhabi's business landscape with industry insights",
     icon: NewspaperIcon,
-    href: "/marketplace/knowledgehub",
+    href: "/marketplace/knowledge-hub",
   },
   // {
   //   id: "community",

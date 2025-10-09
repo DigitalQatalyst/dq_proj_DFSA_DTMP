@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { designTokens, tagVariants } from './designTokens'
 import {
   Play,
@@ -123,6 +123,35 @@ export const MediaCard: React.FC<MediaCardProps> = ({
   const videoRef = useRef<HTMLVideoElement>(null)
   const audioRef = useRef<HTMLAudioElement>(null)
   const hoverTimeoutRef = useRef<NodeJS.Timeout>()
+  // Robust image fallback handling
+  const ABU_DHABI_POOL = useMemo(
+    () => [
+  'https://images.unsplash.com/photo-1601465383808-5415a0f29a26?q=80&w=1200&auto=format&fit=crop',   // e.g. city skyline / Abu Dhabi
+  'https://images.unsplash.com/photo-1581091215367-16f6f28a9e1e?q=80&w=1200&auto=format&fit=crop',   // business meeting / finance
+  'https://images.unsplash.com/photo-1590608897129-f09fd8ccf299?q=80&w=1200&auto=format&fit=crop',  // AI / technology abstract
+  'https://images.unsplash.com/photo-1531435364437-f6f39071f6f4?q=80&w=1200&auto=format&fit=crop',   // coworking / collaboration
+  'https://images.unsplash.com/photo-1556761175-129418cb2dfe?q=80&w=1200&auto=format&fit=crop',   // people networking / community
+  'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop',   // urban skyline / night
+]
+,
+    [],
+  )
+  const fallbackIndexRef = useRef(0)
+  const pickNextThumb = () => {
+    const i = fallbackIndexRef.current % ABU_DHABI_POOL.length
+    fallbackIndexRef.current += 1
+    return ABU_DHABI_POOL[i]
+  }
+  const initialSrc = image || pickNextThumb()
+  const [imgSrc, setImgSrc] = useState<string>(initialSrc)
+  useEffect(() => {
+    // Reset when upstream image changes
+    setImgSrc(image || pickNextThumb())
+  }, [image])
+  const handleImgError = () => {
+    const next = pickNextThumb()
+    if (next !== imgSrc) setImgSrc(next)
+  }
   // Utility function to get details href - used for both card click and CTA click
   const getDetailsHref = (item: {
     cta: {
@@ -260,11 +289,11 @@ export const MediaCard: React.FC<MediaCardProps> = ({
         <div className="relative w-full h-48 bg-gray-900 overflow-hidden">
           {/* Background Image */}
           <img
-            src={
-              image ||
-              'https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=400&h=225&fit=crop'
-            }
+            src={imgSrc || 'https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=400&h=225&fit=crop'}
             alt={title}
+            loading="lazy"
+            decoding="async"
+            onError={handleImgError}
             className={`absolute inset-0 w-full h-full object-cover transition-transform duration-300 ${isHovered ? 'scale-105' : 'scale-100'}`}
           />
           {/* Video Element (if videoUrl provided and type is video) */}
@@ -363,10 +392,13 @@ export const MediaCard: React.FC<MediaCardProps> = ({
     // All other types
     return (
       <div className="relative h-48 bg-gray-200 overflow-hidden">
-        {image ? (
+        {imgSrc ? (
           <img
-            src={image}
+            src={imgSrc}
             alt={title}
+            loading="lazy"
+            decoding="async"
+            onError={handleImgError}
             className={`w-full h-full object-cover transition-transform duration-300 ${isHovered ? 'scale-105' : 'scale-100'}`}
           />
         ) : (

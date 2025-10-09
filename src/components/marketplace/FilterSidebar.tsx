@@ -1,6 +1,5 @@
-import React, { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
-
+import React, { useState, useMemo } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 export interface FilterOption {
   id: string;
   name: string;
@@ -27,6 +26,16 @@ export interface FilterSidebarProps {
   isResponsive?: boolean;
 }
 
+// Mapping of Media Types to their relevant Format options (uses filter labels)
+const MEDIA_TYPE_FORMAT_MAPPING: Record<string, string[]> = {
+  'News': ['Quick Reads'],
+  'Reports': ['In-Depth Reports', 'Downloadable Templates'],
+  'Toolkits & Templates': ['Interactive Tools', 'Downloadable Templates'],
+  'Guides': ['Quick Reads', 'In-Depth Reports'],
+  'Events': ['Live Events'],
+  'Videos': ['Recorded Media'],
+  'Podcasts': ['Recorded Media']
+};
 const AccordionSection: React.FC<AccordionSectionProps> = ({
   title,
   isOpen,
@@ -75,19 +84,30 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
       [section]: !prev[section],
     }));
   };
+  const textSizeClass = isResponsive ? 'text-xs' : 'text-sm';
+  const spacingClass = isResponsive ? 'space-y-1' : 'space-y-2';
 
-  const textSizeClass = "text-sm";
-  const spacingClass = isResponsive ? "space-y-1" : "space-y-2";
+  // Filter the format options based on selected media type
+  const filteredFilterConfig = useMemo(() => {
+    const selectedMediaType = filters['mediaType'];
+
+    return filterConfig.map(config => {
+      // Only filter the Format category if a Media Type is selected
+      if (config.id === 'format' && selectedMediaType && MEDIA_TYPE_FORMAT_MAPPING[selectedMediaType]) {
+        const allowedFormats = MEDIA_TYPE_FORMAT_MAPPING[selectedMediaType];
+        return {
+          ...config,
+          options: config.options.filter(option => allowedFormats.includes(option.name))
+        };
+      }
+      return config;
+    });
+  }, [filterConfig, filters]);
 
   return (
     <div className="space-y-2">
-      {filterConfig.map((config) => (
-        <AccordionSection
-          key={config.id}
-          title={config.title}
-          isOpen={openSections[config.id] || false}
-          onToggle={() => toggleSection(config.id)}
-        >
+      {filteredFilterConfig.map(config => (
+        <AccordionSection key={config.id} title={config.title} isOpen={openSections[config.id] || false} onToggle={() => toggleSection(config.id)}>
           <div className={spacingClass}>
             {config.options.map((option) => (
               <div key={option.id} className="flex items-center">
