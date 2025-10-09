@@ -387,11 +387,8 @@ export const KnowledgeHubCard: React.FC<KnowledgeHubItemProps> = ({
   }
   // Handle card click
   const handleCardClick = () => {
-    if (onQuickView) {
-      onQuickView()
-    } else {
-      navigate(detailsHref)
-    }
+    // Always navigate directly to the details page for knowledge-hub
+    navigate(detailsHref)
   }
   // Handle primary CTA click
   const handlePrimaryCTAClick = (e: React.MouseEvent) => {

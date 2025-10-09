@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect, useState, useRef, lazy } from 'react'
+import React, { useCallback, useEffect, useState, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
-  BookmarkIcon,
   Calendar,
   Clock,
   MapPin,
@@ -21,37 +20,25 @@ import {
   Loader,
 } from 'lucide-react'
 import { Header } from '../../components/Header'
-import DOMPurify from 'dompurify'
 import { Footer } from '../../components/Footer'
 import { MediaCard } from '../../components/Cards/MediaCard'
 import { getFallbackKnowledgeHubItems } from '../../utils/fallbackData'
 import { getSupabase } from '../../admin-ui/utils/supabaseClient'
 import {
-  getVideoDuration,
   VideoDurationInfo,
-  formatDuration,
-  getVideoPosterUrl,
 } from '../../utils/videoUtils'
 import {
   getAudioUrl,
   getVideoUrl,
   getPosterUrl,
   getDuration,
-  isAudioItem,
   isVideoItem,
 } from '../../utils/mediaSelectors'
 import {
   extractDocumentMetadata,
   formatFileSize,
 } from '../../utils/documentMetadata'
-// Helper function to resolve the primary audio URL
-const resolveAudioUrl = (item: any): string | null => {
-  return getAudioUrl(item)
-}
-// Helper function to resolve the primary video URL
-const resolveVideoUrl = (item: any): string | null => {
-  return getVideoUrl(item)
-}
+
 const MediaDetailPage: React.FC = () => {
   const { type, id } = useParams<{
     type: string
@@ -60,7 +47,6 @@ const MediaDetailPage: React.FC = () => {
   const navigate = useNavigate()
   const [item, setItem] = useState<any | null>(null)
   const [relatedItems, setRelatedItems] = useState<any[]>([])
-  const [isBookmarked, setIsBookmarked] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -170,6 +156,11 @@ const MediaDetailPage: React.FC = () => {
     const fetchMediaDetails = async () => {
       setLoading(true)
       setError(null)
+      if (!id) {
+        setError('No media ID provided')
+        setLoading(false)
+        return
+      }
       try {
         // Try Supabase first
         try {
@@ -491,10 +482,6 @@ const MediaDetailPage: React.FC = () => {
       setVideoError('Failed to start video playback')
     }
   }, [videoAvailable])
-  const toggleBookmark = () => {
-    setIsBookmarked(!isBookmarked)
-    // In a real app, this would call an API to update the bookmark status
-  }
   // Audio player functions
   const togglePlayPause = useCallback(() => {
     if (!audioAvailable) return
@@ -681,30 +668,6 @@ const MediaDetailPage: React.FC = () => {
         return <FileTextIcon size={20} className="text-blue-600" />
     }
   }
-  // Get the primary CTA text based on media type
-  const getPrimaryCTAText = () => {
-    if (!type) return 'View Details'
-    switch (type.toLowerCase()) {
-      case 'news':
-      case 'blog':
-        return 'Read Full Article'
-      case 'video':
-        return 'Watch Full Video'
-      case 'podcast':
-        return 'Listen to Full Episode'
-      case 'report':
-      case 'guide':
-      case 'toolkits-templates':
-      case 'infographic':
-        return 'Download Now'
-      case 'event':
-        return 'Register Now'
-      case 'announcement':
-        return 'View Full Announcement'
-      default:
-        return 'View Full Details'
-    }
-  }
   // Get the media type label
   const getMediaTypeLabel = () => {
     if (!type) return 'Media'
@@ -871,7 +834,6 @@ const MediaDetailPage: React.FC = () => {
                         preload="metadata"
                         poster={getPosterUrl(item)}
                         playsInline
-                        loading="lazy"
                         onLoadedMetadata={() => {
                           // Update duration from video element when metadata is loaded
                           if (
@@ -1484,13 +1446,13 @@ const MediaDetailPage: React.FC = () => {
                   Overview
                 </h2>
                 <p className="text-gray-700 mb-4">{item.description}</p>
-                <p className="text-gray-700 mb-4">
+                {/* <p className="text-gray-700 mb-4">
                   This comprehensive resource provides valuable insights and
                   practical tools for businesses operating in Abu Dhabi. Whether
                   you're looking to establish, grow, or transform your
                   enterprise, this document offers actionable guidance tailored
                   to the local business environment.
-                </p>
+                </p> */}
                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-6">
                   <h3 className="font-semibold text-gray-900 mb-2">
                     Key Highlights
@@ -1499,25 +1461,37 @@ const MediaDetailPage: React.FC = () => {
                     <li className="flex items-start">
                       <div className="text-blue-600 mr-2">?</div>
                       <span className="text-gray-700">
-                        Market analysis and growth projections for key sectors
+                        <strong>Unified Ecosystem: </strong> Connects 10+ marketplaces for finance, services, learning, and growth.
                       </span>
                     </li>
                     <li className="flex items-start">
                       <div className="text-blue-600 mr-2">?</div>
                       <span className="text-gray-700">
-                        Regulatory framework and compliance guidelines
+                        <strong>Lifecycle Support: </strong> Guides enterprises through all six growth stages.
                       </span>
                     </li>
                     <li className="flex items-start">
                       <div className="text-blue-600 mr-2">?</div>
                       <span className="text-gray-700">
-                        Strategic planning templates and financial models
+                        <strong>Khalifa Fund Leadership: </strong> Anchored in Abu Dhabi&apos;s Vision 2030 for innovation and diversification.
                       </span>
                     </li>
                     <li className="flex items-start">
                       <div className="text-blue-600 mr-2">?</div>
                       <span className="text-gray-700">
-                        Case studies of successful business implementations
+                        <strong>Connected Architecture: </strong> Integrates marketplaces, CRM, analytics, and partner portals.
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="text-blue-600 mr-2">?</div>
+                      <span className="text-gray-700">
+                        <strong>Ecosystem Impact: </strong> Simplifies access, expands reach, and enables data-driven decisions.
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="text-blue-600 mr-2">?</div>
+                      <span className="text-gray-700">
+                        <strong>Built for Scale: </strong> Modular, adaptive, and designed for continuous enterprise growth.
                       </span>
                     </li>
                   </ul>
@@ -1593,31 +1567,22 @@ const MediaDetailPage: React.FC = () => {
               </h3>
               <div className="space-y-2">
                 <p className="text-gray-700">
-                  <span className="font-medium">1.</span> Executive Summary
+                  <span className="font-medium">1.</span> Setting the Stage
                 </p>
                 <p className="text-gray-700">
-                  <span className="font-medium">2.</span> Market Overview and
-                  Opportunities
+                  <span className="font-medium">2.</span> The Enterprise Journey Product
                 </p>
                 <p className="text-gray-700">
-                  <span className="font-medium">3.</span> Regulatory Framework
-                  and Compliance
+                  <span className="font-medium">3.</span> The Journey in Motion
                 </p>
                 <p className="text-gray-700">
-                  <span className="font-medium">4.</span> Strategic Planning and
-                  Implementation
+                  <span className="font-medium">4.</span> Navigating Change
                 </p>
                 <p className="text-gray-700">
-                  <span className="font-medium">5.</span> Financial Models and
-                  Projections
+                  <span className="font-medium">5.</span> Realising and Measuring Value
                 </p>
                 <p className="text-gray-700">
-                  <span className="font-medium">6.</span> Case Studies and
-                  Success Stories
-                </p>
-                <p className="text-gray-700">
-                  <span className="font-medium">7.</span> Resources and Further
-                  Reading
+                  <span className="font-medium">6.</span> Annexes
                 </p>
               </div>
             </div>
@@ -1864,7 +1829,7 @@ const MediaDetailPage: React.FC = () => {
     }
   }
   // Get card type for related items
-  const getCardType = (mediaType: string) => {
+  const getCardType = (mediaType: string): 'news' | 'blog' | 'video' | 'podcast' | 'event' | 'report' | 'toolkit' | 'infographic' | 'case-study' | 'tool' | 'announcement' => {
     switch (mediaType.toLowerCase()) {
       case 'news':
         return 'news'
@@ -1878,54 +1843,57 @@ const MediaDetailPage: React.FC = () => {
         return 'podcast'
       case 'report':
       case 'guide':
+        return 'report'
       case 'toolkits & templates':
+        return 'toolkit'
       case 'infographic':
-        return 'resource'
+        return 'infographic'
       case 'announcement':
         return 'announcement'
       default:
-        return 'resource'
+        return 'report'
     }
   }
   // Get additional props for related items
   const getAdditionalProps = (item: any) => {
     const type = getCardType(item.mediaType)
+    const metadata: Record<string, string> = {}
+
     switch (type) {
       case 'news':
       case 'blog':
-        return {
-          source: item.provider.name,
-          date: item.date,
-        }
+        if (item.provider?.name) metadata.source = String(item.provider.name)
+        if (item.date) metadata.date = String(item.date)
+        break
       case 'event':
-        return {
-          location: item.location,
-          date: item.date,
-          organizer: item.provider.name,
-          isUpcoming: new Date(item.date) > new Date(),
-        }
+        if (item.location) metadata.location = String(item.location)
+        if (item.date) metadata.date = String(item.date)
+        if (item.provider?.name) metadata.organizer = String(item.provider.name)
+        if (item.date) metadata.isUpcoming = new Date(item.date) > new Date() ? 'Yes' : 'No'
+        break
       case 'video':
       case 'podcast':
-        return {
-          source: item.provider.name,
-          date: item.date,
-          duration: item.duration,
-        }
-      case 'resource':
-        return {
-          resourceType: item.mediaType,
-          downloadCount: item.downloadCount,
-          fileSize: item.fileSize,
-          lastUpdated: item.date,
-        }
+        if (item.provider?.name) metadata.source = String(item.provider.name)
+        if (item.date) metadata.date = String(item.date)
+        if (item.duration) metadata.duration = String(item.duration)
+        break
+      case 'report':
+      case 'toolkit':
+      case 'infographic':
+      case 'case-study':
+      case 'tool':
+        if (item.mediaType) metadata.resourceType = String(item.mediaType)
+        if (item.downloadCount !== undefined) metadata.downloadCount = String(item.downloadCount)
+        if (item.fileSize) metadata.fileSize = String(item.fileSize)
+        if (item.date) metadata.lastUpdated = String(item.date)
+        break
       case 'announcement':
-        return {
-          source: item.provider.name,
-          date: item.date,
-        }
-      default:
-        return {}
+        if (item.provider?.name) metadata.source = String(item.provider.name)
+        if (item.date) metadata.date = String(item.date)
+        break
     }
+
+    return { metadata }
   }
   if (loading) {
     return (
@@ -2159,7 +2127,6 @@ const MediaDetailPage: React.FC = () => {
                             preload="metadata"
                             poster={getPosterUrl(item)}
                             playsInline
-                            loading="lazy"
                             onLoadedMetadata={() => {
                               // Update duration from video element when metadata is loaded
                               if (
@@ -2835,16 +2802,10 @@ const MediaDetailPage: React.FC = () => {
                     title={relatedItem.title}
                     description={relatedItem.description}
                     image={relatedItem.imageUrl}
-                    tags={relatedItem.tags || []}
                     {...getAdditionalProps(relatedItem)}
                     cta={{
                       label: 'View Details',
-                      onClick: (e) => {
-                        e.stopPropagation()
-                        navigate(
-                          `/media/${relatedItem.mediaType.toLowerCase().replace(/\s+/g, '-')}/${relatedItem.id}`,
-                        )
-                      },
+                      href: `/media/${relatedItem.mediaType.toLowerCase().replace(/\s+/g, '-')}/${relatedItem.id}`,
                     }}
                   />
                 </div>
