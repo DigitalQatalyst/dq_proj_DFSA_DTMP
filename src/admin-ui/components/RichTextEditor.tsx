@@ -1,9 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { EditorContent, useEditor } from '@tiptap/react'
-import * as TiptapReactNS from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Heading from '@tiptap/extension-heading'
 import Placeholder from '@tiptap/extension-placeholder'
+import Link from '@tiptap/extension-link'
+import Underline from '@tiptap/extension-underline'
 import DOMPurify from 'dompurify'
 
 type Props = {
@@ -21,12 +22,14 @@ export default function RichTextEditor({ valueJson, valueHtml, onChange, placeho
   const toolbarRef = useRef<HTMLDivElement | null>(null)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
   const [scrolled, setScrolled] = useState(false)
-  const BubbleMenuAny: any = (TiptapReactNS as any).BubbleMenu || ((props: any) => null)
+  const [BubbleMenuCmp, setBubbleMenuCmp] = useState<any>(null)
   const editor = useEditor({
     extensions: [
       StarterKit.configure({ heading: false }),
       Heading.configure({ levels: [2, 3] }),
       Placeholder.configure({ placeholder }),
+      Underline,
+      Link.configure({ openOnClick: false }),
     ],
     content: valueJson ? valueJson : (valueHtml || ''),
     onUpdate: ({ editor }) => {
@@ -44,6 +47,21 @@ export default function RichTextEditor({ valueJson, valueHtml, onChange, placeho
       },
     },
   })
+
+  // Dynamically import BubbleMenu to avoid named export checks during build
+  useEffect(() => {
+    let mounted = true
+    import('@tiptap/react')
+      .then((mod: any) => {
+        if (mounted) setBubbleMenuCmp(mod?.BubbleMenu ?? null)
+      })
+      .catch(() => {
+        if (mounted) setBubbleMenuCmp(null)
+      })
+    return () => {
+      mounted = false
+    }
+  }, [])
 
   useEffect(() => {
     if (!editor) return
@@ -162,8 +180,12 @@ export default function RichTextEditor({ valueJson, valueHtml, onChange, placeho
       <div ref={sentinelRef} style={{ position: 'relative', top: -1, height: 1, width: 1 }} />
 
       {/* Bubble Menu for quick formatting */}
-      {editor && (
-        <BubbleMenuAny editor={editor} tippyOptions={{ placement: "bottom", interactive: true, offset: [0, 8], zIndex: 50 }} className="rounded-lg border bg-white shadow-md p-1 flex gap-1">
+      {editor && BubbleMenuCmp && (
+        <BubbleMenuCmp
+          editor={editor}
+          tippyOptions={{ placement: 'bottom', interactive: true, offset: [0, 8], zIndex: 50 }}
+          className="rounded-lg border bg-white shadow-md p-1 flex gap-1"
+        >
           <button type="button" className={`${buttonBase} ${editor.isActive('bold') ? activeBtn : ''}`} aria-label="Bold" title="Bold" onClick={() => editor.chain().focus().toggleBold().run()}>B</button>
           <button type="button" className={`${buttonBase} ${editor.isActive('italic') ? activeBtn : ''}`} aria-label="Italic" title="Italic" onClick={() => editor.chain().focus().toggleItalic().run()}><span className="italic">I</span></button>
           <button type="button" className={`${buttonBase} ${editor.isActive('underline') ? activeBtn : ''}`} aria-label="Underline" title="Underline" onClick={() => editor.chain().focus().toggleUnderline().run()}><span className="underline">U</span></button>
@@ -171,7 +193,7 @@ export default function RichTextEditor({ valueJson, valueHtml, onChange, placeho
           <button type="button" className={`${buttonBase} ${editor.isActive('paragraph') ? activeBtn : ''}`} aria-label="Paragraph" title="Paragraph" onClick={() => editor.chain().focus().setParagraph().run()}><span className="text-sm">Aa</span></button>
           <button type="button" className={`${buttonBase} ${editor.isActive('heading', { level: 3 }) ? activeBtn : ''}`} aria-label="Heading 3" title="Heading 3" onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}><span className="text-base font-semibold leading-none">Aa</span></button>
           <button type="button" className={`${buttonBase} ${editor.isActive('heading', { level: 2 }) ? activeBtn : ''}`} aria-label="Heading 2" title="Heading 2" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}><span className="text-xl font-bold leading-none">Aa</span></button>
-        </BubbleMenuAny>
+        </BubbleMenuCmp>
       )}
       <EditorContent editor={editor} className="tiptap prose prose-slate max-w-none" />
     </div>
