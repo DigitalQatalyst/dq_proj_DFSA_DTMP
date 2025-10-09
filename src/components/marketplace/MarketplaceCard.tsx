@@ -57,13 +57,17 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
       formUrl: item.formUrl,
       marketplaceType,
     });
-    // Prepend '/forms/' to backend-provided formUrl, use fallback if undefined
-    const targetUrl = item.formUrl
-      ? item.formUrl.startsWith('/forms/')
-        ? item.formUrl // Already a full path (e.g., from fallback)
-        : `/forms/${item.formUrl}` // Prepend /forms/ for backend relative paths
-      : '/forms/request-for-membership';
-    console.log('Navigating to:', targetUrl);
+    // Apply external fallback if formUrl is null/falsy
+    const effectiveUrl = item.formUrl || "https://www.tamm.abudhabi/en/login";
+    // Handle external: open in new tab
+    if (effectiveUrl.startsWith('http')) {
+      window.open(effectiveUrl, '_blank', 'noopener,noreferrer');
+      console.log('Opening external URL:', effectiveUrl);
+      return;
+    }
+    // Internal route: normalize with /forms/ prefix if needed
+    const targetUrl = effectiveUrl.startsWith('/forms/') ? effectiveUrl : `/forms/${effectiveUrl}`;
+    console.log('Navigating to internal route:', targetUrl);
     navigate(targetUrl);
   };
 
@@ -109,18 +113,9 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
         {/* Tags and Actions in same row - fixed position */}
         <div className="flex justify-between items-center mt-auto">
           <div className="flex flex-wrap gap-1 max-w-[70%]">
-            {displayTags.map((tag, index) => (
-              <span
-                key={index}
-                className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium truncate ${
-                  index === 0
-                    ? 'bg-blue-50 text-blue-700 border border-blue-100'
-                    : 'bg-green-50 text-green-700 border border-green-100'
-                }`}
-              >
+            {displayTags.map((tag, index) => <span key={index} className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium truncate ${index === 0 ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'bg-green-50 text-green-700 border border-green-100'}`}>
                 {tag}
-              </span>
-            ))}
+              </span>)}
           </div>
           <div className="flex space-x-2 flex-shrink-0">
             <button

@@ -23,10 +23,14 @@ export default defineConfig(({ mode }) => {
     },
     preview: {
       port: 3000,
-      strictPort: true,
+      host: true, // 👈 ensures it binds to 0.0.0.0
+      allowedHosts: ['qatalyst.tech']
     },
     // Load environment variables from .env file
     envDir: ".",
     envPrefix: ["VITE_", "STORAGE_", "CONTAINER_", "AZURE_", "SAS_"],
+    build:{
+      chunkSizeWarningLimit:3000,
+    }
   };
 });

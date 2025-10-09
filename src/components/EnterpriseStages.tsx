@@ -11,9 +11,490 @@ import {
   ArrowRight,
   X,
   CheckCircle,
+  Grid,
+  List,
+  ChevronDown,
+  ExternalLink,
+  Clock,
+  BookOpen,
+  DollarSign,
+  Users,
+  Filter,
+  SlidersHorizontal,
+  Search,
+  RefreshCw,
+  Building,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { FadeInUpOnScroll, HorizontalScrollReveal } from './AnimationUtils'
+import { PillFilters } from './components/PillFilters'
+// Define service data types
+interface ServiceItem {
+  id: string
+  title: string
+  desc: string
+  type:
+    | 'financial'
+    | 'nonfinancial'
+    | 'courses'
+    | 'media'
+    | 'industry'
+    | 'sector'
+  cost?: string
+  level?: string
+  delivery?: string
+  provider?: string
+  cta: string
+  tags?: string[]
+  url: string
+}
+// Sample service data
+const sampleServiceData = {
+  ideation: {
+    marketplaces: {
+      financial: [
+        {
+          id: 'fin-001',
+          title: 'Microloan for Idea Validation',
+          desc: 'Small-ticket funding to test your concept.',
+          type: 'financial',
+          cost: 'Paid',
+          level: 'Intro',
+          provider: 'Khalifa Fund',
+          cta: 'Apply',
+          tags: ['Validation', 'MVP'],
+          url: '/financial/fin-001',
+        },
+        {
+          id: 'fin-002',
+          title: 'Seed Grant for Feasibility Studies',
+          desc: 'Non-repayable grant to conduct market research.',
+          type: 'financial',
+          cost: 'Free',
+          level: 'Intro',
+          provider: 'Abu Dhabi SME Hub',
+          cta: 'Apply',
+          tags: ['Market Research', 'Feasibility'],
+          url: '/financial/fin-002',
+        },
+      ],
+      nonfinancial: [
+        {
+          id: 'non-101',
+          title: 'Idea Validation Workshop',
+          desc: 'Expert-led session to test key assumptions.',
+          type: 'nonfinancial',
+          cost: 'Free',
+          delivery: 'Guided',
+          provider: 'Hub71',
+          cta: 'Book session',
+          tags: ['Assumptions', 'Customer Discovery'],
+          url: '/non-financial/non-101',
+        },
+        {
+          id: 'non-102',
+          title: 'Market Research Toolkit',
+          desc: 'Datasets and step-by-step guides.',
+          type: 'nonfinancial',
+          cost: 'Free',
+          delivery: 'Self-serve',
+          provider: 'ADGM Academy',
+          cta: 'Open toolkit',
+          tags: ['Market Sizing'],
+          url: '/non-financial/non-102',
+        },
+        {
+          id: 'non-103',
+          title: 'IP Basics Advisory Session',
+          desc: 'One-on-one guidance on protecting your idea.',
+          type: 'nonfinancial',
+          cost: 'Free',
+          delivery: 'Guided',
+          provider: 'ADGM Academy',
+          cta: 'Book session',
+          tags: ['Intellectual Property'],
+          url: '/non-financial/non-103',
+        },
+      ],
+      courses: [
+        {
+          id: 'crs-201',
+          title: 'Business Model Canvas Basics',
+          desc: 'Learn to map your idea and value proposition.',
+          type: 'courses',
+          cost: 'Free',
+          level: 'Intro',
+          provider: 'Khalifa Fund Academy',
+          cta: 'Enroll',
+          tags: ['BMC', 'Value Proposition'],
+          url: '/courses/crs-201',
+        },
+        {
+          id: 'crs-202',
+          title: 'Customer Discovery Techniques',
+          desc: 'Master the art of problem interviews.',
+          type: 'courses',
+          cost: 'Paid',
+          level: 'Intermediate',
+          provider: 'NYU Abu Dhabi',
+          cta: 'Enroll',
+          tags: ['Customer Discovery', 'Interviews'],
+          url: '/courses/crs-202',
+        },
+      ],
+      media: [
+        {
+          id: 'med-301',
+          title: 'How to Validate Demand in 7 Days',
+          desc: 'A practical guide and checklist.',
+          type: 'media',
+          provider: 'Abu Dhabi SME Hub',
+          cta: 'Read',
+          tags: ['Lean', 'Validation'],
+          url: '/media/med-301',
+        },
+        {
+          id: 'med-302',
+          title: 'Market Sizing Techniques for Beginners',
+          desc: 'Video tutorial on TAM, SAM, and SOM calculations.',
+          type: 'media',
+          provider: 'Hub71',
+          cta: 'Watch',
+          tags: ['Market Sizing', 'TAM SAM SOM'],
+          url: '/media/med-302',
+        },
+      ],
+    },
+    discover_abudhabi: {
+      industries: [
+        {
+          id: 'ind-abu-01',
+          title: 'Tourism',
+          desc: "Snapshot of Abu Dhabi's tourism ecosystem.",
+          type: 'industry',
+          cta: 'Explore industry',
+          url: '/discover?industry=ind-abu-01',
+        },
+        {
+          id: 'ind-abu-02',
+          title: 'Manufacturing',
+          desc: 'Overview of manufacturing opportunities in Abu Dhabi.',
+          type: 'industry',
+          cta: 'Explore industry',
+          url: '/discover?industry=ind-abu-02',
+        },
+      ],
+      sectors: [
+        {
+          id: 'sec-abu-22',
+          title: 'FinTech',
+          desc: 'FinTech sector overview, players, and programs.',
+          type: 'sector',
+          cta: 'Explore sector',
+          url: '/discover?sector=sec-abu-22',
+        },
+        {
+          id: 'sec-abu-23',
+          title: 'AgriTech',
+          desc: 'Agricultural technology innovation landscape in Abu Dhabi.',
+          type: 'sector',
+          cta: 'Explore sector',
+          url: '/discover?sector=sec-abu-23',
+        },
+      ],
+    },
+  },
+}
+// Available Services component
+interface AvailableServicesProps {
+  stageId: string
+}
+const AvailableServices: React.FC<AvailableServicesProps> = ({ stageId }) => {
+  // State for filters, sort, and view
+  const [marketplaceFilters, setMarketplaceFilters] = useState<string[]>([
+    'all',
+  ])
+  const [viewMode, setViewMode] = useState('grid')
+  const [filteredServices, setFilteredServices] = useState<ServiceItem[]>([])
+  const [visibleCount, setVisibleCount] = useState(8)
+  // Get all services for the current stage
+  const getAllServices = () => {
+    const stageData =
+      sampleServiceData[stageId as keyof typeof sampleServiceData]
+    if (!stageData) return []
+    const allServices: ServiceItem[] = [
+      ...(stageData.marketplaces.financial || []),
+      ...(stageData.marketplaces.nonfinancial || []),
+      ...(stageData.marketplaces.courses || []),
+      ...(stageData.marketplaces.media || []),
+      ...(stageData.discover_abudhabi.industries || []),
+      ...(stageData.discover_abudhabi.sectors || []),
+    ]
+    return allServices
+  }
+  // Filter services based on selected filters
+  useEffect(() => {
+    const allServices = getAllServices()
+    if (allServices.length === 0) {
+      setFilteredServices([])
+      return
+    }
+    let filtered = [...allServices]
+    // Apply marketplace filters
+    if (!marketplaceFilters.includes('all')) {
+      filtered = filtered.filter((service) =>
+        marketplaceFilters.includes(service.type),
+      )
+    }
+    setFilteredServices(filtered)
+  }, [stageId, marketplaceFilters])
+  // Handle marketplace filter change
+  const handleMarketplaceFilterChange = (value: string) => {
+    if (value === 'all') {
+      setMarketplaceFilters(['all'])
+    } else {
+      const newFilters = marketplaceFilters.includes('all')
+        ? [value]
+        : marketplaceFilters.includes(value)
+          ? marketplaceFilters.filter((f) => f !== value)
+          : [...marketplaceFilters, value]
+      if (newFilters.length === 0) {
+        setMarketplaceFilters(['all'])
+      } else {
+        setMarketplaceFilters(newFilters)
+      }
+    }
+  }
+  // Reset all filters
+  const resetFilters = () => {
+    setMarketplaceFilters(['all'])
+  }
+  // Load more services
+  const loadMore = () => {
+    setVisibleCount((prev) => prev + 8)
+  }
+  // Create filter options for PillFilters
+  const marketplaceOptions = [
+    {
+      value: 'all',
+      label: 'All',
+    },
+    {
+      value: 'financial',
+      label: 'Financial',
+    },
+    {
+      value: 'nonfinancial',
+      label: 'Non-financial',
+    },
+    {
+      value: 'courses',
+      label: 'Courses',
+    },
+    {
+      value: 'media',
+      label: 'Media',
+    },
+  ]
+  return (
+    <div className="mt-6 bg-white p-6 rounded-xl border border-gray-200">
+      <div className="flex flex-col space-y-6">
+        {/* Header */}
+        <div>
+          <h3 className="text-xl font-semibold text-gray-800">
+            Available Services
+          </h3>
+          <p className="text-gray-600 mt-1">
+            Tools, programs, and content to help you validate your idea.
+          </p>
+        </div>
+        {/* Filters section */}
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="font-medium text-gray-700 min-w-[100px]">
+              Marketplace:
+            </div>
+            <div className="flex-1">
+              <div className="flex flex-wrap gap-2">
+                {marketplaceOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => handleMarketplaceFilterChange(option.value)}
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${marketplaceFilters.includes(option.value) ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          {/* Active filters and reset */}
+          {!marketplaceFilters.includes('all') && (
+            <div className="flex items-center justify-between pt-2">
+              <div className="text-sm text-gray-500">
+                <span className="font-medium">{filteredServices.length}</span>{' '}
+                services found
+              </div>
+              <button
+                onClick={resetFilters}
+                className="text-sm text-blue-600 hover:text-blue-800 flex items-center"
+              >
+                <RefreshCw size={14} className="mr-1" />
+                Reset filters
+              </button>
+            </div>
+          )}
+        </div>
+        {/* View mode controls */}
+        <div className="flex justify-end items-center">
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-1.5 rounded-md ${viewMode === 'grid' ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:bg-gray-100'}`}
+              aria-label="Grid view"
+            >
+              <Grid size={18} />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-1.5 rounded-md ${viewMode === 'list' ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:bg-gray-100'}`}
+              aria-label="List view"
+            >
+              <List size={18} />
+            </button>
+          </div>
+        </div>
+        {/* Service cards */}
+        {filteredServices.length > 0 ? (
+          <div>
+            <div
+              className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}
+            >
+              {filteredServices.slice(0, visibleCount).map((service) => (
+                <div
+                  key={service.id}
+                  className={`bg-white border border-gray-200 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-md hover:border-blue-300 focus-within:ring-2 focus-within:ring-blue-500 ${viewMode === 'list' ? 'flex' : ''}`}
+                >
+                  <a
+                    href={service.url}
+                    className="block p-5 h-full"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <div className="flex flex-col h-full">
+                      {/* Eyebrow */}
+                      <div className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-2">
+                        {service.type === 'financial'
+                          ? 'Financial'
+                          : service.type === 'nonfinancial'
+                            ? 'Non-financial'
+                            : service.type === 'courses'
+                              ? 'Course'
+                              : service.type === 'media'
+                                ? 'Media'
+                                : service.type === 'industry'
+                                  ? 'Industry'
+                                  : 'Sector'}
+                      </div>
+                      {/* Title */}
+                      <h4 className="text-lg font-semibold text-gray-900 mb-1">
+                        {service.title}
+                      </h4>
+                      {/* Description */}
+                      <p className="text-gray-600 text-sm mb-3">
+                        {service.desc}
+                      </p>
+                      {/* Meta information */}
+                      <div className="flex flex-wrap gap-x-4 gap-y-2 mb-4 text-xs">
+                        {service.delivery && (
+                          <div className="flex items-center text-gray-600">
+                            <Users size={14} className="mr-1" />
+                            {service.delivery}
+                          </div>
+                        )}
+                        {service.level && (
+                          <div className="flex items-center text-gray-600">
+                            <BookOpen size={14} className="mr-1" />
+                            {service.level}
+                          </div>
+                        )}
+                        {service.cost && (
+                          <div className="flex items-center text-gray-600">
+                            <DollarSign size={14} className="mr-1" />
+                            {service.cost}
+                          </div>
+                        )}
+                        {service.provider && (
+                          <div className="flex items-center text-gray-600">
+                            <Building size={14} className="mr-1" />
+                            {service.provider}
+                          </div>
+                        )}
+                      </div>
+                      {/* Tags */}
+                      {service.tags && service.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {service.tags.map((tag, index) => (
+                            <span
+                              key={index}
+                              className="inline-block px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {/* CTA */}
+                      <div className="mt-auto">
+                        <button className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                          {service.cta}
+                          <ExternalLink size={14} className="ml-1.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              ))}
+            </div>
+            {/* Load more button */}
+            {filteredServices.length > visibleCount && (
+              <div className="mt-6 text-center">
+                <button
+                  onClick={loadMore}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Load more
+                  <span className="ml-2 text-gray-500 text-xs">
+                    ({filteredServices.length - visibleCount} remaining)
+                  </span>
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="py-12 text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 text-gray-400 mb-4">
+              <Search size={24} />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No services match your filters
+            </h3>
+            <p className="text-gray-500 mb-6">
+              Try adjusting your filters to find services for {stageId}.
+            </p>
+            <button
+              onClick={resetFilters}
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <RefreshCw size={16} className="mr-2" />
+              Reset filters
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
 // Stage popup component
 interface StagePopupProps {
   stage: {
@@ -48,7 +529,7 @@ const StagePopup: React.FC<StagePopupProps> = ({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-scaleIn"
+        className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-scaleIn"
         onClick={handleContentClick}
       >
         <div className="relative">
@@ -98,36 +579,8 @@ const StagePopup: React.FC<StagePopupProps> = ({
                 ))}
               </ul>
             </div>
-            {/* Services */}
-            {stage.services && (
-              <div className="mb-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-2">
-                  Available Services
-                </h4>
-                <div className="space-y-3">
-                  {stage.services.map((service, index) => (
-                    <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                      <h5 className="font-medium text-gray-800">
-                        {service.title}
-                      </h5>
-                      <p className="text-gray-600 text-sm">
-                        {service.description}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            {/* CTA Button */}
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={onCTAClick}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium py-2 px-6 rounded-md transition-all duration-300 flex items-center"
-              >
-                {stage.ctaText}
-                <ArrowRight size={16} className="ml-2" />
-              </button>
-            </div>
+            {/* Available Services Section */}
+            <AvailableServices stageId={stage.id} />
           </div>
         </div>
       </div>
@@ -191,7 +644,8 @@ const StageCard: React.FC<StageCardProps> = ({
         </div>
         <button
           onClick={(e) => {
-            onShowDetails() // Button shows details popup
+            e.stopPropagation()
+            onShowDetails()
           }}
           className={`mt-auto text-white font-medium py-2 px-4 rounded-md transition-all duration-300 flex items-center justify-center overflow-hidden group ${isActive ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800' : 'bg-blue-600 hover:bg-blue-700'}`}
         >
@@ -292,7 +746,7 @@ const EnterpriseStages: React.FC = () => {
     {
       id: 'launch',
       title: 'Launch',
-      description: 'Set up and launch your business in Abu Dhabi',
+      description: 'Set up and launch your business in Abu Dhabi swiftly',
       detailedDescription:
         'The Launch stage is where your business takes its first steps into the market. This phase involves establishing your legal entity, securing initial funding, setting up operations, and making your first sales. Our platform streamlines the launch process with dedicated support for business registration, licensing, and initial setup requirements specific to Abu Dhabi.',
       benefits: [
@@ -500,7 +954,7 @@ const EnterpriseStages: React.FC = () => {
           ))}
         </div>
         {/* Scroll Controls - Desktop */}
-        {/* <div className="hidden md:flex justify-end mb-4 space-x-2">
+        <div className="hidden md:flex justify-end mb-4 space-x-2">
           <button
             onClick={scrollLeft}
             className="p-2 rounded-full bg-white shadow hover:bg-gray-100 transition-colors duration-300"
@@ -515,7 +969,7 @@ const EnterpriseStages: React.FC = () => {
           >
             <ChevronRight size={20} />
           </button>
-        </div> */}
+        </div>
         {/* Scrollable Container */}
         <div
           ref={scrollContainerRef}
@@ -538,8 +992,8 @@ const EnterpriseStages: React.FC = () => {
                 benefits={stage.benefits}
                 icon={stage.icon}
                 ctaText={stage.ctaText}
-                onClick={() => navigate(stage.path)} // This is still needed for the component props
-                onShowDetails={() => handleOpenPopup(stage.id)} // Button opens popup
+                onClick={() => navigate(stage.path)} // Clicking the card now navigates
+                onShowDetails={() => handleOpenPopup(stage.id)} // Button now opens popup
                 index={index}
                 activeIndex={activeIndex}
                 setActiveIndex={setActiveIndex}

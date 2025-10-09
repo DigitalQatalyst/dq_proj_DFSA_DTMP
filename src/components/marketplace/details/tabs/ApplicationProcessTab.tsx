@@ -11,7 +11,8 @@ const ApplicationProcessTab: React.FC<ApplicationProcessTabProps> = ({ process }
     { title: "Document Verification", description: "Upload required documents for verification and wait for our team to review them." },
     { title: "Review & Approval", description: "Our team will review your application and contact you with a decision within 5-7 business days." },
   ];
-  const list = steps.length > 0 ? steps : fallback;
+  // If steps are fewer than 3, prefer the default fallback flow
+  const list = steps.length >= 3 ? steps : fallback;
 
   return (
     <div className="space-y-6">

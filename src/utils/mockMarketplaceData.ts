@@ -418,8 +418,7 @@ export const mockFinancialServices = [
     amount: "Up to AED 5 million",
     duration: "5-7 years",
     interestRate: "Starting from 3%",
-    eligibility:
-      "Business must be operating for at least 2 years with annual revenue of AED 1 million+",
+    eligibility: "At least 2 years of operation",
     details: [
       "No collateral required for loans up to AED 1 million",
       "Flexible repayment options",
@@ -446,8 +445,7 @@ export const mockFinancialServices = [
     amount: "AED 500,000 - 2 million",
     duration: "Equity investment",
     interestRate: "N/A (Equity-based)",
-    eligibility:
-      "Innovative startups with strong growth potential in priority sectors",
+    eligibility: "At least 2 years of operation",
     details: [
       "Equity investment ranging from 10-25%",
       "Access to Hub71's ecosystem and mentorship",
@@ -475,7 +473,7 @@ export const mockFinancialServices = [
     amount: "Coverage up to AED 10 million",
     duration: "Annual, renewable",
     interestRate: "N/A",
-    eligibility: "Licensed businesses operating in Abu Dhabi",
+    eligibility: "At least 2 years of operation",
     details: [
       "Property and asset protection",
       "Business interruption coverage",
@@ -502,7 +500,7 @@ export const mockFinancialServices = [
     amount: "Up to 90% of export value",
     duration: "Transaction-based",
     interestRate: "N/A",
-    eligibility: "Abu Dhabi-based companies with export activities",
+    eligibility: "At least 2 years of operation",
     details: [
       "Protection against non-payment by international buyers",
       "Coverage for commercial and political risks",
@@ -530,7 +528,7 @@ export const mockFinancialServices = [
     amount: "Credit limit up to AED 500,000",
     duration: "Revolving credit",
     interestRate: "18% APR",
-    eligibility: "Registered businesses with good credit history",
+    eligibility: "  Registered businesses with good credit history",
     details: [
       "Business-specific rewards and cashback",
       "Multiple cards for employees with spending controls",
@@ -557,7 +555,7 @@ export const mockFinancialServices = [
     amount: "Up to AED 3 million",
     duration: "3-5 years",
     interestRate: "Profit rate from 4%",
-    eligibility: "Business must be operating for at least 1 year",
+    eligibility: "At least 2 years of operation",
     details: [
       "Sharia-compliant financing structure",
       "Equipment serves as collateral",
@@ -585,7 +583,7 @@ export const mockFinancialServices = [
     amount: "AED 250,000 - 3 million",
     duration: "6-12 months",
     interestRate: "Starting from 4.5%",
-    eligibility: "Businesses with at least 18 months of operation",
+    eligibility: "At least 2 years of operation",
     details: [
       "Revolving credit facility",
       "Flexible withdrawal and repayment",
@@ -613,7 +611,7 @@ export const mockFinancialServices = [
     amount: "Up to AED 10 million",
     duration: "Transaction-based",
     interestRate: "Varies by product",
-    eligibility: "Established businesses with international trade activities",
+    eligibility: "At least 2 years of operation",
     details: [
       "Letters of credit and guarantees",
       "Import and export financing",
@@ -640,7 +638,7 @@ export const mockFinancialServices = [
     amount: "Up to AED 7 million",
     duration: "Up to 10 years",
     interestRate: "Profit rate from 3.5%",
-    eligibility: "Businesses with viable restructuring plan",
+    eligibility: "At least 2 years of operation",
     details: [
       "Debt consolidation options",
       "Customized repayment schedule",
@@ -668,8 +666,7 @@ export const mockFinancialServices = [
     amount: "Up to AED 20 million",
     duration: "Up to 15 years",
     interestRate: "Starting from 3.75%",
-    eligibility:
-      "Businesses with strong financial performance and at least 3 years of operation",
+    eligibility: "At least 2 years of operation",
     details: [
       "Up to 70% financing of property value",
       "Fixed and variable rate options",
@@ -697,7 +694,7 @@ export const mockFinancialServices = [
     amount: "Up to 85% of invoice value",
     duration: "30-90 days",
     interestRate: "2-3% monthly fee",
-    eligibility: "B2B businesses with creditworthy customers",
+    eligibility: "At least 2 years of operation",
     details: [
       "Immediate access to working capital",
       "No additional debt on balance sheet",
@@ -725,7 +722,7 @@ export const mockFinancialServices = [
     amount: "Up to AED 15 million",
     duration: "Up to 10 years",
     interestRate: "Preferential rates from 2.5%",
-    eligibility: "Projects with demonstrable environmental benefits",
+    eligibility: "At least 2 years of operation",
     details: [
       "Preferential interest rates",
       "Extended repayment periods",
