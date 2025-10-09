@@ -23,6 +23,7 @@ import { Header } from '../../components/Header'
 import { Footer } from '../../components/Footer'
 import { MediaCard } from '../../components/Cards/MediaCard'
 import { getFallbackKnowledgeHubItems } from '../../utils/fallbackData'
+import { getGitexEvents } from '../../utils/gitexMockData'
 import { getSupabase } from '../../admin-ui/utils/supabaseClient'
 import {
   VideoDurationInfo,
@@ -162,7 +163,28 @@ const MediaDetailPage: React.FC = () => {
         return
       }
       try {
-        // Try Supabase first
+        // Check mock data first (GITEX events and fallback data)
+        const fallbackItems = getFallbackKnowledgeHubItems()
+        const gitexItems = getGitexEvents()
+        const allMockItems = [...gitexItems, ...fallbackItems]
+        const mockItem = allMockItems.find((it) => it.id === id)
+
+        if (mockItem) {
+          // Found in mock data, use it directly
+          setItem(mockItem)
+          const related = allMockItems
+            .filter(
+              (it) =>
+                it.id !== id &&
+                it.mediaType.toLowerCase().replace(/\s+/g, '-') === type,
+            )
+            .slice(0, 3)
+          setRelatedItems(related)
+          setLoading(false)
+          return
+        }
+
+        // Not in mock data, try Supabase
         try {
           const supabase = getSupabase()
           const { data, error } = await supabase
@@ -189,23 +211,11 @@ const MediaDetailPage: React.FC = () => {
             return
           }
         } catch (e) {
-          // fall through to fallback
+          console.warn('Supabase query failed:', e)
         }
-        const allItems = getFallbackKnowledgeHubItems()
-        const foundItem = allItems.find((it) => it.id === id)
-        if (foundItem) {
-          setItem(foundItem)
-          const related = allItems
-            .filter(
-              (it) =>
-                it.id !== id &&
-                it.mediaType.toLowerCase().replace(/\s+/g, '-') === type,
-            )
-            .slice(0, 3)
-          setRelatedItems(related)
-        } else {
-          setError('Media not found')
-        }
+
+        // Not found anywhere
+        setError('Media not found')
       } catch (err) {
         console.error('Error fetching media details:', err)
         setError('Failed to load media details')

@@ -21,6 +21,7 @@ import { useQuery } from "@apollo/client/react";
 import { useLocation } from "react-router-dom";
 import { GET_PRODUCTS, GET_FACETS, GET_ALL_COURSES } from "../../services/marketplaceQueries.ts";
 import { fetchMarketplaceFilters } from "../../services/marketplace";
+import { getGitexEvents } from "../../utils/gitexMockData";
 import { isSupabaseConfigured, getSupabase } from "../../admin-ui/utils/supabaseClient";
 
 
@@ -370,8 +371,9 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             console.warn('Supabase load failed', e);
           }
 
-          // Use only Supabase data
-          const merged = fromSupabase;
+          // Merge Supabase data with GITEX events
+          const gitexEvents = getGitexEvents();
+          const merged = [...gitexEvents, ...fromSupabase];
 
           // Apply search + activeFilters
           const matchesActiveFilters = (item: any): boolean => {
