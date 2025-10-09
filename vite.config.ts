@@ -13,6 +13,13 @@ export default defineConfig(({ mode }) => {
       port: 3000,
       strictPort: true,
       host: "localhost",
+    proxy: {
+      "/api": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+        secure: false,
+      },
+    }
     },
     preview: {
       port: 3000,
