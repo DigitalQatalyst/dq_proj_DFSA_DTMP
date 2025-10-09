@@ -243,12 +243,13 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
       try {
         if (marketplaceType === "courses" && courseData) {
           // Handle courses data
-          const mappedItems = courseData.courses.items.map((course) => {
-            const rawCost = (course as any)?.cost;
-            const parsedCost =
-              typeof rawCost === "number" ? rawCost : parseFloat(String(rawCost ?? ""));
-            const normalizedCost = !isNaN(parsedCost) && parsedCost >= 1 ? parsedCost : 3200;
-            const facetValues = [
+          const mappedItems = courseData.courses.items.map((course) => ({
+            id: course.id,
+            title: course.name,
+            slug: `courses/${course.id}`, // Assuming a slug pattern for courses
+            description: course.description || "No description available",
+            facetValues: [
+              // Map course fields to facetValues for filtering compatibility
               { code: "service-category", name: course.serviceCategory },
               { code: "business-stage", name: course.businessStage },
               { code: "provided-by", name: course.partner },
@@ -271,28 +272,28 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           }));
 
           // Apply filters + search
-          const filtered = mappedItems.filter((item: any) => {
+          const filtered = mappedItems.filter((course: any) => {
             const matchesAllFacets = Object.keys(filters).every((facetCode) => {
               const selectedValue = filters[facetCode];
               if (!selectedValue) return true;
               return (
-                item.facetValues.some(
+                course.facetValues.some(
                   (facetValue: any) => facetValue.code === facetCode && facetValue.name === selectedValue
                 ) ||
                 (facetCode === "pricing-model" &&
                   selectedValue === "one-time-fee" &&
-                  item.Cost &&
-                  item.Cost > 0) ||
+                  course.Cost &&
+                  course.Cost > 0) ||
                 (facetCode === "business-stage" &&
-                  item.BusinessStage &&
-                  selectedValue === item.BusinessStage)
+                  course.BusinessStage &&
+                  selectedValue === course.BusinessStage)
               );
             });
 
             const matchesSearch =
               searchQuery.trim() === "" ||
-              item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              item.facetValues.some((facetValue: any) =>
+              course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              course.facetValues.some((facetValue: any) =>
                 facetValue.name.toLowerCase().includes(searchQuery.toLowerCase())
               );
 

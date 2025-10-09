@@ -33,7 +33,7 @@ const testimonials: Testimonial[] = [
     rating: 5,
     videoThumbnail:
       'https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-      videoUrl: '/videos/success-story-1.mp4',
+    videoUrl: '/videos/success-story-1.mp4',
     metric: 'AED 5M',
     metricLabel: 'Raised',
     metricColor: 'green',
@@ -115,7 +115,7 @@ const testimonials: Testimonial[] = [
     rating: 5,
     videoThumbnail:
       'https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    videoUrl: 'https://samplelib.com/lib/preview/mp4/sample-20s.mp4',
+    videoUrl: '/videos/success-story-2.mp4',
     metric: '35%',
     metricLabel: 'Cost Reduction',
     metricColor: 'green',
@@ -550,7 +550,7 @@ const FeaturedPartnersCarousel = () => {
         Featured Partners
       </h3>
       <p className="text-gray-600">
-      Powered by leading organisation in Abu Dhabi and the UAE
+        Powered by leading organisation in Abu Dhabi and the UAE
       </p>
     </FadeInUpOnScroll>
     {/* Carousel container */}
