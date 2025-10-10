@@ -94,7 +94,9 @@ export function Header({
     if (window.location.hash !== "#partner") {
       window.location.hash = "#partner";
     }
-    const el = document.getElementById("cta-partner") || document.getElementById("contact");
+    const el =
+      document.getElementById("cta-partner") ||
+      document.getElementById("contact");
     if (el && typeof el.scrollIntoView === "function") {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -206,14 +208,14 @@ export function Header({
       </header>
       {/* Spacer for sticky header */}
       {isSticky && <div className="h-12"></div>}
-      
+
       {/* Enquiry Modal */}
-      <EnquiryModal 
-        isOpen={isEnquiryModalOpen} 
-        onClose={closeEnquiryModal} 
+      <EnquiryModal
+        isOpen={isEnquiryModalOpen}
+        onClose={closeEnquiryModal}
         data-id="enquiry-modal"
       />
-      
+
       {/* Notifications Menu */}
       {showNotificationsMenu && user && (
         <NotificationsMenu
