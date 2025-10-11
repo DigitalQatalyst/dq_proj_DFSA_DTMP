@@ -175,7 +175,7 @@ export function BusinessProfile({ activeSection = 'profile', toggleSidebar, side
             >
               {sidebarOpen ? <XIcon size={20} /> : <MenuIcon size={20} />}
             </button>
-            <h1 className="text-xl md:text-2xl font-semibold text-gray-800">
+            <h1 className="text-3xl font-bold text-gray-900 pt-1.5 pb-2 pl-3/4">
               {activeSection === 'overview'
                 ? 'Business Overview'
                 : activeSection === 'profile'

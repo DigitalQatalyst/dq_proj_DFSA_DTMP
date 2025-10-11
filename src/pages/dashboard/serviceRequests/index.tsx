@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { EmptyState } from '../../../components/serviceRequests/EmptyState';
 import { mockServiceRequests } from '../../../components/serviceRequests/mockData';
 import { ServiceRequestsFilters } from '../../../components/serviceRequests/ServiceRequestsFilters';
@@ -138,44 +138,47 @@ export function ServiceRequestsPage({ isLoggedIn, setIsOpen }: { isLoggedIn: boo
         );
     }
     return (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mx-4 lg:mx-6 mt-4 mb-6">
+        <>
             <ServiceRequestsHeader
                 onRequestNewService={handleRequestNewService}
                 setIsOpen={setIsOpen}
                 isLoggedIn={isLoggedIn}
             />
-            <ServiceRequestsFilters
-                currentStatus={currentStatus}
-                onStatusChange={setCurrentStatus}
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-                dateRange={dateRange}
-                onDateRangeChange={setDateRange}
-            />
-            {filteredRequests.length > 0 ? (
-                <ServiceRequestsTable
-                    requests={filteredRequests}
-                    sortConfig={sortConfig}
-                    onSort={handleSort}
+
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mx-4 lg:mx-6 mb-6">
+                <ServiceRequestsFilters
+                    currentStatus={currentStatus}
+                    onStatusChange={setCurrentStatus}
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    dateRange={dateRange}
+                    onDateRangeChange={setDateRange}
                 />
-            ) : (
-                <EmptyState
-                    onRequestNewService={handleRequestNewService}
-                    hasFilters={
-                        currentStatus !== 'all' ||
-                        !!searchQuery ||
-                        !!(dateRange.startDate || dateRange.endDate)
-                    }
-                    onClearFilters={() => {
-                        setCurrentStatus('all');
-                        setSearchQuery('');
-                        setDateRange({
-                            startDate: null,
-                            endDate: null,
-                        });
-                    }}
-                />
-            )}
-        </div>
+                {filteredRequests.length > 0 ? (
+                    <ServiceRequestsTable
+                        requests={filteredRequests}
+                        sortConfig={sortConfig}
+                        onSort={handleSort}
+                    />
+                ) : (
+                    <EmptyState
+                        onRequestNewService={handleRequestNewService}
+                        hasFilters={
+                            currentStatus !== 'all' ||
+                            !!searchQuery ||
+                            !!(dateRange.startDate || dateRange.endDate)
+                        }
+                        onClearFilters={() => {
+                            setCurrentStatus('all');
+                            setSearchQuery('');
+                            setDateRange({
+                                startDate: null,
+                                endDate: null,
+                            });
+                        }}
+                    />
+                )}
+            </div>
+        </>
     );
 }
