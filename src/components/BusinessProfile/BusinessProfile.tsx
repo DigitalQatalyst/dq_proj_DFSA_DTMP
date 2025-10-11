@@ -413,7 +413,7 @@ export function BusinessProfile({
               minWidth: '250px', 
             }}
           >
-            <span>View More Sections(13)</span>
+            <span className="flex justify-center w-full">View More Sections(13)</span>
             <ChevronDownIcon size={16} className="ml-2" />
           </button>
           {showTabsMenu && (
