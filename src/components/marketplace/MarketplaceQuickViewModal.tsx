@@ -96,7 +96,15 @@ export const MarketplaceQuickViewModal: React.FC<MarketplaceQuickViewModalProps>
           </nav>
           {/* Provider Section */}
           <div className="flex items-center mb-4">
-            <img src={item.provider.logoUrl} alt={`${item.provider.name} logo`} className="h-12 w-12 object-contain mr-4" />
+            <img 
+              src={item.provider.logoUrl} 
+              alt={`${item.provider.name} logo`} 
+              className="h-12 w-12 object-contain rounded-lg bg-gray-50 p-2 mr-4"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = "/mzn_logo.png";
+              }}
+            />
             <div>
               <span className="text-sm text-gray-500">Provided by</span>
               <h3 className="text-lg font-medium text-gray-900">
