@@ -15,7 +15,7 @@ export function ServiceRequestsHeader({
   isLoggedIn,
 }: ServiceRequestsHeaderProps) {
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 md:p-6 border-b border-gray-200">
+    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 md:p-6">
       <div className="flex gap-4">
         <div className="lg:hidden">
           <BurgerMenuButton
