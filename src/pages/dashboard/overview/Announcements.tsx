@@ -10,7 +10,7 @@ const announcements = [
   {
     id: 1,
     title: "New Funding Opportunities Available",
-    date: "2023-11-20",
+    date: "2025-11-20",
     description:
       "Check out the new funding programs for small businesses in the technology sector.",
     link: "#",
@@ -18,7 +18,7 @@ const announcements = [
   {
     id: 2,
     title: "System Maintenance Notice",
-    date: "2023-11-25",
+    date: "2025-11-25",
     description:
       "The portal will be unavailable on November 25th from 22:00-23:00 for scheduled maintenance.",
     link: "#",
@@ -26,7 +26,7 @@ const announcements = [
   {
     id: 3,
     title: "Updated Business Registration Process",
-    date: "2023-11-15",
+    date: "2025-11-15",
     description:
       "We have simplified the business registration process. Learn about the changes.",
     link: "#",
