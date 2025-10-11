@@ -91,6 +91,7 @@ export function AppRouter() {
           <Route path="/business-directory-marketplace" element={<BusinessDirectoryMarketplace />} />
           <Route path="/coming-soon" element={<ComingSoon />} />
           <Route path="/coming-soon/:feature" element={<ComingSoon />} />
+          <Route path="/admin-ui/settings" element={<AdminSettings />} />
           {/** Forms routes */}
           <Route
             path="/forms/needs-assessment"
