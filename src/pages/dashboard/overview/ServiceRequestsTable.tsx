@@ -118,9 +118,12 @@ export const ServiceRequestsTable: React.FC<ServiceRequestsTableProps> = ({
                   {request.submittedDate}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button className="px-3 py-1 border border-gray-300 rounded-md text-xs text-gray-600 hover:text-blue-600 hover:border-blue-300">
+                  <Link
+                    to="/dashboard/requests"
+                    className="px-3 py-1 border border-gray-300 rounded-md text-xs text-gray-600 hover:text-blue-600 hover:border-blue-300 inline-block"
+                  >
                     View
-                  </button>
+                  </Link>
                 </td>
               </tr>
             ))}

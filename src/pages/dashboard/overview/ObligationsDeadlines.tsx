@@ -101,9 +101,12 @@ export const ObligationsDeadlines: React.FC<ObligationsDeadlinesProps> = ({
                 </div>
               </td>
               <td className="px-4 py-3 whitespace-nowrap text-right text-sm">
-                <button className="px-3 py-1 border border-gray-300 rounded-md text-xs text-gray-600 hover:text-blue-600 hover:border-blue-300">
+                <Link
+                  to="/dashboard/reporting-obligations"
+                  className="px-3 py-1 border border-gray-300 rounded-md text-xs text-gray-600 hover:text-blue-600 hover:border-blue-300 inline-block"
+                >
                   Take Action
-                </button>
+                </Link>
               </td>
             </tr>
           ))}

@@ -6,6 +6,7 @@ import {
   SectionContent,
   PrimaryButton,
 } from "../../../components/PageLayout";
+import { NotificationCenter } from "../../../components/Header/notifications/NotificationCenter";
 import { OnboardingProgress } from "./OnboardingProgress";
 import { MetricsOverview } from "./MetricsOverview";
 import { ServiceRequestsTable } from "./ServiceRequestsTable";
@@ -15,6 +16,7 @@ import { Announcements } from "./Announcements";
 export const Overview: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState(false);
+    const [showNotificationCenter, setShowNotificationCenter] = useState(false);
     // Mock onboarding progress data
     const onboardingData = {
         profileCompletion: 75,
@@ -32,7 +34,18 @@ export const Overview: React.FC = () => {
     };
     // Handle new request button click
     const handleNewRequest = () => {
-        console.log('Create new request');
+        // Use hash navigation for better reliability
+        window.location.href = '/#services-marketplaces';
+    };
+
+    // Handle view all announcements click
+    const handleViewAllAnnouncements = () => {
+        setShowNotificationCenter(true);
+    };
+
+    // Close notification center
+    const closeNotificationCenter = () => {
+        setShowNotificationCenter(false);
     };
     if (hasError) {
         return (
@@ -133,11 +146,27 @@ export const Overview: React.FC = () => {
                             </h3>
                         </SectionHeader>
                         <SectionContent>
-                            <Announcements isLoading={isLoading} />
+                            <Announcements 
+                                isLoading={isLoading} 
+                                onViewAllClick={handleViewAllAnnouncements}
+                            />
                         </SectionContent>
                     </PageSection>
                 </div>
             </div>
+
+            {/* Notification Center Modal */}
+            {showNotificationCenter && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden">
+                    <div
+                        className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
+                        onClick={closeNotificationCenter}
+                    ></div>
+                    <div className="relative bg-white shadow-xl rounded-lg max-w-2xl w-full max-h-[90vh] m-4 transform transition-all duration-300">
+                        <NotificationCenter onBack={closeNotificationCenter} />
+                    </div>
+                </div>
+            )}
         </PageLayout>
     );
 };
