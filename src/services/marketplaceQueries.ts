@@ -43,6 +43,10 @@ const GET_PRODUCTS = gql`
           RelatedServices {
             id
           }
+          Logo {
+            name
+            source
+          }
          formUrl
          logoUrl
          Addtags
@@ -107,6 +111,7 @@ const GET_PRODUCT = gql`
         KeyTermsOfService
         AdditionalTermsOfService
         formUrl
+        logoUrl
         RelatedServices {
           id
           name

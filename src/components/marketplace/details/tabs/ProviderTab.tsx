@@ -186,11 +186,14 @@ const ProviderTab: React.FC<ProviderTabProps> = ({
   provider,
   marketplaceType,
 }) => {
-  // Get "dynamic" data from the mock pool
+  // Use actual provider data when available, fallback to mock data
   const mockData = useMemo(
     () => getProviderData(provider.name, marketplaceType),
     [provider.name, marketplaceType]
   );
+  
+  // Use actual provider name if available, otherwise use mock name
+  const displayName = provider.name && provider.name.trim() !== "" ? provider.name : mockData.name;
   return (
     <div className="space-y-6">
       <p className="text-gray-600 text-lg mb-6">
@@ -199,12 +202,16 @@ const ProviderTab: React.FC<ProviderTabProps> = ({
       <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
         <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
           <img
-            src="/image.png"
-            alt={provider.name}
-            className="h-16 w-16 object-contain rounded-lg"
+            src={provider.logoUrl || "/mzn_logo.png"}
+            alt={displayName}
+            className="h-16 w-16 object-contain rounded-lg bg-gray-50 p-2"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = "/mzn_logo.png";
+            }}
           />
           <div>
-            <h3 className="text-xl font-bold text-gray-900">{mockData.name}</h3>
+            <h3 className="text-xl font-bold text-gray-900">{displayName}</h3>
             <p className="text-gray-600 text-sm">
               {mockData.tagline}
             </p>

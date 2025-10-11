@@ -447,12 +447,16 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               {/* Provider */}
               <div className="flex items-center mb-3">
                 <img
-                  src={provider?.logoUrl || "/image.png"}
-                  alt={`${provider.name} logo`}
-                  className="h-10 w-10 object-contain mr-3 rounded-md"
+                  src={provider?.logoUrl || "/mzn_logo.png"}
+                  alt={`${provider?.name || 'Provider'} logo`}
+                  className="h-10 w-10 object-contain mr-3 rounded-md bg-white border border-gray-200 p-1"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = "/mzn_logo.png";
+                  }}
                 />
                 <span className="text-gray-600 font-medium">
-                  {provider.name}
+                  {provider?.name || 'Provider'}
                 </span>
               </div>
               {/* Title */}
@@ -641,9 +645,13 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                     >
                       <div className="flex items-center mb-3">
                         <img
-                          src={"/image.png"}
+                          src={relatedItem.provider?.logoUrl || "/mzn_logo.png"}
                           alt={relatedItem.provider.name}
-                          className="h-8 w-8 object-contain mr-2 rounded"
+                          className="h-8 w-8 object-contain mr-2 rounded bg-gray-50 p-1"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = "/mzn_logo.png";
+                          }}
                         />
                         <span className="text-sm text-gray-600">
                           {relatedItem.provider.name}

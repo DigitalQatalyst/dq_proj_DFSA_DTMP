@@ -94,10 +94,13 @@ export function useProductDetails({
       }
       return url; // fallback: hope it's valid as-is
     };
+    const logoFromCustomFields = cf.logoUrl;
+    
     const resolvedLogo =
+      toAbsolute(logoFromCustomFields) ||
       toAbsolute(logoFromCFArray) ||
       toAbsolute(logoFromCFObject) ||
-      "/image.png";
+      "/mzn_logo.png";
 
     return {
       id: product.id,
@@ -243,7 +246,7 @@ export function useProductDetails({
       return url;
     };
     const providerName = course.partner || "Khalifa Fund";
-    const providerLogo = toAbsolute(course.logoUrl) || "/image.png";
+    const providerLogo = toAbsolute(course.logoUrl) || "/mzn_logo.png";
     const toArray = (val: any): string[] => {
       if (Array.isArray(val)) return val.filter((s) => typeof s === "string" && s.trim() !== "").map((s) => s.trim());
       if (typeof val === "string") {
@@ -324,9 +327,13 @@ export function useProductDetails({
       marketplaceType,
       itemId || "fallback-1"
     );
-    const merged: any = { ...(fallbackForItem || {}), ...mapped };
+    // Start with mapped data, only fill gaps with fallback
+    const merged: any = { ...mapped };
     if (fallbackForItem) {
       for (const key of Object.keys(fallbackForItem)) {
+        // Never override provider with fallback data
+        if (key === 'provider') continue;
+        
         const val = merged[key];
         const shouldUseFallback =
           val === undefined ||
@@ -337,11 +344,9 @@ export function useProductDetails({
           merged[key] = (fallbackForItem as any)[key];
         }
       }
-      merged.provider = {
-        ...(fallbackForItem as any).provider,
-        ...(mapped as any).provider,
-      };
     }
+    // Ensure provider from mapped data is always used
+    merged.provider = (mapped as any).provider;
 
     // Ensure eligibility is shortened even if it came from fallback
     merged.eligibility = normalizeEligibility(merged.eligibility) ?? merged.eligibility;
