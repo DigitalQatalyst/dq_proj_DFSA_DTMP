@@ -80,8 +80,8 @@ export const Overview: React.FC = () => {
                     ) : (
                         <PageSection>
                             <SectionHeader title="Key Metrics">
-                                <p className="text-sm text-gray-500 mt-1">
-                                    Overview of your business performance indicators
+                               <p className="text-sm text-gray-500 mt-1">
+                                    Overview of Your Business Performance Indicators
                                 </p>
                             </SectionHeader>
                             <SectionContent>
@@ -92,9 +92,9 @@ export const Overview: React.FC = () => {
                     {/* Obligations & Deadlines */}
                     <PageSection>
                         <SectionHeader title="Reporting Obligations">
-                            <p className="text-sm text-gray-500 mt-4 px-6">
-                                Track important deadlines and required actions
-                            </p>
+                            <h3 className="text-lg font-semibold text-gray-800 mt-4 px-6">
+                                Track Important Deadlines and Required Actions
+                            </h3>
                         </SectionHeader>
                         <SectionContent>
                             <ObligationsDeadlines isLoading={isLoading} />
@@ -103,9 +103,9 @@ export const Overview: React.FC = () => {
                     {/* Service Requests Table */}
                     <PageSection>
                         <SectionHeader title="Recent Service Requests">
-                            <p className="text-sm text-gray-500 mt-4 px-6">
-                                View and manage your recent service requests
-                            </p>
+                            <h3 className="text-lg font-semibold text-gray-800 mt-4 px-6">
+                                View and Manage Your Recent Service Requests
+                            </h3>
                         </SectionHeader>
                         <SectionContent>
                             <ServiceRequestsTable isLoading={isLoading} />
@@ -117,9 +117,9 @@ export const Overview: React.FC = () => {
                     {/* Quick Actions */}
                     <PageSection>
                         <SectionHeader title="Quick Actions">
-                            <p className="text-sm text-gray-500 mt-4 px-6">
-                                Common tasks and shortcuts for your business
-                            </p>
+                            <h3 className="text-lg font-semibold text-gray-800 mt-4 px-6">
+                                Common Tasks and Shortcuts for Your Business
+                            </h3>
                         </SectionHeader>
                         <SectionContent>
                             <QuickActions />
@@ -128,9 +128,9 @@ export const Overview: React.FC = () => {
                     {/* Announcements - Taller to match combined height */}
                     <PageSection className="lg:flex-grow">
                         <SectionHeader title="Announcements">
-                            <p className="text-sm text-gray-500 mt-4 px-6">
-                                Important updates and notifications
-                            </p>
+                              <h3 className="text-lg font-semibold text-gray-800 mt-4 px-6">
+                                Important Updates and Notifications
+                            </h3>
                         </SectionHeader>
                         <SectionContent>
                             <Announcements isLoading={isLoading} />
