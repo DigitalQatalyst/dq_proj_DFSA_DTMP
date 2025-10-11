@@ -72,7 +72,8 @@ const marketplaces: Marketplace[] = [
     description:
       "Access to venture capital, crowdfunding, and grants for SME growth",
     icon: TrendingUpIcon,
-    href: "/marketplace/investment",
+    // href: "/marketplace/investment",
+    href: "/coming-soon",
   },
   {
     id: "calendar", 
@@ -80,7 +81,8 @@ const marketplaces: Marketplace[] = [
     description:
       "Event management, matchmaking, and notifications for upcoming business events",
     icon: CalendarIcon,
-    href: "/marketplace/calendar",
+    // href: "/marketplace/calendar",
+    href: "/coming-soon",
   },
   {
     id: "opportunity",
@@ -88,7 +90,8 @@ const marketplaces: Marketplace[] = [
     description:
       "Business opportunities, partnerships, and growth prospects for SMEs",
     icon: SparklesIcon,
-    href: "/marketplace/opportunities",
+    // href: "/marketplace/opportunities",
+    href: "/coming-soon",
   },
 ];
 
