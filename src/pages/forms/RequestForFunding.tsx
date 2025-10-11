@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FormLayout } from "../../components/layouts/FormLayout";
 // import { RequestForFundingSchema } from "../../components/Forms/form-schemas/RequestForFundingSchema";
 
 function RequestForFunding() {
@@ -15,7 +16,7 @@ function RequestForFunding() {
   };
 
   return (
-    <div>
+    <FormLayout data-id="request-for-funding-page">
       {/* Uncomment when schema is ready */}
       {/* <ServiceRequestForm
         schema={RequestForFundingSchema}
@@ -32,7 +33,7 @@ function RequestForFunding() {
           </p>
         </div>
       </div>
-    </div>
+    </FormLayout>
   );
 }
 

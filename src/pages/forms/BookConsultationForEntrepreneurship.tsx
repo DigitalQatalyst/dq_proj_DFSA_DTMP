@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ServiceRequestForm } from "../../components/Forms/FormPreview";
 import { bookConsultationSchema } from "../../components/Forms/form-schemas/BookConsultation";
+import { FormLayout } from "../../components/layouts";
 
 function BookConsultationForEntrepreneurship() {
   const [formData, setFormData] = useState<any>({});
@@ -16,7 +17,7 @@ function BookConsultationForEntrepreneurship() {
   };
 
   return (
-    <div>
+    <FormLayout data-id="book-consultation-for-entrepreneurship-page">
       <ServiceRequestForm
         schema={bookConsultationSchema}
         onSubmit={handleSubmit}
@@ -24,7 +25,7 @@ function BookConsultationForEntrepreneurship() {
         initialData={formData}
         data-id="book-consultation-for-entrepreneurship"
       />
-    </div>
+    </FormLayout>
   );
 }
 

@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { ServiceRequestForm } from "../../components/Forms/FormPreview";
 import { DisburseApprovedLoanSchema } from "../../components/Forms/form-schemas/DisburseApprovedLoanSchema";
+import { FormLayout } from "../../components/layouts/FormLayout";
 
-function BookConsultationForEntrepreneurship() {
+function DisburseApprovedLoan() {
   const [formData, setFormData] = useState<any>({});
 
   const handleSubmit = async (data: any) => {
@@ -16,19 +17,18 @@ function BookConsultationForEntrepreneurship() {
   };
 
   return (
-    <div>
+    <FormLayout data-id="disburse-approved-loan-page">
       <ServiceRequestForm
         schema={DisburseApprovedLoanSchema}
         onSubmit={handleSubmit}
         onSave={handleSave}
         initialData={formData}
-        data-id="book-consultation-for-entrepreneurship"
+        data-id="disburse-approved-loan"
       />
-    </div>
+    </FormLayout>
   );
 }
 
 // Export the specific form name
-export const BookConsultationForEntrepreneurshipForm =
-  BookConsultationForEntrepreneurship;
-export default BookConsultationForEntrepreneurship;
+export const DisburseApprovedLoanForm = DisburseApprovedLoan;
+export default DisburseApprovedLoan;
