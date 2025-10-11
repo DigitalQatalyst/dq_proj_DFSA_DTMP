@@ -118,7 +118,7 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
               </span>)}
           </div>
           <div className="flex space-x-2 flex-shrink-0">
-            <button
+            {/* <button
               onClick={(e) => {
                 e.stopPropagation();
                 console.log('Bookmark Clicked:', { itemId: item.id, isBookmarked });
@@ -133,7 +133,7 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
               title={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
             >
               <BookmarkIcon size={16} className={isBookmarked ? 'fill-yellow-600' : ''} />
-            </button>
+            </button> */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
