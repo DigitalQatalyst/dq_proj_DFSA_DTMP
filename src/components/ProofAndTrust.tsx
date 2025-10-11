@@ -158,6 +158,7 @@ const partnerLogos = [
   { name: 'ADQ', logo: '/logo/adq-logo.webp' },
   { name: 'ALDAR', logo: '/logo/aldar-logo.webp' },
   { name: 'Emirates Development Bank', logo: '/logo/edb-logo.webp' },
+  {name: 'Khalifa Funds', logo: '/logo/KhalifaFund_Logo_Black_RGB.png'},
   { name: 'Etihad Airways', logo: '/logo/etihad-logo.webp' },
   { name: 'Etisalat', logo: '/logo/etisalat-logo.webp' },
   { name: 'First Abu Dhabi Bank', logo: '/logo/fab-logo.webp' },

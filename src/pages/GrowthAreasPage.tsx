@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import SectorCard from './SectorCard';
+import SectorCard from '../components/SectorCard';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
-import { TrendingUpIcon, ZapIcon, DatabaseIcon, GlobeIcon, ShoppingBagIcon, HeartIcon, ArrowRightIcon, CheckIcon, BuildingIcon, BookOpenIcon, TruckIcon, LeafIcon, PaletteIcon, PlaneIcon, DownloadIcon } from 'lucide-react';
+import { TrendingUpIcon, ZapIcon, DatabaseIcon, GlobeIcon, ShoppingBagIcon, HeartIcon, ArrowLeftIcon, CheckIcon, BookOpenIcon, TruckIcon, LeafIcon, PaletteIcon, PlaneIcon, DownloadIcon } from 'lucide-react';
+// Reuse the same sector data from GrowthAreasSection
 const sectorData = [{
   name: 'Technology',
   value: 85,
@@ -48,14 +49,14 @@ const sectorData = [{
   value: 52,
   previousValue: 44
 }];
-const GrowthAreasSection = () => {
-  const sectionRef = useRef(null);
+const GrowthAreasPage = () => {
   const chartRef = useRef(null);
+  const pageRef = useRef(null);
   const [activeChartIndex, setActiveChartIndex] = useState(null);
   const [showComparison, setShowComparison] = useState(false);
-  const [showAllSectors, setShowAllSectors] = useState(false);
   useEffect(() => {
-    const sectionObserver = new IntersectionObserver(([entry]) => {
+    window.scrollTo(0, 0);
+    const pageObserver = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
         entry.target.classList.add('opacity-100', 'translate-y-0');
       }
@@ -69,15 +70,15 @@ const GrowthAreasSection = () => {
     }, {
       threshold: 0.1
     });
-    if (sectionRef.current) {
-      sectionObserver.observe(sectionRef.current);
+    if (pageRef.current) {
+      pageObserver.observe(pageRef.current);
     }
     if (chartRef.current) {
       chartObserver.observe(chartRef.current);
     }
     return () => {
-      if (sectionRef.current) {
-        sectionObserver.unobserve(sectionRef.current);
+      if (pageRef.current) {
+        pageObserver.unobserve(pageRef.current);
       }
       if (chartRef.current) {
         chartObserver.unobserve(chartRef.current);
@@ -388,7 +389,7 @@ const GrowthAreasSection = () => {
     }
     return null;
   };
-  const initialSectors = [{
+  const allSectors = [{
     title: 'Technology',
     description: 'Leading innovation hub for AI, fintech, and digital transformation with world-class infrastructure.',
     icon: <TrendingUpIcon size={28} className="text-primary" />,
@@ -436,8 +437,7 @@ const GrowthAreasSection = () => {
     investment: '$7B+',
     color: 'bg-purple-light',
     detailsContent: healthcareDetails
-  }];
-  const additionalSectors = [{
+  }, {
     title: 'Education',
     description: 'World-class academic institutions and research centers fostering innovation and knowledge exchange.',
     icon: <BookOpenIcon size={28} className="text-primary" />,
@@ -478,32 +478,28 @@ const GrowthAreasSection = () => {
     color: 'bg-teal-light',
     detailsContent: aerospaceDetails
   }];
-  const allSectors = [...initialSectors, ...additionalSectors];
-  const displayedSectors = showAllSectors ? allSectors : initialSectors;
-  return <section id="growth-areas" ref={sectionRef} className="py-28 px-6 md:px-12 bg-gray-50 opacity-0 -translate-y-4 transition-all duration-1000">
+  return <div ref={pageRef} className="min-h-screen w-full bg-gray-50 pt-24 pb-20 px-6 md:px-12 opacity-0 -translate-y-4 transition-all duration-1000">
       <div className="container mx-auto">
+        <div className="mb-8">
+          <Link to="/discover-abudhabi" className="inline-flex items-center text-primary hover:text-primary-dark transition-colors transform hover:-translate-x-1 duration-200">
+            <ArrowLeftIcon size={18} className="mr-2" />
+            <span>Back to Home</span>
+          </Link>
+        </div>
         <div className="text-center mb-20">
-          <h2 className="font-display text-4xl md:text-5xl font-bold mb-6 tracking-tight">
-            Growth Areas
-          </h2>
+          <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight">
+            Growth Areas in Abu Dhabi
+          </h1>
           <p className="font-body text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Abu Dhabi offers exceptional opportunities across diverse sectors,
-            each supported by strategic initiatives and investment.
+            Explore all the exceptional opportunities across diverse sectors in
+            Abu Dhabi, each supported by strategic initiatives and substantial
+            investment.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {displayedSectors.map((sector, index) => <SectorCard key={sector.title} title={sector.title} description={sector.description} icon={sector.icon} growth={sector.growth} investment={sector.investment} color={sector.color} detailsContent={sector.detailsContent} />)}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
+          {allSectors.map((sector, index) => <SectorCard key={index} title={sector.title} description={sector.description} icon={sector.icon} growth={sector.growth} investment={sector.investment} color={sector.color} detailsContent={sector.detailsContent} />)}
         </div>
-        <div className="flex justify-center mb-20">
-          {showAllSectors ? <button onClick={() => setShowAllSectors(false)} className="px-8 py-4 bg-white border-2 border-primary text-primary font-body font-medium rounded-lg hover:bg-primary hover:text-white transition-colors flex items-center shadow-sm hover:shadow-md transform hover:-translate-y-1 active:translate-y-0 duration-200">
-              <ArrowRightIcon size={18} className="mr-2 transform rotate-90" />
-              Collapse Growth Areas
-            </button> : <Link to="/growth-areas-marketplace" className="px-8 py-4 bg-white border-2 border-primary text-primary font-body font-medium rounded-lg hover:bg-primary hover:text-white transition-colors flex items-center shadow-sm hover:shadow-md transform hover:-translate-y-1 active:translate-y-0 duration-200">
-              <ArrowRightIcon size={18} className="mr-2 transform -rotate-90" />
-              Explore Growth Areas Marketplace
-            </Link>}
-        </div>
-        <div ref={chartRef} className="bg-white rounded-xl shadow-lg p-10 opacity-0 scale-95 transition-all duration-1000 delay-300">
+        <div ref={chartRef} className="bg-white rounded-xl shadow-lg p-10 opacity-0 scale-95 transition-all duration-1000 delay-300 mb-12">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
             <h3 className="font-display text-3xl font-bold tracking-tight">
               Sector Growth Potential
@@ -570,13 +566,81 @@ const GrowthAreasSection = () => {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div className="mt-8 text-center">
-            <Link to="/growth-areas" className="px-8 py-4 bg-primary text-white font-body font-medium rounded-lg hover:bg-primary-dark transition-colors shadow-md hover:shadow-lg transform hover:-translate-y-1 active:translate-y-0 duration-200">
-              Explore Growth Sectors
-            </Link>
+        </div>
+        <div className="bg-white rounded-xl shadow-lg p-10 mb-12">
+          <h3 className="font-display text-3xl font-bold tracking-tight mb-8">
+            Why Invest in Abu Dhabi
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <h4 className="font-display text-xl font-bold mb-3 text-primary">
+                Strategic Location
+              </h4>
+              <p className="text-gray-600">
+                Positioned at the crossroads of Europe, Asia, and Africa,
+                providing unparalleled access to global markets with 5+ billion
+                potential customers within an 8-hour flight radius.
+              </p>
+            </div>
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <h4 className="font-display text-xl font-bold mb-3 text-primary">
+                Economic Stability
+              </h4>
+              <p className="text-gray-600">
+                Backed by one of the world's largest sovereign wealth funds, Abu
+                Dhabi offers a stable economic environment with strong credit
+                ratings and low inflation.
+              </p>
+            </div>
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <h4 className="font-display text-xl font-bold mb-3 text-primary">
+                Business-Friendly Environment
+              </h4>
+              <p className="text-gray-600">
+                Streamlined licensing processes, 100% foreign ownership options,
+                and competitive tax policies create an ideal environment for
+                business growth.
+              </p>
+            </div>
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <h4 className="font-display text-xl font-bold mb-3 text-primary">
+                World-Class Infrastructure
+              </h4>
+              <p className="text-gray-600">
+                Advanced transportation networks, telecommunications, and
+                utilities, along with specialized economic zones tailored to
+                specific industries.
+              </p>
+            </div>
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <h4 className="font-display text-xl font-bold mb-3 text-primary">
+                Innovation Ecosystem
+              </h4>
+              <p className="text-gray-600">
+                Robust support for startups and R&D initiatives through
+                incubators, accelerators, and partnerships with leading global
+                research institutions.
+              </p>
+            </div>
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <h4 className="font-display text-xl font-bold mb-3 text-primary">
+                Quality of Life
+              </h4>
+              <p className="text-gray-600">
+                Exceptional living standards with world-class healthcare,
+                education, cultural attractions, and a safe environment for
+                families and professionals.
+              </p>
+            </div>
           </div>
         </div>
+        <div className="text-center">
+          <Link to="/discover-abudhabi" className="px-8 py-4 bg-primary text-white font-body font-medium rounded-lg hover:bg-primary-dark transition-colors shadow-md hover:shadow-lg inline-flex items-center transform hover:-translate-y-1 active:translate-y-0 duration-200">
+            <ArrowLeftIcon size={18} className="mr-2" />
+            Back to Home
+          </Link>
+        </div>
       </div>
-    </section>;
+    </div>;
 };
-export default GrowthAreasSection;
+export default GrowthAreasPage;

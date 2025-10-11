@@ -1,13 +1,17 @@
 import React, { useCallback, useEffect, useState, useMemo } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { FilterSidebar, FilterConfig } from "./FilterSidebar";
 import { MarketplaceGrid } from "./MarketplaceGrid";
 import { SearchBar } from "../SearchBar";
 import { FilterIcon, XIcon, HomeIcon, ChevronRightIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { FilterIcon, XIcon, HomeIcon, ChevronRightIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { ErrorDisplay, CourseCardSkeleton } from "../SkeletonLoader";
 import { getMarketplaceConfig } from "../../utils/marketplaceConfig";
+import { getMarketplaceConfig } from "../../utils/marketplaceConfig";
 import { MarketplaceComparison } from "./MarketplaceComparison";
+import { Header, useAuth } from "../Header";
 import { Header, useAuth } from "../Header";
 import { Footer } from "../Footer";
 import {
@@ -44,12 +48,14 @@ interface ComparisonItem {
   [key: string]: any;
 }
 
+
 // Types for GET_FACETS query
 interface FacetValue {
   id: string;
   name: string;
   code: string;
 }
+
 
 interface Facet {
   id: string;
@@ -58,30 +64,36 @@ interface Facet {
   values: FacetValue[];
 }
 
+
 interface GetFacetsData {
   facets: {
     items: Facet[];
   };
 }
 
+
 // Types for GET_PRODUCTS query
 interface Asset {
   name: string;
 }
+
 
 interface Logo {
   name: string;
   source: string;
 }
 
+
 interface RequiredDocument {
   id: string;
   customFields: any;
 }
 
+
 interface RelatedService {
   id: string;
 }
+
 
 interface ProductCustomFields {
   Logo?: Logo;
@@ -103,6 +115,7 @@ interface ProductCustomFields {
   logoUrl?: string;
 }
 
+
 interface ProductFacetValue {
   facet: {
     id: string;
@@ -114,6 +127,7 @@ interface ProductFacetValue {
   code: string;
 }
 
+
 interface Product {
   id: string;
   assets: Asset[];
@@ -124,12 +138,14 @@ interface Product {
   customFields: ProductCustomFields;
 }
 
+
 interface GetProductsData {
   products: {
     items: Product[];
     totalItems: number;
   };
 }
+
 
 // Types for GET_ALL_COURSES query
 interface Course {
@@ -147,6 +163,7 @@ interface Course {
   serviceCategory: string;
 }
 
+
 interface GetCoursesData {
   courses: {
     items: Course[];
@@ -154,12 +171,14 @@ interface GetCoursesData {
   };
 }
 
+
 export interface MarketplacePageProps {
   marketplaceType: "courses" | "financial" | "non-financial" | "knowledge-hub";
   title: string;
   description: string;
   promoCards?: any[];
 }
+
 
 export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   marketplaceType,
@@ -170,27 +189,36 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const location = useLocation() as any;
   const config = getMarketplaceConfig(marketplaceType);
   
+  
   // State for items and filtering
   const [items, setItems] = useState<any[]>([]);
   const [filteredItems, setFilteredItems] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<Record<string, string>>({});
   
+  
   // Filter sidebar visibility - should be visible on desktop, hidden on mobile by default
   const [showFilters, setShowFilters] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [bookmarkedItems, setBookmarkedItems] = useState<string[]>([]);
+  
   
   // Avoid clobbering localStorage with empty state before hydration
   const [hasHydratedCompare, setHasHydratedCompare] = useState(false);
   const [compareItems, setCompareItems] = useState<ComparisonItem[]>([]);
   const [showComparison, setShowComparison] = useState(false);
   
+  
   // State for filter options
   const [filterConfig, setFilterConfig] = useState<FilterConfig[]>([]);
   
+  
   // Knowledge Hub specific filters
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  
+  // Collapsible filter categories state
+  const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({});
+  
   
   // Collapsible filter categories state
   const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({});
@@ -203,13 +231,26 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   // Skip GraphQL entirely for Knowledge Hub — it uses Supabase + local data
   const skipGraph = marketplaceType === 'knowledge-hub';
   
+  
+  // Apollo queries for products, facets, and courses
+  // Skip GraphQL entirely for Knowledge Hub — it uses Supabase + local data
+  const skipGraph = marketplaceType === 'knowledge-hub';
+  
   const { data: productData, error: productError } = useQuery<GetProductsData>(GET_PRODUCTS, {
+    skip: skipGraph || marketplaceType === "courses",
     skip: skipGraph || marketplaceType === "courses",
   });
   
+  
   const { data: courseData, error: courseError } = useQuery<GetCoursesData>(GET_ALL_COURSES, {
     skip: marketplaceType !== "courses",
+    skip: marketplaceType !== "courses",
   });
+  
+  const { data: facetData, error: facetError } = useQuery<GetFacetsData>(GET_FACETS, {
+    skip: skipGraph,
+  });
+
   
   const { data: facetData, error: facetError } = useQuery<GetFacetsData>(GET_FACETS, {
     skip: skipGraph,
@@ -233,6 +274,20 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           return;
         }
         
+        if (marketplaceType === 'knowledge-hub') {
+          // Use static config for Knowledge Hub filters (mediaType, category, format, etc.)
+          const filterOptions: FilterConfig[] = config.filterCategories;
+          setFilterConfig(filterOptions);
+
+          // Initialize empty filters based on the configuration
+          const initialFilters: Record<string, string> = {};
+          filterOptions.forEach((fc) => {
+            initialFilters[fc.id] = '';
+          });
+          setFilters(initialFilters);
+          return;
+        }
+        
         if (facetData) {
           // Choose facet codes based on marketplace type
           let facetCodes: string[] = [];
@@ -242,9 +297,17 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             facetCodes = ['sector-tag-2', 'business-stage', 'provided-by', 'pricing-model'];
           } else if (marketplaceType === 'courses') {
             facetCodes = ['service-category', 'business-stage', 'provided-by', 'pricing-model'];
+          if (marketplaceType === 'financial') {
+            facetCodes = ['service-category', 'business-stage', 'provided-by', 'pricing-model'];
+          } else if (marketplaceType === 'non-financial') {
+            facetCodes = ['sector-tag-2', 'business-stage', 'provided-by', 'pricing-model'];
+          } else if (marketplaceType === 'courses') {
+            facetCodes = ['service-category', 'business-stage', 'provided-by', 'pricing-model'];
           } else {
             facetCodes = ['service-category', 'business-stage', 'provided-by', 'pricing-model'];
+            facetCodes = ['service-category', 'business-stage', 'provided-by', 'pricing-model'];
           }
+
 
           const filterOptions: FilterConfig[] = facetData.facets.items
             .filter((facet) => facetCodes.includes(facet.code))
@@ -257,11 +320,14 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               })),
             }));
           console.log('filterOptions:', filterOptions);
+          console.log('filterOptions:', filterOptions);
           setFilterConfig(filterOptions);
+
 
           // Initialize empty filters based on the configuration
           const initialFilters: Record<string, string> = {};
           filterOptions.forEach((config) => {
+            initialFilters[config.id] = '';
             initialFilters[config.id] = '';
           });
           setFilters(initialFilters);
@@ -292,11 +358,25 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     }
   }, [filterConfig]);
 
+  }, [facetData, marketplaceType, config]);
+
+  // Initialize all filter categories as collapsed by default
+  useEffect(() => {
+    if (filterConfig.length > 0) {
+      const initialCollapsed: Record<string, boolean> = {};
+      filterConfig.forEach(category => {
+        initialCollapsed[category.id] = true;
+      });
+      setCollapsedCategories(initialCollapsed);
+    }
+  }, [filterConfig]);
+
   // Fetch items based on marketplace type, filters, and search query
   useEffect(() => {
     const loadItems = async () => {
       setLoading(true);
       setError(null);
+
 
       try {
         // Handle Knowledge Hub
@@ -460,12 +540,14 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               typeof rawCost === "number" ? rawCost : parseFloat(String(rawCost ?? ""));
             const normalizedCost = !isNaN(parsedCost) && parsedCost >= 1 ? parsedCost : 3200;
             
+            
             const facetValues = [
               { code: "service-category", name: course.serviceCategory },
               { code: "business-stage", name: course.businessStage },
               { code: "provided-by", name: course.partner },
               { code: "pricing-model", name: course.pricingModel },
             ].filter((fv) => fv.name);
+            
             
             return {
               id: course.id,
@@ -490,6 +572,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             };
           });
 
+
           // Apply filters + search
           const filtered = mappedItems.filter((item: any) => {
             const matchesAllFacets = Object.keys(filters).every((facetCode) => {
@@ -509,6 +592,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               );
             });
 
+
             const matchesSearch =
               searchQuery.trim() === "" ||
               item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -516,8 +600,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 facetValue.name.toLowerCase().includes(searchQuery.toLowerCase())
               );
 
+
             return matchesAllFacets && matchesSearch;
           });
+
 
           setItems(mappedItems);
           setFilteredItems(filtered);
@@ -527,7 +613,13 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
         // Handle Products (Financial & Non-Financial)
         if (productData) {
+          return;
+        }
+
+        // Handle Products (Financial & Non-Financial)
+        if (productData) {
           let filteredServices = productData.products.items;
+
 
           if (marketplaceType === "financial") {
             filteredServices = productData.products.items.filter(
@@ -543,17 +635,22 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             );
           }
 
+
           const fallbackLogos = [
             "/mzn_logo.png",
           ];
+
+          // Map product data to match expected MarketplaceItem structure
 
           // Map product data to match expected MarketplaceItem structure
           const mappedItems = filteredServices.map((product) => {
             const randomFallbackLogo =
               fallbackLogos[Math.floor(Math.random() * fallbackLogos.length)];
 
+
             const rawFormUrl = product.customFields?.formUrl;
             const finalFormUrl = rawFormUrl || "https://www.tamm.abudhabi/en/login";
+
 
             if (product.id === "133" || !rawFormUrl) {
               console.log(
@@ -564,6 +661,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               );
             }
 
+
             return {
               id: product.id,
               title: product.name,
@@ -571,9 +669,12 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               description:
                 product.description ||
                 "Through this service, you can easily reallocate your approved loan funds to different areas of your business to support changing needs and enhance growth.",
+                "Through this service, you can easily reallocate your approved loan funds to different areas of your business to support changing needs and enhance growth.",
               facetValues: product.facetValues,
               tags: [product.customFields.BusinessStage, product.customFields.BusinessStage].filter(Boolean),
               provider: {
+                name: product.customFields?.Partner || product.customFields?.Industry || "Khalifa Fund",
+                logoUrl: product.customFields?.logoUrl || product.customFields?.Logo?.source || randomFallbackLogo,
                 name: product.customFields?.Partner || product.customFields?.Industry || "Khalifa Fund",
                 logoUrl: product.customFields?.logoUrl || product.customFields?.Logo?.source || randomFallbackLogo,
                 description: "No provider description available",
@@ -582,6 +683,8 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               ...product.customFields,
             };
           });
+
+          // Apply filters and search query
 
           // Apply filters and search query
           const filtered = mappedItems.filter((product: any) => {
@@ -602,6 +705,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               );
             });
 
+
             const matchesSearch =
               searchQuery.trim() === "" ||
               product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -609,10 +713,15 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 facetValue.name
                   .toLowerCase()
                   .includes(searchQuery.toLowerCase())
+                facetValue.name
+                  .toLowerCase()
+                  .includes(searchQuery.toLowerCase())
               );
+
 
             return matchesAllFacets && matchesSearch;
           });
+
 
           // Prioritize ID 133
           const prioritized = filtered.sort((a, b) => {
@@ -620,6 +729,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             if (b.id === "133") return 1;
             return 0;
           });
+
+          console.log("filters:", filters);
+          console.log("filteredItems:", prioritized);
+
 
           console.log("filters:", filters);
           console.log("filteredItems:", prioritized);
@@ -637,11 +750,32 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
       }
     };
 
+
     loadItems();
   }, [productData, courseData, filters, searchQuery, marketplaceType, activeFilters, filterConfig]);
 
   // Immediately hydrate compare from navigation state when arriving from details page
+  }, [productData, courseData, filters, searchQuery, marketplaceType, activeFilters, filterConfig]);
+
+  // Immediately hydrate compare from navigation state when arriving from details page
   useEffect(() => {
+    const pending = location?.state?.addToCompare;
+    if (pending) {
+      // Add if not present and under cap
+      if (
+        !compareItems.some((c) => c.id === pending.id) &&
+        compareItems.length < 3
+      ) {
+        setCompareItems((prev) => [...prev, pending]);
+        storageAddCompareId(marketplaceType, pending.id);
+      }
+      // Clear the navigation state to avoid duplicate adds on back/refresh
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location?.state, location?.pathname, marketplaceType, compareItems]);
+
+  // Hydrate compareItems from localStorage when items are available (merge, don't clear)
     const pending = location?.state?.addToCompare;
     if (pending) {
       // Add if not present and under cap
@@ -666,7 +800,28 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     items.forEach((it) => {
       byId[it.id] = it;
     });
+    if (!items || items.length === 0) return; // wait until items are loaded
+    // Build a map for quick lookup
+    const byId: Record<string, any> = {};
+    items.forEach((it) => {
+      byId[it.id] = it;
+    });
     const storedIds = getStoredCompareIds(marketplaceType);
+    if (!storedIds.length) return; // nothing stored; don't alter current state
+
+    // Start with current selections
+    const merged: ComparisonItem[] = [...compareItems];
+    for (const id of storedIds) {
+      if (merged.length >= 3) break;
+      if (!merged.some((c) => c.id === id)) {
+        const found = byId[id];
+        if (found) merged.push(found);
+      }
+    }
+    const currentIds = compareItems.map((i) => i.id).join(",");
+    const nextIds = merged.map((i) => i.id).join(",");
+    if (currentIds !== nextIds) {
+      setCompareItems(merged.slice(0, 3));
     if (!storedIds.length) return; // nothing stored; don't alter current state
 
     // Start with current selections
@@ -694,11 +849,54 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     setStoredCompareIds(marketplaceType, ids);
   }, [compareItems, marketplaceType, hasHydratedCompare]);
 
+  }, [items, marketplaceType, compareItems]);
+
+  // Keep storage in sync with current compareItems
+  useEffect(() => {
+    // Don't sync to storage until we've attempted hydration to avoid wiping existing selections
+    if (!hasHydratedCompare) return;
+    const ids = compareItems.map((i) => i.id);
+    setStoredCompareIds(marketplaceType, ids);
+  }, [compareItems, marketplaceType, hasHydratedCompare]);
+
   // Handle filter changes
   const handleFilterChange = useCallback((filterType: string, value: string) => {
     setFilters(prev => {
       const newFilters = {
+  const handleFilterChange = useCallback((filterType: string, value: string) => {
+    setFilters(prev => {
+      const newFilters = {
         ...prev,
+        [filterType]: value === prev[filterType] ? '' : value
+      };
+
+      // If changing media type, clear format filter if it's no longer valid
+      if (filterType === 'mediaType' && prev.format) {
+        const mediaTypeFormatMapping: Record<string, string[]> = {
+          'News': ['Quick Reads'],
+          'Reports': ['In-Depth Reports', 'Downloadable Templates'],
+          'Toolkits & Templates': ['Interactive Tools', 'Downloadable Templates'],
+          'Guides': ['Quick Reads', 'In-Depth Reports'],
+          'Events': ['Live Events'],
+          'Videos': ['Recorded Media'],
+          'Podcasts': ['Recorded Media']
+        };
+
+        const newMediaType = newFilters[filterType];
+        if (newMediaType && mediaTypeFormatMapping[newMediaType]) {
+          const allowedFormats = mediaTypeFormatMapping[newMediaType];
+          if (!allowedFormats.includes(prev.format)) {
+            newFilters.format = '';
+          }
+        } else if (!newMediaType) {
+          // If media type is cleared, keep the format filter as is
+        }
+      }
+
+      return newFilters;
+    });
+  }, []);
+
         [filterType]: value === prev[filterType] ? '' : value
       };
 
@@ -740,10 +938,12 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     setActiveFilters([]);
   }, [filterConfig]);
 
+
   // Toggle sidebar visibility (only on mobile)
   const toggleFilters = useCallback(() => {
     setShowFilters((prev) => !prev);
   }, []);
+
 
   // Clear all comparison selections
   const handleClearComparison = useCallback(() => {
@@ -751,6 +951,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     storageClearCompare(marketplaceType);
     setShowComparison(false);
   }, [marketplaceType]);
+
 
   // Toggle bookmark for an item
   const toggleBookmark = useCallback((itemId: string) => {
@@ -760,6 +961,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
         : [...prev, itemId];
     });
   }, []);
+
 
   // Add an item to comparison
   const handleAddToComparison = useCallback(
@@ -775,6 +977,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     [compareItems, marketplaceType]
   );
 
+
   // Remove an item from comparison
   const handleRemoveFromComparison = useCallback(
     (itemId: string) => {
@@ -784,11 +987,47 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     [marketplaceType]
   );
 
+
   // Retry loading items after an error
   const retryFetch = useCallback(() => {
     setError(null);
     setLoading(true);
   }, []);
+
+  // Filter the format options based on selected media type for knowledge-hub
+  const filteredKnowledgeHubConfig = useMemo(() => {
+    if (marketplaceType !== 'knowledge-hub') {
+      return filterConfig;
+    }
+
+    // Find all selected media types from activeFilters
+    const mediaTypeFilter = filterConfig.find(c => c.id === 'mediaType');
+    const selectedMediaTypes = mediaTypeFilter?.options
+      .filter(opt => activeFilters.includes(opt.name))
+      .map(opt => opt.name) || [];
+
+    return filterConfig.map(config => {
+      // Only filter the Format category if at least one Media Type is selected
+      if (config.id === 'format' && selectedMediaTypes.length > 0) {
+        // Aggregate all allowed formats from all selected media types
+        const allAllowedFormats = new Set<string>();
+        selectedMediaTypes.forEach(mediaType => {
+          const allowedFormats = MEDIA_TYPE_FORMAT_MAPPING[mediaType];
+          if (allowedFormats) {
+            allowedFormats.forEach(format => allAllowedFormats.add(format));
+          }
+        });
+
+        // Filter to only show formats that are allowed by at least one selected media type
+        return {
+          ...config,
+          options: config.options.filter(option => allAllowedFormats.has(option.name))
+        };
+      }
+      return config;
+    });
+  }, [filterConfig, activeFilters, marketplaceType]);
+
 
   // Filter the format options based on selected media type for knowledge-hub
   const filteredKnowledgeHubConfig = useMemo(() => {
@@ -868,7 +1107,51 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
       }
 
       return newFilters;
+    setActiveFilters(prev => {
+      const newFilters = prev.includes(filter)
+        ? prev.filter(f => f !== filter)
+        : [...prev, filter];
+
+      // If changing media type, clear format filters that are no longer valid
+      const mediaTypeFilter = filterConfig.find(c => c.id === 'mediaType');
+      const isMediaTypeFilter = mediaTypeFilter?.options.some(opt => opt.name === filter);
+
+      if (isMediaTypeFilter) {
+        const formatFilter = filterConfig.find(c => c.id === 'format');
+        const currentFormatFilters = newFilters.filter(f =>
+          formatFilter?.options.some(opt => opt.name === f)
+        );
+
+        // Find the new selected media type
+        const newMediaTypes = newFilters.filter(f =>
+          mediaTypeFilter?.options.some(opt => opt.name === f)
+        );
+
+        if (newMediaTypes.length > 0) {
+          // Get allowed formats for all selected media types
+          const allAllowedFormats = new Set<string>();
+          newMediaTypes.forEach(mt => {
+            const allowedFormats = MEDIA_TYPE_FORMAT_MAPPING[mt];
+            if (allowedFormats) {
+              allowedFormats.forEach(f => allAllowedFormats.add(f));
+            }
+          });
+
+          // Remove format filters that aren't allowed
+          return newFilters.filter(f => {
+            const isFormatFilter = formatFilter?.options.some(opt => opt.name === f);
+            if (isFormatFilter) {
+              return allAllowedFormats.has(f);
+            }
+            return true;
+          });
+        }
+      }
+
+      return newFilters;
     });
+  }, [filterConfig]);
+
   }, [filterConfig]);
 
   // Clear Knowledge Hub filters
@@ -884,8 +1167,18 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     }));
   }, []);
 
+
+  // Toggle collapse state for a filter category
+  const toggleCategoryCollapse = useCallback((categoryId: string) => {
+    setCollapsedCategories(prev => ({
+      ...prev,
+      [categoryId]: !prev[categoryId]
+    }));
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
+      <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
       <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
       <div className="container mx-auto px-4 py-8 flex-grow">
         {/* Breadcrumbs */}
@@ -916,7 +1209,20 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             {config.title}
           </h1>
         </div>
+        
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-3xl font-bold text-gray-800">
+            {config.title}
+          </h1>
+        </div>
         <p className="text-gray-600 mb-6">{config.description}</p>
+        
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="w-full">
+            <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+          </div>
+        </div>
+        
         
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="w-full">
@@ -966,6 +1272,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           </div>
         )}
         
+        
         <div className="flex flex-col xl:flex-row gap-6">
           {/* Mobile filter toggle */}
           <div className="xl:hidden sticky top-16 z-20 bg-gray-50 py-2 shadow-sm">
@@ -988,8 +1295,16 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   Reset
                 </button>
               )}
+                <button
+                  onClick={resetFilters}
+                  className="ml-2 text-blue-600 text-sm font-medium whitespace-nowrap px-3 py-2"
+                >
+                  Reset
+                </button>
+              )}
             </div>
           </div>
+          
           
           {/* Filter sidebar - mobile/tablet */}
           <div
@@ -1022,7 +1337,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 </div>
                 <div className="p-4">
                   {marketplaceType === 'knowledge-hub' ? (
+                  {marketplaceType === 'knowledge-hub' ? (
                     <div className="space-y-4">
+                      {filteredKnowledgeHubConfig.map(category => (
+                        <div key={category.id} className="border-b border-gray-100 pb-3">
                       {filteredKnowledgeHubConfig.map(category => (
                         <div key={category.id} className="border-b border-gray-100 pb-3">
                           <h3 className="font-medium text-gray-900 mb-2">
@@ -1069,8 +1387,11 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             </div>
           </div>
           
+          
           {/* Filter sidebar - desktop - always visible */}
           <div className="hidden xl:block xl:w-1/4">
+            <div className="bg-white rounded-lg shadow sticky top-24 max-h-[calc(100vh-7rem)] flex flex-col">
+              <div className="flex justify-between items-center p-4 border-b border-gray-200 flex-shrink-0">
             <div className="bg-white rounded-lg shadow sticky top-24 max-h-[calc(100vh-7rem)] flex flex-col">
               <div className="flex justify-between items-center p-4 border-b border-gray-200 flex-shrink-0">
                 <h2 className="text-lg font-semibold">Filters</h2>
@@ -1083,7 +1404,79 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                     Reset All
                   </button>
                 )}
+                  <button
+                    onClick={resetFilters}
+                    className="text-blue-600 text-sm font-medium"
+                  >
+                    Reset All
+                  </button>
+                )}
               </div>
+              <div className="p-4 overflow-y-auto scrollbar-hide">
+                {marketplaceType === 'knowledge-hub' ? (
+                  <div className="space-y-2">
+                    {filteredKnowledgeHubConfig.map(category => {
+                      const isCollapsed = collapsedCategories[category.id];
+                      const hasActiveFilters = category.options.some(opt => activeFilters.includes(opt.name));
+                      return (
+                        <div key={category.id} className="border-b border-gray-100 pb-2">
+                          <button 
+                            onClick={() => toggleCategoryCollapse(category.id)} 
+                            className="w-full flex items-center justify-between py-2 hover:bg-gray-50 rounded transition-colors" 
+                            aria-expanded={!isCollapsed}
+                          >
+                            <h3 className="font-medium text-gray-900 flex items-center gap-2">
+                              {category.title}
+                              {hasActiveFilters && (
+                                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                  {category.options.filter(opt => activeFilters.includes(opt.name)).length}
+                                </span>
+                              )}
+                            </h3>
+                            {isCollapsed ? (
+                              <ChevronDownIcon size={18} className="text-gray-500" />
+                            ) : (
+                              <ChevronUpIcon size={18} className="text-gray-500" />
+                            )}
+                          </button>
+                          {!isCollapsed && (
+                            <div className="space-y-2 mt-2 ml-1">
+                              {category.options.map(option => (
+                                <div key={option.id} className="flex items-center">
+                                  <input 
+                                    type="checkbox" 
+                                    id={`desktop-${category.id}-${option.id}`} 
+                                    checked={activeFilters.includes(option.name)} 
+                                    onChange={() => handleKnowledgeHubFilterChange(option.name)} 
+                                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" 
+                                  />
+                                  <label 
+                                    htmlFor={`desktop-${category.id}-${option.id}`} 
+                                    className="ml-2 text-sm text-gray-700 cursor-pointer"
+                                  >
+                                    {option.name}
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <FilterSidebar 
+                    filters={filters} 
+                    filterConfig={filterConfig} 
+                    onFilterChange={handleFilterChange} 
+                    onResetFilters={resetFilters} 
+                    isResponsive={false} 
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+          
               <div className="p-4 overflow-y-auto scrollbar-hide">
                 {marketplaceType === 'knowledge-hub' ? (
                   <div className="space-y-2">
@@ -1158,9 +1551,11 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 ))}
               </div>
             ) : error || (!skipGraph && (facetError || productError)) || courseError ? (
+            ) : error || (!skipGraph && (facetError || productError)) || courseError ? (
               <ErrorDisplay
                 message={
                   error ||
+                  (!skipGraph && (facetError?.message || productError?.message)) ||
                   (!skipGraph && (facetError?.message || productError?.message)) ||
                   courseError?.message ||
                   `Failed to load ${marketplaceType}`
@@ -1184,6 +1579,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           </div>
         </div>
         
+        
         {/* Comparison modal */}
         {showComparison && (
           <MarketplaceComparison
@@ -1198,5 +1594,6 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     </div>
   );
 };
+
 
 export default MarketplacePage;
