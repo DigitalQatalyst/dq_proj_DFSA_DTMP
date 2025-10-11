@@ -12,7 +12,7 @@ export const mockReportData = {
     {
       id: "1",
       name: "Quarterly Financial Statement",
-      dueDate: "2023-12-15",
+      dueDate: "2025-12-15",
       status: "Due Soon",
       assignedTo: "John Smith",
       type: "Financial",
@@ -20,7 +20,7 @@ export const mockReportData = {
     {
       id: "2",
       name: "Annual Environmental Compliance Report",
-      dueDate: "2023-12-31",
+      dueDate: "2025-12-31",
       status: "Upcoming",
       assignedTo: "Sarah Johnson",
       type: "Environmental",
@@ -28,15 +28,15 @@ export const mockReportData = {
     {
       id: "3",
       name: "Employee Health & Safety Assessment",
-      dueDate: "2023-11-30",
-      status: "Overdue",
+      dueDate: "2025-11-30",
+      status: "Upcoming",
       assignedTo: "Ahmed Al Mansoori",
       type: "Compliance",
     },
     {
       id: "4",
       name: "Regulatory Capital Adequacy Report",
-      dueDate: "2023-12-20",
+      dueDate: "2025-12-20",
       status: "Upcoming",
       assignedTo: "Fatima Al Zaabi",
       type: "Regulatory",
@@ -44,7 +44,7 @@ export const mockReportData = {
     {
       id: "5",
       name: "Data Protection Compliance Audit",
-      dueDate: "2023-12-10",
+      dueDate: "2025-12-10",
       status: "Due Soon",
       assignedTo: "Michael Chen",
       type: "Compliance",
@@ -57,7 +57,7 @@ export const mockReportData = {
       name: "Q3 Financial Statement",
       type: "Financial",
       status: "Approved",
-      submittedDate: "2023-10-15",
+      submittedDate: "2025-09-15",
       reviewer: "ADGM Financial Authority",
       fileUrl:
         "https://example.com/dashboard/reporting-obligations/q3-financial.pdf",
@@ -67,7 +67,7 @@ export const mockReportData = {
       name: "Anti-Money Laundering Compliance",
       type: "Regulatory",
       status: "Approved",
-      submittedDate: "2023-09-30",
+      submittedDate: "2025-08-30",
       reviewer: "Financial Services Regulatory Authority",
       fileUrl:
         "https://example.com/dashboard/reporting-obligations/aml-compliance.pdf",
@@ -77,7 +77,7 @@ export const mockReportData = {
       name: "Employee Diversity Report",
       type: "Operational",
       status: "Pending Review",
-      submittedDate: "2023-11-05",
+      submittedDate: "2025-10-05",
       reviewer: "Ministry of Human Resources",
       fileUrl:
         "https://example.com/dashboard/reporting-obligations/diversity.pdf",
@@ -87,7 +87,7 @@ export const mockReportData = {
       name: "Carbon Footprint Assessment",
       type: "Environmental",
       status: "Approved",
-      submittedDate: "2023-08-22",
+      submittedDate: "2025-07-22",
       reviewer: "Environment Agency Abu Dhabi",
       fileUrl:
         "https://example.com/dashboard/reporting-obligations/carbon-footprint.pdf",
@@ -97,7 +97,7 @@ export const mockReportData = {
       name: "Data Security Incident Report",
       type: "Compliance",
       status: "Rejected",
-      submittedDate: "2023-10-28",
+      submittedDate: "2025-09-28",
       reviewer: "ADGM Data Protection Commissioner",
       fileUrl:
         "https://example.com/dashboard/reporting-obligations/security-incident.pdf",
@@ -107,7 +107,7 @@ export const mockReportData = {
       name: "Corporate Governance Statement",
       type: "Regulatory",
       status: "Approved",
-      submittedDate: "2023-07-15",
+      submittedDate: "2025-06-15",
       reviewer: "ADGM Registration Authority",
       fileUrl:
         "https://example.com/dashboard/reporting-obligations/governance.pdf",
@@ -117,7 +117,7 @@ export const mockReportData = {
       name: "Q2 Financial Statement",
       type: "Financial",
       status: "Approved",
-      submittedDate: "2023-07-15",
+      submittedDate: "2025-06-15",
       reviewer: "ADGM Financial Authority",
       fileUrl:
         "https://example.com/dashboard/reporting-obligations/q2-financial.pdf",
@@ -129,7 +129,7 @@ export const mockReportData = {
       id: "1",
       title: "Industry Compliance Standards Update",
       source: "ADGM Financial Services Regulatory Authority",
-      receivedDate: "2023-11-20",
+      receivedDate: "2025-10-09",
       priority: "High",
       fileUrl:
         "https://example.com/dashboard/reporting-obligations/industry-standards.pdf",
@@ -138,7 +138,7 @@ export const mockReportData = {
       id: "2",
       title: "Market Risk Assessment",
       source: "Central Bank of UAE",
-      receivedDate: "2023-11-15",
+      receivedDate: "2025-10-06",
       priority: "Medium",
       fileUrl:
         "https://example.com/dashboard/reporting-obligations/market-risk.pdf",
@@ -147,7 +147,7 @@ export const mockReportData = {
       id: "3",
       title: "Quarterly Economic Outlook",
       source: "Abu Dhabi Department of Economic Development",
-      receivedDate: "2023-11-10",
+      receivedDate: "2025-10-04",
       priority: "Low",
       fileUrl:
         "https://example.com/dashboard/reporting-obligations/economic-outlook.pdf",
@@ -156,7 +156,7 @@ export const mockReportData = {
       id: "4",
       title: "Cybersecurity Threat Advisory",
       source: "UAE Computer Emergency Response Team",
-      receivedDate: "2023-11-05",
+      receivedDate: "2025-10-02",
       priority: "High",
       fileUrl:
         "https://example.com/dashboard/reporting-obligations/cybersecurity-advisory.pdf",
@@ -170,7 +170,7 @@ export const mockReportData = {
       category: "Financial",
       fileType: "pdf",
       fileSize: "2.4 MB",
-      uploadDate: "2023-10-15",
+      uploadDate: "2025-09-15",
       fileUrl:
         "https://example.com/dashboard/reporting-obligations/q3-financial.pdf",
     },
@@ -180,7 +180,7 @@ export const mockReportData = {
       category: "Regulatory",
       fileType: "pdf",
       fileSize: "3.1 MB",
-      uploadDate: "2023-09-30",
+      uploadDate: "2025-08-30",
       fileUrl:
         "https://example.com/dashboard/reporting-obligations/aml-compliance.pdf",
     },
@@ -190,7 +190,7 @@ export const mockReportData = {
       category: "Operational",
       fileType: "excel",
       fileSize: "1.8 MB",
-      uploadDate: "2023-11-05",
+      uploadDate: "2025-10-05",
       fileUrl:
         "https://example.com/dashboard/reporting-obligations/diversity.xlsx",
     },
@@ -200,7 +200,7 @@ export const mockReportData = {
       category: "Environmental",
       fileType: "pdf",
       fileSize: "4.2 MB",
-      uploadDate: "2023-08-22",
+      uploadDate: "2025-07-22",
       fileUrl:
         "https://example.com/dashboard/reporting-obligations/carbon-footprint.pdf",
     },
@@ -210,7 +210,7 @@ export const mockReportData = {
       category: "Compliance",
       fileType: "pdf",
       fileSize: "1.5 MB",
-      uploadDate: "2023-10-28",
+      uploadDate: "2025-09-28",
       fileUrl:
         "https://example.com/dashboard/reporting-obligations/security-incident.pdf",
     },
