@@ -21,10 +21,11 @@ import {
   Loader,
 } from 'lucide-react'
 import { Header } from '../../components/Header'
+import DOMPurify from 'dompurify'
 import { Footer } from '../../components/Footer'
 import { MediaCard } from '../../components/Cards/MediaCard'
 import { getFallbackKnowledgeHubItems } from '../../utils/fallbackData'
-import { fetchKnowledgeHubItemById } from '../../services/knowledgeHub'
+import { getSupabase } from '../../admin-ui/utils/supabaseClient'
 import {
   getVideoDuration,
   VideoDurationInfo,
@@ -68,6 +69,25 @@ const MediaDetailPage: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const audioUrlRef = useRef<string | null>(null)
   const audioInitializedRef = useRef(false)
+  // Registration modal state
+  const [showRegistrationModal, setShowRegistrationModal] = useState(false)
+  const [registrationData, setRegistrationData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    hearAboutUs: '',
+  })
+  // Countdown timer state
+  const [countdown, setCountdown] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    isExpired: false,
+  })
+  // Profile modal state
+  const [showProfileModal, setShowProfileModal] = useState(false)
+  const [providerPosts, setProviderPosts] = useState<any[]>([])
   // Video player state
   const [videoAvailable, setVideoAvailable] = useState(true)
   const [videoLoading, setVideoLoading] = useState(true)
@@ -83,44 +103,103 @@ const MediaDetailPage: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const videoUrlRef = useRef<string | null>(null)
   const videoInitializedRef = useRef(false)
+  // Minimal HTML sanitizer for rendering stored rich text safely on client
+  const sanitizeHtml = useCallback((html: string): string => {
+    try {
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(String(html || ''), 'text/html')
+      // Remove potentially dangerous elements
+      doc.querySelectorAll('script,style,iframe,object,embed,link,meta').forEach((n) => n.remove())
+      // Strip event handlers and javascript: URLs
+      doc.querySelectorAll('*').forEach((el) => {
+        Array.from(el.attributes).forEach((attr) => {
+          const name = attr.name.toLowerCase()
+          const value = attr.value
+          if (name.startsWith('on')) {
+            el.removeAttribute(attr.name)
+          } else if ((name === 'href' || name === 'src') && /javascript:/i.test(value)) {
+            el.removeAttribute(attr.name)
+          }
+        })
+      })
+      return doc.body.innerHTML
+    } catch {
+      return ''
+    }
+  }, [])
   // Check if we're on the client side to avoid SSR hydration issues
   useEffect(() => {
     setIsClientSide(true)
   }, [])
   useEffect(() => {
+    const mapRowToItem = (row: any) => ({
+      id: row.id,
+      title: row.title,
+      description: row.body || row.summary,
+      content: row.body_html || row.body,
+      mediaType: row.type || 'Resource',
+      provider: { name: row.provider_name || 'Knowledge Hub', logoUrl: row.provider_logo_url || null },
+      imageUrl: row.thumbnail_url || row.image_url || null,
+      videoUrl: row.video_url || null,
+      audioUrl: (row as any).podcast_url || (row as any).audio_url || null,
+      downloadUrl: (row as any).document_url || null,
+      tags: row.tags || [],
+      date: row.published_at,
+      lastUpdated: row.updated_at,
+      eventDate: row.event_date || null,
+      eventTime: row.event_time || null,
+      eventLocation: row.event_location || null,
+      eventLocationDetails: row.event_location_details || null,
+      eventRegistrationInfo: row.event_registration_info || null,
+      eventAgenda: row.event_agenda || null,
+    })
     const fetchMediaDetails = async () => {
       setLoading(true)
       setError(null)
       try {
-        // Try server first
-        let serverItem: any | null = null
+        // Try Supabase first
         try {
-          if (id) {
-            serverItem = await fetchKnowledgeHubItemById(id)
+          const supabase = getSupabase()
+          const { data, error } = await supabase
+            .from('media_items')
+            .select('*')
+            .eq('id', id)
+            .single()
+          if (error) throw error
+          if (data) {
+            const mapped = mapRowToItem(data)
+            setItem(mapped)
+            const { data: rel } = await supabase
+              .from('media_items')
+              .select('*')
+              .neq('id', id)
+              .eq('type', data.type)
+              .eq('status', 'Published')
+              .lte('published_at', new Date().toISOString())
+              .order('published_at', { ascending: false })
+              .limit(3)
+            const related = (rel || []).map(mapRowToItem)
+            setRelatedItems(related)
+            setLoading(false)
+            return
           }
         } catch (e) {
-          // ignore and fallback
+          // fall through to fallback
         }
-        if (serverItem) {
-          setItem(serverItem)
-          setRelatedItems([]) // optional: can fetch related later
+        const allItems = getFallbackKnowledgeHubItems()
+        const foundItem = allItems.find((it) => it.id === id)
+        if (foundItem) {
+          setItem(foundItem)
+          const related = allItems
+            .filter(
+              (it) =>
+                it.id !== id &&
+                it.mediaType.toLowerCase().replace(/\s+/g, '-') === type,
+            )
+            .slice(0, 3)
+          setRelatedItems(related)
         } else {
-          // Fallback to local mock data
-          const allItems = getFallbackKnowledgeHubItems()
-          const foundItem = allItems.find((x) => x.id === id)
-          if (foundItem) {
-            setItem(foundItem)
-            const related = allItems
-              .filter(
-                (x) =>
-                  x.id !== id &&
-                  x.mediaType.toLowerCase().replace(/\s+/g, '-') === type,
-              )
-              .slice(0, 3)
-            setRelatedItems(related)
-          } else {
-            setError('Media not found')
-          }
+          setError('Media not found')
         }
       } catch (err) {
         console.error('Error fetching media details:', err)
@@ -133,6 +212,85 @@ const MediaDetailPage: React.FC = () => {
       fetchMediaDetails()
     }
   }, [id, type])
+  // Countdown timer effect for events
+  useEffect(() => {
+    if (type !== 'event') return
+    // Use eventDate if available, otherwise fallback to published date
+    const dateToUse = item?.eventDate || item?.date
+    if (!dateToUse) return
+
+    const calculateCountdown = () => {
+      // Parse the date string - handle multiple formats
+      let eventDate: Date
+
+      // Check if date is in "Month Day-Day, Year" format (e.g., "November 5-7, 2025")
+      const rangeMatch = dateToUse.match(
+        /(\w+)\s+(\d+)(?:-\d+)?,\s+(\d{4})/,
+      )
+      if (rangeMatch) {
+        // Extract month, start day, and year
+        const [, month, day, year] = rangeMatch
+        eventDate = new Date(`${month} ${day}, ${year}`)
+      } else {
+        // Try parsing as-is (handles YYYY-MM-DD and other standard formats)
+        eventDate = new Date(dateToUse)
+      }
+
+      // Check if date is valid
+      if (isNaN(eventDate.getTime())) {
+        console.warn('Invalid date detected:', item.date)
+        setCountdown({
+          days: 0,
+          hours: 0,
+          minutes: 0,
+          seconds: 0,
+          isExpired: false,
+        })
+        return
+      }
+
+      const now = new Date()
+      const diff = eventDate.getTime() - now.getTime()
+
+      if (diff <= 0) {
+        setCountdown({
+          days: 0,
+          hours: 0,
+          minutes: 0,
+          seconds: 0,
+          isExpired: true,
+        })
+        return
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+      const hours = Math.floor(
+        (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+      )
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+
+      setCountdown({ days, hours, minutes, seconds, isExpired: false })
+    }
+
+    calculateCountdown()
+    const interval = setInterval(calculateCountdown, 1000)
+
+    return () => clearInterval(interval)
+  }, [item?.date, type])
+  // Fetch provider posts when profile modal is opened
+  useEffect(() => {
+    if (showProfileModal && item?.provider) {
+      const allItems = getFallbackKnowledgeHubItems()
+      const posts = allItems
+        .filter(
+          (post) =>
+            post.provider?.name === item.provider.name && post.id !== item.id,
+        )
+        .slice(0, 6) // Limit to 6 posts
+      setProviderPosts(posts)
+    }
+  }, [showProfileModal, item?.provider, item?.id])
   // Client-side only initialization of video player
   useEffect(() => {
     // Only run on the client side
@@ -511,36 +669,74 @@ const MediaDetailPage: React.FC = () => {
       case 'announcement':
         return 'Announcement'
       default:
-        return 'Media'
+        return 'Toolkit & Templates'
     }
   }
   // Render content based on media type
   const renderMediaContent = () => {
     if (!item || !type) return null
-    switch (type.toLowerCase()) {
+    const t = String(type).toLowerCase()
+    // If we have stored rich body for article-like content, render it directly (sanitized)
+    const articleTypes = new Set(['news','blog','report','guide','announcement','tool','article'])
+    if (articleTypes.has(t) && item.content && String(item.content).trim()) {
+      return (
+        <div
+          className="prose prose-slate max-w-none"
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(String(item.content)) }}
+        />
+      )
+    }
+    switch (t) {
       case 'news':
       case 'blog':
-        // Prefer server-provided content/body; fallback to description
-        const hasHtml = typeof item.content === 'string' && /<\w+[^>]*>/.test(item.content)
         return (
-          <div className="prose max-w-none">
+          <div className="prose prose-slate max-w-none">
+            <p className="text-lg text-gray-700 mb-6 leading-relaxed">
+              {item.description}
+            </p>
+            <p className="text-gray-700 mb-6 leading-relaxed">
+              Abu Dhabi's business landscape continues to evolve, offering
+              unprecedented opportunities for enterprises at every stage of
+              development. The recent initiatives announced by the government
+              are set to transform how businesses operate within the emirate.
+            </p>
             {item.imageUrl && (
               <div className="my-8">
-                <img src={item.imageUrl} alt={item.title} className="w-full rounded-lg shadow-md" />
+                <img
+                  src={item.imageUrl}
+                  alt={item.title}
+                  className="w-full rounded-lg shadow-md"
+                />
                 <p className="text-sm text-gray-500 mt-2 italic">
-                  Image: {item.title} - Courtesy of {item.provider?.name}
+                  Image: {item.title} - Courtesy of {item.provider.name}
                 </p>
               </div>
             )}
-            {item.content ? (
-              hasHtml ? (
-                <div dangerouslySetInnerHTML={{ __html: item.content }} />
-              ) : (
-                <p className="text-lg text-gray-700 mb-6 leading-relaxed">{item.content}</p>
-              )
-            ) : (
-              <p className="text-lg text-gray-700 mb-6 leading-relaxed">{item.description}</p>
-            )}
+            <h2 className="text-xl font-bold text-gray-900 mt-6 mb-4">
+              Key Developments
+            </h2>
+            <p className="text-gray-700 mb-6 leading-relaxed">
+              The new framework provides substantial benefits for businesses,
+              particularly in the areas of licensing, financing, and market
+              access. Companies can now leverage these advantages to accelerate
+              their growth trajectories.
+            </p>
+            <p className="text-gray-700 mb-6 leading-relaxed">
+              Industry experts predict that these changes will particularly
+              benefit SMEs and startups, creating a more dynamic ecosystem for
+              innovation and entrepreneurship.
+            </p>
+            <blockquote className="border-l-4 border-blue-500 pl-4 italic text-gray-700 my-6">
+              "These initiatives represent a significant step forward in Abu
+              Dhabi's economic diversification strategy. Businesses that take
+              advantage of these opportunities will be well-positioned for
+              success in the coming years." - Economic Analyst
+            </blockquote>
+            <p className="text-gray-700 leading-relaxed">
+              For more information on how these developments might affect your
+              business, contact the Abu Dhabi Department of Economic Development
+              or visit their official website.
+            </p>
           </div>
         )
       case 'video':
@@ -1068,7 +1264,7 @@ const MediaDetailPage: React.FC = () => {
                   {/* Keyboard shortcuts info */}
                   <div className="mt-6 text-gray-300 text-sm">
                     <p className="text-center">
-                      Keyboard shortcuts: Space/K (play/pause), ← → (seek), M
+                      Keyboard shortcuts: Space/K (play/pause), ? ? (seek), M
                       (mute)
                     </p>
                   </div>
@@ -1098,6 +1294,15 @@ const MediaDetailPage: React.FC = () => {
                 </div>
               )}
             </div>
+            {/* Podcast description */}
+            <div className="mb-8 bg-white p-6 rounded-lg">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">
+                About This Episode
+              </h2>
+              <p className="text-gray-700 leading-relaxed">
+                {item.description}
+              </p>
+            </div>
           </div>
         )
       case 'report':
@@ -1125,25 +1330,25 @@ const MediaDetailPage: React.FC = () => {
                   </h3>
                   <ul className="space-y-2">
                     <li className="flex items-start">
-                      <div className="text-blue-600 mr-2">•</div>
+                      <div className="text-blue-600 mr-2">?</div>
                       <span className="text-gray-700">
                         Market analysis and growth projections for key sectors
                       </span>
                     </li>
                     <li className="flex items-start">
-                      <div className="text-blue-600 mr-2">•</div>
+                      <div className="text-blue-600 mr-2">?</div>
                       <span className="text-gray-700">
                         Regulatory framework and compliance guidelines
                       </span>
                     </li>
                     <li className="flex items-start">
-                      <div className="text-blue-600 mr-2">•</div>
+                      <div className="text-blue-600 mr-2">?</div>
                       <span className="text-gray-700">
                         Strategic planning templates and financial models
                       </span>
                     </li>
                     <li className="flex items-start">
-                      <div className="text-blue-600 mr-2">•</div>
+                      <div className="text-blue-600 mr-2">?</div>
                       <span className="text-gray-700">
                         Case studies of successful business implementations
                       </span>
@@ -1415,7 +1620,7 @@ const MediaDetailPage: React.FC = () => {
               </h2>
               <p className="text-gray-700">{item.description}</p>
             </div>
-            <div className="prose max-w-none">
+            <div className="prose prose-slate max-w-none">
               <p className="text-gray-700 mb-6 leading-relaxed">
                 We are pleased to inform all stakeholders about this important
                 development that will impact the business community in Abu
@@ -1458,7 +1663,7 @@ const MediaDetailPage: React.FC = () => {
         )
       default:
         return (
-          <div className="prose max-w-none">
+          <div className="prose prose-slate max-w-none">
             <p className="text-gray-700 mb-6">{item.description}</p>
             <p className="text-gray-700">
               No additional content available for this media type.
@@ -1646,13 +1851,13 @@ const MediaDetailPage: React.FC = () => {
                     <h3 className="font-semibold text-gray-900">
                       {item.provider?.name || 'Unknown Provider'}
                     </h3>
-                    <a
-                      href="#"
+                    <button
+                      onClick={() => setShowProfileModal(true)}
                       className="text-blue-600 hover:text-blue-800 text-sm flex items-center ml-2"
                     >
                       View Profile
                       <ChevronRightIcon size={14} className="ml-1" />
-                    </a>
+                    </button>
                   </div>
                   <p className="text-gray-600 text-sm line-clamp-1">
                     {item.provider?.description ||
@@ -1987,74 +2192,147 @@ const MediaDetailPage: React.FC = () => {
                             {/* Calendar Header */}
                             <div className="bg-blue-600 text-white text-center py-2">
                               <p className="text-sm font-medium uppercase tracking-wider">
-                                {item.date
-                                  ? new Date(
-                                      item.date.split('-')[0],
-                                    ).toLocaleString('default', {
-                                      month: 'long',
-                                    })
-                                  : 'June'}
+                                {(() => {
+                                  if (!item.date) return 'June'
+                                  const rangeMatch = item.date.match(
+                                    /(\w+)\s+(\d+)(?:-(\d+))?,\s+(\d{4})/,
+                                  )
+                                  if (rangeMatch) {
+                                    return rangeMatch[1] // Month name
+                                  }
+                                  return new Date(item.date).toLocaleString(
+                                    'default',
+                                    { month: 'long' },
+                                  )
+                                })()}
                               </p>
                             </div>
                             {/* Calendar Day */}
                             <div className="py-6 text-center">
                               <span className="text-6xl font-bold text-gray-900">
-                                {item.date ? item.date.split('-')[1] : '15'}
+                                {(() => {
+                                  const dateToDisplay = item.eventDate || item.date
+                                  if (!dateToDisplay) return '15'
+                                  const rangeMatch = dateToDisplay.match(
+                                    /(\w+)\s+(\d+)(?:-(\d+))?,\s+(\d{4})/,
+                                  )
+                                  if (rangeMatch) {
+                                    return rangeMatch[2] // Start day
+                                  }
+                                  return new Date(dateToDisplay).getDate()
+                                })()}
                               </span>
                               <p className="text-gray-600 font-medium mt-1">
-                                {item.date
-                                  ? new Date(
-                                      item.date.split('-')[0],
+                                {(() => {
+                                  const dateToDisplay = item.eventDate || item.date
+                                  if (!dateToDisplay) return 'Thursday'
+                                  const rangeMatch = dateToDisplay.match(
+                                    /(\w+)\s+(\d+)(?:-(\d+))?,\s+(\d{4})/,
+                                  )
+                                  if (rangeMatch) {
+                                    const [, month, day, , year] = rangeMatch
+                                    return new Date(
+                                      `${month} ${day}, ${year}`,
                                     ).toLocaleString('default', {
                                       weekday: 'long',
                                     })
-                                  : 'Thursday'}
+                                  }
+                                  return new Date(dateToDisplay).toLocaleString(
+                                    'default',
+                                    { weekday: 'long' },
+                                  )
+                                })()}
                               </p>
                               <p className="text-gray-500 mt-1">
-                                {item.date ? item.date.split('-')[0] : '2023'}
+                                {(() => {
+                                  const dateToDisplay = item.eventDate || item.date
+                                  if (!dateToDisplay) return '2023'
+                                  const rangeMatch = dateToDisplay.match(
+                                    /(\w+)\s+(\d+)(?:-(\d+))?,\s+(\d{4})/,
+                                  )
+                                  if (rangeMatch) {
+                                    return rangeMatch[4] // Year
+                                  }
+                                  return new Date(dateToDisplay).getFullYear()
+                                })()}
                               </p>
+                              {(() => {
+                                if (!item.date) return null
+                                const rangeMatch = item.date.match(
+                                  /(\w+)\s+(\d+)-(\d+),\s+(\d{4})/,
+                                )
+                                if (rangeMatch && rangeMatch[3]) {
+                                  return (
+                                    <p className="text-gray-400 text-sm mt-2">
+                                      Ends: {rangeMatch[1]} {rangeMatch[3]}
+                                    </p>
+                                  )
+                                }
+                                return null
+                              })()}
                             </div>
                           </div>
                           {/* Countdown Timer */}
                           <div className="w-full bg-blue-50 rounded-lg p-4 border border-blue-100">
                             <h4 className="text-sm font-semibold text-blue-800 mb-3 text-center">
-                              Event Countdown
+                              {countdown.isExpired
+                                ? 'Event Has Started'
+                                : 'Event Countdown'}
                             </h4>
-                            <div className="flex justify-center space-x-3">
-                              {/* Days */}
-                              <div className="flex flex-col items-center">
-                                <div className="bg-white w-14 h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
-                                  <span className="text-xl font-bold text-gray-800">
-                                    14
+                            {countdown.isExpired ? (
+                              <div className="text-center py-4">
+                                <p className="text-gray-700 font-medium">
+                                  This event has already started or ended
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="flex justify-center space-x-2">
+                                {/* Days */}
+                                <div className="flex flex-col items-center">
+                                  <div className="bg-white w-14 h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
+                                    <span className="text-xl font-bold text-gray-800">
+                                      {String(countdown.days).padStart(2, '0')}
+                                    </span>
+                                  </div>
+                                  <span className="text-xs text-gray-600 mt-1">
+                                    Days
                                   </span>
                                 </div>
-                                <span className="text-xs text-gray-600 mt-1">
-                                  Days
-                                </span>
-                              </div>
-                              {/* Hours */}
-                              <div className="flex flex-col items-center">
-                                <div className="bg-white w-14 h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
-                                  <span className="text-xl font-bold text-gray-800">
-                                    08
+                                {/* Hours */}
+                                <div className="flex flex-col items-center">
+                                  <div className="bg-white w-14 h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
+                                    <span className="text-xl font-bold text-gray-800">
+                                      {String(countdown.hours).padStart(2, '0')}
+                                    </span>
+                                  </div>
+                                  <span className="text-xs text-gray-600 mt-1">
+                                    Hours
                                   </span>
                                 </div>
-                                <span className="text-xs text-gray-600 mt-1">
-                                  Hours
-                                </span>
-                              </div>
-                              {/* Minutes */}
-                              <div className="flex flex-col items-center">
-                                <div className="bg-white w-14 h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
-                                  <span className="text-xl font-bold text-gray-800">
-                                    45
+                                {/* Minutes */}
+                                <div className="flex flex-col items-center">
+                                  <div className="bg-white w-14 h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
+                                    <span className="text-xl font-bold text-gray-800">
+                                      {String(countdown.minutes).padStart(2, '0')}
+                                    </span>
+                                  </div>
+                                  <span className="text-xs text-gray-600 mt-1">
+                                    Minutes
                                   </span>
                                 </div>
-                                <span className="text-xs text-gray-600 mt-1">
-                                  Minutes
-                                </span>
+                                {/* Seconds */}
+                                <div className="flex flex-col items-center">
+                                  <div className="bg-white w-14 h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
+                                    <span className="text-xl font-bold text-gray-800">
+                                      {String(countdown.seconds).padStart(2, '0')}
+                                    </span>
+                                  </div>
+                                  <span className="text-xs text-gray-600 mt-1">
+                                    Seconds
+                                  </span>
+                                </div>
                               </div>
-                            </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -2078,7 +2356,9 @@ const MediaDetailPage: React.FC = () => {
                         </div>
                         {/* Enhanced Registration Button */}
                         <div className="mb-6">
-                          <button className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 px-8 rounded-lg shadow-lg transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex items-center justify-center">
+                          <button
+                            onClick={() => setShowRegistrationModal(true)}
+                            className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 px-8 rounded-lg shadow-lg transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex items-center justify-center">
                             <span className="mr-2">Register Now</span>
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -2112,12 +2392,14 @@ const MediaDetailPage: React.FC = () => {
                                 Location
                               </h4>
                               <p className="text-gray-700">
-                                {item.location ||
+                                {(item as any).eventLocation || item.location ||
                                   'Abu Dhabi National Exhibition Centre'}
                               </p>
-                              <p className="text-gray-600 text-sm">
-                                Hall 5, Gate 3
-                              </p>
+                              {(item as any).eventLocationDetails && (
+                                <p className="text-gray-600 text-sm">
+                                  {(item as any).eventLocationDetails}
+                                </p>
+                              )}
                               <a
                                 href="#"
                                 className="text-blue-600 hover:text-blue-800 text-sm flex items-center mt-1"
@@ -2153,37 +2435,53 @@ const MediaDetailPage: React.FC = () => {
                             </div>
                           </div>
                           {/* Time Card */}
-                          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex">
-                            <div className="mr-4 text-blue-600">
-                              <Clock size={24} />
+                          {((item as any).eventTime || true) && (
+                            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex">
+                              <div className="mr-4 text-blue-600">
+                                <Clock size={24} />
+                              </div>
+                              <div>
+                                <h4 className="font-semibold text-gray-900">
+                                  Time
+                                </h4>
+                                <p className="text-gray-700">
+                                  {(item as any).eventTime || '9:00 AM - 5:00 PM'}
+                                </p>
+                                {!(item as any).eventTime && (
+                                  <p className="text-gray-600 text-sm">
+                                    Check-in starts at 8:30 AM
+                                  </p>
+                                )}
+                              </div>
                             </div>
-                            <div>
-                              <h4 className="font-semibold text-gray-900">
-                                Time
-                              </h4>
-                              <p className="text-gray-700">9:00 AM - 5:00 PM</p>
-                              <p className="text-gray-600 text-sm">
-                                Check-in starts at 8:30 AM
-                              </p>
-                            </div>
-                          </div>
+                          )}
                           {/* Registration Info Card */}
-                          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex">
-                            <div className="mr-4 text-blue-600">
-                              <FileTextIcon size={24} />
+                          {((item as any).eventRegistrationInfo || true) && (
+                            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex">
+                              <div className="mr-4 text-blue-600">
+                                <FileTextIcon size={24} />
+                              </div>
+                              <div>
+                                <h4 className="font-semibold text-gray-900">
+                                  Registration
+                                </h4>
+                                {(item as any).eventRegistrationInfo ? (
+                                  <p className="text-gray-700 whitespace-pre-line">
+                                    {(item as any).eventRegistrationInfo}
+                                  </p>
+                                ) : (
+                                  <>
+                                    <p className="text-gray-700">
+                                      Free for Abu Dhabi business license holders
+                                    </p>
+                                    <p className="text-gray-600 text-sm">
+                                      AED 500 for others
+                                    </p>
+                                  </>
+                                )}
+                              </div>
                             </div>
-                            <div>
-                              <h4 className="font-semibold text-gray-900">
-                                Registration
-                              </h4>
-                              <p className="text-gray-700">
-                                Free for Abu Dhabi business license holders
-                              </p>
-                              <p className="text-gray-600 text-sm">
-                                AED 500 for others
-                              </p>
-                            </div>
-                          </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -2365,7 +2663,349 @@ const MediaDetailPage: React.FC = () => {
         </div>
       </main>
       <Footer isLoggedIn={false} />
+
+      {/* Registration Modal */}
+      {showRegistrationModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Event Registration
+                </h2>
+                <button
+                  onClick={() => setShowRegistrationModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  // Handle form submission
+                  console.log('Registration data:', registrationData)
+                  alert('Registration submitted successfully!')
+                  setShowRegistrationModal(false)
+                  // Reset form
+                  setRegistrationData({
+                    fullName: '',
+                    email: '',
+                    phone: '',
+                    hearAboutUs: '',
+                  })
+                }}
+              >
+                <div className="space-y-4">
+                  {/* Full Name */}
+                  <div>
+                    <label
+                      htmlFor="fullName"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="fullName"
+                      required
+                      value={registrationData.fullName}
+                      onChange={(e) =>
+                        setRegistrationData({
+                          ...registrationData,
+                          fullName: e.target.value,
+                        })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label
+                      htmlFor="email"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Email Address <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      required
+                      value={registrationData.email}
+                      onChange={(e) =>
+                        setRegistrationData({
+                          ...registrationData,
+                          email: e.target.value,
+                        })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="your.email@example.com"
+                    />
+                  </div>
+
+                  {/* Phone */}
+                  <div>
+                    <label
+                      htmlFor="phone"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Phone Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      required
+                      value={registrationData.phone}
+                      onChange={(e) =>
+                        setRegistrationData({
+                          ...registrationData,
+                          phone: e.target.value,
+                        })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="+971 50 123 4567"
+                    />
+                  </div>
+
+                  {/* How did you hear about us */}
+                  <div>
+                    <label
+                      htmlFor="hearAboutUs"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      How did you hear about us? <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      id="hearAboutUs"
+                      required
+                      value={registrationData.hearAboutUs}
+                      onChange={(e) =>
+                        setRegistrationData({
+                          ...registrationData,
+                          hearAboutUs: e.target.value,
+                        })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">Select an option</option>
+                      <option value="social-media">Social Media</option>
+                      <option value="website">Website</option>
+                      <option value="email">Email</option>
+                      <option value="friend-colleague">Friend/Colleague</option>
+                      <option value="search-engine">Search Engine</option>
+                      <option value="event">Another Event</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Form Actions */}
+                <div className="flex gap-3 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowRegistrationModal(false)}
+                    className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-lg transition-all"
+                  >
+                    Complete Registration
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Profile Modal */}
+      {showProfileModal && item?.provider && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              {/* Modal Header */}
+              <div className="flex justify-between items-start mb-6">
+                <div className="flex items-center">
+                  {item.provider.logoUrl && (
+                    <img
+                      src={item.provider.logoUrl}
+                      alt={item.provider.name}
+                      className="w-16 h-16 object-contain rounded-lg mr-4"
+                    />
+                  )}
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      {item.provider.name}
+                    </h2>
+                    <p className="text-gray-600 mt-1">
+                      {item.provider.description ||
+                        'Provider information not available.'}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowProfileModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Provider Details */}
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {item.provider.website && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-1">
+                        Website
+                      </h4>
+                      <a
+                        href={item.provider.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 text-sm flex items-center"
+                      >
+                        Visit Website
+                        <ExternalLinkIcon size={14} className="ml-1" />
+                      </a>
+                    </div>
+                  )}
+                  {item.provider.email && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-1">
+                        Email
+                      </h4>
+                      <a
+                        href={`mailto:${item.provider.email}`}
+                        className="text-blue-600 hover:text-blue-800 text-sm"
+                      >
+                        {item.provider.email}
+                      </a>
+                    </div>
+                  )}
+                  {item.provider.phone && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-1">
+                        Phone
+                      </h4>
+                      <a
+                        href={`tel:${item.provider.phone}`}
+                        className="text-blue-600 hover:text-blue-800 text-sm"
+                      >
+                        {item.provider.phone}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Other Posts */}
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">
+                  Other Posts by {item.provider.name}
+                </h3>
+                {providerPosts.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {providerPosts.map((post) => (
+                      <div
+                        key={post.id}
+                        className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                        onClick={() => {
+                          setShowProfileModal(false)
+                          navigate(
+                            `/media/${post.mediaType.toLowerCase().replace(/\s+/g, '-')}/${post.id}`,
+                          )
+                        }}
+                      >
+                        <div className="flex items-start">
+                          {post.imageUrl && (
+                            <img
+                              src={post.imageUrl}
+                              alt={post.title}
+                              className="w-20 h-20 object-cover rounded mr-3"
+                            />
+                          )}
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900 mb-1 line-clamp-2">
+                              {post.title}
+                            </h4>
+                            <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                              {post.description}
+                            </p>
+                            <div className="flex items-center text-xs text-gray-500">
+                              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                {post.mediaType}
+                              </span>
+                              {post.date && (
+                                <span className="ml-2">{post.date}</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <p>No other posts from this provider</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Close Button */}
+              <div className="mt-6 flex justify-end">
+                <button
+                  onClick={() => setShowProfileModal(false)}
+                  className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 export default MediaDetailPage
+
+
+
+
+
+
+
+

@@ -696,8 +696,8 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
         name: 'Established'
       }]
     }, {
-      id: 'domain',
-      title: 'Domain',
+      id: 'category',
+      title: 'Category',
       options: [{
         id: 'finance',
         name: 'Finance & Funding'

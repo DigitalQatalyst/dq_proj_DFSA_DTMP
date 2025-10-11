@@ -17,7 +17,7 @@ import EligibilityTermsTab from "../../components/marketplace/details/tabs/Eligi
 import ApplicationProcessTab from "../../components/marketplace/details/tabs/ApplicationProcessTab";
 import SummaryCard from "../../components/marketplace/details/SummaryCard";
 import TabsNav from "../../components/marketplace/details/TabsNav";
-import { getMarketplaceConfig } from "../../utils/marketplaceConfiguration";
+import { getMarketplaceConfig } from "../../utils/marketplaceConfig";
 import { addCompareId } from "../../utils/comparisonStorage";
 import { ErrorDisplay } from "../../components/SkeletonLoader";
 import { Link } from "react-router-dom";
@@ -153,8 +153,12 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const [activeTab, setActiveTab] = useState<string>(
     config.tabs[0]?.id || "about"
   );
-  const rating = (4 + Math.random()).toFixed(1);
-  const reviewCount = Math.floor(Math.random() * 50) + 10;
+  const rating = (item as any)?.rating
+    ? String((item as any).rating)
+    : (4 + Math.random()).toFixed(1);
+  const reviewCount = (item as any)?.reviewCount
+    ? Number((item as any).reviewCount)
+    : Math.floor(Math.random() * 50) + 10;
   const handleToggleBookmark = () => {
     if (item) {
       onToggleBookmark(item.id);
@@ -293,7 +297,6 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const itemTitle = item.title;
   const itemDescription = item.description;
   const serviceApplication = item.serviceApplication;
-  const logoUrl = item.customFields?.Logo?.source;
   const provider = item.provider;
   const primaryAction = config.primaryCTA;
   const secondaryAction = config.secondaryCTA;
@@ -307,16 +310,20 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
     ].filter(Boolean);
   // Extract details for the sidebar
   const detailItems = config.attributes
-    .map((attr) => ({
-      label: attr.label,
-      value: item[attr.key] || "N/A",
-    }))
+    .map((attr) => {
+      const raw = (item as any)[attr.key];
+      const formatted = attr?.formatter ? attr.formatter(raw) : raw;
+      return {
+        label: attr.label,
+        value: formatted || "N/A",
+      };
+    })
     .filter((detail) => detail.value !== "N/A");
   // Extract highlights/features based on marketplace type
   const highlights =
     marketplaceType === "courses"
-      ? item.learningOutcomes || []
-      : item.details || [];
+      ? item.keyHighlights || item.learningOutcomes || []
+      : item.details || item.keyHighlights || [];
   // Render tab content with consistent styling
   const renderTabContent = (tabId: string) => {
     const tab = config.tabs.find((t) => t.id === tabId);
@@ -339,7 +346,13 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
         return <ScheduleTab item={item} />;
 
       case "learning_outcomes":
-        return <LearningOutcomesTab outcomes={highlights} />;
+        return (
+          <LearningOutcomesTab
+            outcomes={Array.isArray(item.learningOutcomes) ? item.learningOutcomes : highlights}
+            skills={item.skillsGained}
+            uponCompletion={item.uponCompletion}
+          />
+        );
       case "eligibility_terms":
         return (
           <EligibilityTermsTab
@@ -434,7 +447,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               {/* Provider */}
               <div className="flex items-center mb-3">
                 <img
-                  src={"/image.png"}
+                  src={provider?.logoUrl || "/image.png"}
                   alt={`${provider.name} logo`}
                   className="h-10 w-10 object-contain mr-3 rounded-md"
                 />
@@ -491,7 +504,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                     </div>
                   )}
                 </div>
-                <button
+                {/* <button
                   onClick={handleToggleBookmark}
                   className={`p-1.5 rounded-full ${
                     isBookmarked
@@ -505,7 +518,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                     size={18}
                     className={isBookmarked ? "fill-yellow-600" : ""}
                   />
-                </button>
+                </button> */}
               </div>
               {/* Description */}
               <p className="text-gray-700 mb-6 max-w-2xl">{itemDescription}</p>

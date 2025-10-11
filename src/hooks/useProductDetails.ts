@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client/react";
-import { GET_PRODUCT } from "../services/marketplaceQueries";
+import { GET_PRODUCT, GET_COURSE } from "../services/marketplaceQueries";
 import {
   getFallbackItemDetails,
   getFallbackItems,
@@ -35,7 +35,7 @@ const normalizeDocumentName = (raw: string): string => {
 
 export interface UseProductDetailsArgs {
   itemId?: string;
-  marketplaceType: "courses" | "financial" | "non-financial";
+  marketplaceType: "courses" | "financial" | "non-financial" | "knowledge-hub";
   shouldTakeAction?: boolean;
 }
 
@@ -53,10 +53,25 @@ export function useProductDetails({
 }: UseProductDetailsArgs) {
   const [item, setItem] = useState<ProductItem | null>(null);
   const [relatedItems, setRelatedItems] = useState<any[]>([]);
-
-  const { data, error, loading, refetch } = useQuery(GET_PRODUCT, {
+  // Query product details (non-courses)
+  const {
+    data: productData,
+    error: productError,
+    loading: productLoading,
+    refetch: refetchProduct,
+  } = useQuery(GET_PRODUCT, {
     variables: { id: itemId || "" },
-    skip: !itemId,
+    skip: !itemId || marketplaceType === "courses",
+  });
+  // Query course details (courses)
+  const {
+    data: courseData,
+    error: courseError,
+    loading: courseLoading,
+    refetch: refetchCourse,
+  } = useQuery(GET_COURSE, {
+    variables: { id: itemId || "" },
+    skip: !itemId || marketplaceType !== "courses",
   });
 
   const mapProductToItem = (product: any): ProductItem | null => {
@@ -178,13 +193,118 @@ export function useProductDetails({
       providerLocation: "UAE",
     } as any;
   };
+  // Map GraphQL Course to the unified item shape used by details page
+  const mapCourseToItem = (course: any): ProductItem | null => {
+    if (!course) return null;
+    // Attempt to parse timeline JSON string into steps (robust to messy strings)
+    let applicationProcess: { title: string; description: string; week?: number; cost?: string | number }[] | undefined;
+    const parseCourseTimeline = (val: any) => {
+      if (!val) return undefined;
+      let text = val;
+      if (typeof text !== "string") {
+        try { text = JSON.stringify(text); } catch { return undefined; }
+      }
+      // Unescape common jumbled patterns and try multiple parsing strategies
+      const candidates: any[] = [];
+      candidates.push(text);
+      candidates.push(text.replace(/\\"/g, '"'));
+      const braceStart = text.indexOf('{');
+      const braceEnd = text.lastIndexOf('}');
+      if (braceStart !== -1 && braceEnd !== -1 && braceEnd > braceStart) {
+        candidates.push(text.substring(braceStart, braceEnd + 1));
+      }
+      for (const c of candidates) {
+        try {
+          const obj = JSON.parse(c);
+          if (obj && Array.isArray(obj.weeks)) return obj;
+        } catch {}
+      }
+      return undefined;
+    };
+    const parsedTimeline = parseCourseTimeline(course.courseTimeline);
+    if (parsedTimeline && Array.isArray(parsedTimeline.weeks)) {
+      applicationProcess = parsedTimeline.weeks
+        .map((w: any) => ({
+          week: typeof w?.week === 'number' ? w.week : undefined,
+          title: w?.title || (typeof w?.week === 'number' ? `Week ${w.week}` : ""),
+          description: typeof w?.description === 'string' ? w.description : "",
+          cost: w?.cost,
+        }))
+        .filter((s: any) => s.title);
+    }
+    const toAbsolute = (url?: string) => {
+      if (!url) return undefined;
+      if (/^https?:\/\//i.test(url)) return url;
+      const base = (import.meta as any)?.env?.VITE_ASSETS_BASE_URL || "";
+      if (base) {
+        const trimmedBase = String(base).replace(/\/$/, "");
+        return `${trimmedBase}${url}`;
+      }
+      return url;
+    };
+    const providerName = course.partner || "Khalifa Fund";
+    const providerLogo = toAbsolute(course.logoUrl) || "/image.png";
+    const toArray = (val: any): string[] => {
+      if (Array.isArray(val)) return val.filter((s) => typeof s === "string" && s.trim() !== "").map((s) => s.trim());
+      if (typeof val === "string") {
+        // Split on newlines or commas/semicolons
+        return val
+          .split(/\r?\n|[,;]+/)
+          .map((s) => s.trim())
+          .filter((s) => s);
+      }
+      return [];
+    };
+    const learningOutcomes = toArray(course.learningOutcomes);
+    const skillsGained = toArray(course.skillsGained);
+    const details = toArray(course.keyHighlights);
+    // Normalize cost: default to 3200 if < 1 or invalid
+    const rawCost = (course as any)?.cost;
+    const parsedCost = typeof rawCost === "number" ? rawCost : parseFloat(String(rawCost ?? ""));
+    const normalizedCost = !isNaN(parsedCost) && parsedCost >= 1 ? parsedCost : 3200;
+    return {
+      id: course.id,
+      title: course.name,
+      description: course.description,
+      category: course.serviceCategory || course.topicTitle,
+      businessStage: course.businessStage,
+      deliveryMode: course.pricingModel, // best available proxy; may be empty
+      price: normalizedCost,
+      duration: course.duration,
+      learningOutcomes,
+      skillsGained,
+      details,
+      keyHighlights: details,
+      requiredDocuments: [],
+      applicationProcess,
+      serviceApplication: course.uponCompletion, // surfaced as course completion info
+      uponCompletion: course.uponCompletion,
+      keyTerms: undefined,
+      additionalTerms: undefined,
+      eligibility: undefined,
+      tags: [course.serviceCategory, course.pricingModel, course.businessStage].filter(Boolean),
+      provider: {
+        name: providerName,
+        logoUrl: providerLogo,
+      },
+      providerLocation: "UAE",
+      rating: course.rating,
+      reviewCount: course.reviewCount,
+      startDate: course.startDate,
+      formUrl: undefined,
+    } as any;
+  };
 
   useEffect(() => {
     if (!itemId) return;
-    const product = (data as any)?.product;
+    const product = (productData as any)?.product;
+    const course = (courseData as any)?.course;
 
-    if (!product) {
-      // fallback path if no product in response
+    // Choose data source based on marketplace type
+    const raw = marketplaceType === "courses" ? course : product;
+
+    if (!raw) {
+      // fallback path if no item in response
       const fallback = getFallbackItemDetails(
         marketplaceType,
         itemId || "fallback-1"
@@ -196,7 +316,7 @@ export function useProductDetails({
       return;
     }
 
-    const mapped = mapProductToItem(product);
+    const mapped = marketplaceType === "courses" ? mapCourseToItem(raw) : mapProductToItem(raw);
     if (!mapped) return;
 
     // merge with fallback to fill gaps
@@ -228,20 +348,24 @@ export function useProductDetails({
 
     setItem(merged);
 
-    const rs = product?.customFields?.RelatedServices;
-    const relatedFromGql = Array.isArray(rs)
-      ? rs.map((x: any) => ({
-          id: x.id,
-          title: x.name,
-          description: x.description || "",
-          provider: {
-            name: merged.provider?.name,
-            logoUrl: merged.provider?.logoUrl || "/mzn_logo.png",
-          },
-          tags: [],
-        }))
-      : [];
-    const limitedRelated = relatedFromGql.slice(0, 3);
+    // For products we may have related services from GQL; for courses fallback for now
+    let limitedRelated: any[] = [];
+    if (marketplaceType !== "courses") {
+      const rs = product?.customFields?.RelatedServices;
+      const relatedFromGql = Array.isArray(rs)
+        ? rs.map((x: any) => ({
+            id: x.id,
+            title: x.name,
+            description: x.description || "",
+            provider: {
+              name: merged.provider?.name,
+              logoUrl: merged.provider?.logoUrl || "/mzn_logo.png",
+            },
+            tags: [],
+          }))
+        : [];
+      limitedRelated = relatedFromGql.slice(0, 3);
+    }
     const fallbackLimited = getFallbackItems(marketplaceType).slice(0, 3);
     const chosen = limitedRelated.length > 0 ? limitedRelated : fallbackLimited;
     const normalized = chosen
@@ -267,7 +391,11 @@ export function useProductDetails({
           ?.scrollIntoView({ behavior: "smooth" });
       }, 100);
     }
-  }, [data, itemId, marketplaceType, shouldTakeAction]);
+  }, [productData, courseData, itemId, marketplaceType, shouldTakeAction]);
+  // Expose a unified loading/error/refetch
+  const loading = marketplaceType === "courses" ? courseLoading : productLoading;
+  const error = (marketplaceType === "courses" ? courseError : productError) as any;
+  const refetch = marketplaceType === "courses" ? refetchCourse : refetchProduct;
 
   return {
     item,

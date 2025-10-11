@@ -79,6 +79,11 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
               </li>
             ))}
           </ul>
+          {highlights.length > 4 && (
+            <div className="mt-2 text-xs text-gray-500">
+              +{highlights.length - 4} more
+            </div>
+          )}
         </div>
         <button
           id="action-section"

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from "react";
 import {
   Users,
@@ -112,21 +113,24 @@ const Toast = ({ message, type = "success", onClose }) => {
   return (
     <div className="fixed bottom-4 right-4 z-50 animate-slide-up">
       <div
-        className={`rounded-lg shadow-lg p-4 flex items-start ${type === "success"
-          ? "bg-green-50 border-l-4 border-green-500"
-          : "bg-red-50 border-l-4 border-red-500"
-          }`}
+        className={`rounded-lg shadow-lg p-4 flex items-start ${
+          type === "success"
+            ? "bg-green-50 border-l-4 border-green-500"
+            : "bg-red-50 border-l-4 border-red-500"
+        }`}
       >
         <div
-          className={`flex-shrink-0 mr-3 ${type === "success" ? "text-green-500" : "text-red-500"
-            }`}
+          className={`flex-shrink-0 mr-3 ${
+            type === "success" ? "text-green-500" : "text-red-500"
+          }`}
         >
           {type === "success" ? <CheckCircle size={20} /> : <X size={20} />}
         </div>
         <div className="flex-1">
           <p
-            className={`text-sm font-medium ${type === "success" ? "text-green-800" : "text-red-800"
-              }`}
+            className={`text-sm font-medium ${
+              type === "success" ? "text-green-800" : "text-red-800"
+            }`}
           >
             {message}
           </p>
@@ -163,7 +167,7 @@ const CTACard: React.FC<CTACardProps> = ({
   description,
   buttonText,
   buttonColor,
-  onClick = () => { },
+  onClick = () => {},
   delay = 0,
   isExpanded = false,
   onExpand = undefined,
@@ -174,7 +178,6 @@ const CTACard: React.FC<CTACardProps> = ({
   const [ref, isInView] = useInView({
     threshold: 0.2,
   });
-  // Fix: Properly type the ref for HTMLSpanElement
   const rippleRef = useRef<HTMLSpanElement>(null);
 
   const handleRippleEffect = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -184,13 +187,11 @@ const CTACard: React.FC<CTACardProps> = ({
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
-      // Now TypeScript knows rippleRef.current is an HTMLSpanElement with style property
       rippleRef.current.style.left = `${x}px`;
       rippleRef.current.style.top = `${y}px`;
       rippleRef.current.style.transform = "translate(-50%, -50%) scale(0)";
       rippleRef.current.style.opacity = "1";
 
-      // Trigger animation
       setTimeout(() => {
         if (rippleRef.current) {
           rippleRef.current.style.transform = "translate(-50%, -50%) scale(15)";
@@ -218,19 +219,21 @@ const CTACard: React.FC<CTACardProps> = ({
         {!isExpanded ? (
           <>
             <div
-              className={`${buttonColor === "blue"
-                ? "bg-blue-100"
-                : buttonColor === "green"
+              className={`${
+                buttonColor === "blue"
+                  ? "bg-blue-100"
+                  : buttonColor === "green"
                   ? "bg-emerald-100"
                   : "bg-purple-100"
-                } p-4 rounded-full inline-block mb-6 transition-transform duration-500 ${isHovered ? "scale-110" : ""
-                }`}
+              } p-4 rounded-full inline-block mb-6 transition-transform duration-500 ${
+                isHovered ? "scale-110" : ""
+              }`}
             >
               {icon}
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-3">{title}</h3>
             <p className="text-gray-600 mb-6">{description}</p>
-            <div className="flex justify-center">  {/* Add this wrapper div */}
+            <div className="flex justify-center">
               <button
                 onClick={(e) => {
                   handleRippleEffect(e);
@@ -240,20 +243,21 @@ const CTACard: React.FC<CTACardProps> = ({
                     onClick();
                   }
                 }}
-                className={`relative overflow-hidden px-6 py-3 font-medium rounded-lg shadow-md transition-all duration-300 flex items-center ${buttonColor === "blue"
-                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
-                  : buttonColor === "green"
+                className={`relative overflow-hidden px-6 py-3 font-medium rounded-lg shadow-md transition-all duration-300 flex items-center ${
+                  buttonColor === "blue"
+                    ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
+                    : buttonColor === "green"
                     ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-700 hover:to-teal-700"
                     : "bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700"
-                  } ${isHovered ? "shadow-lg" : ""}`}
+                } ${isHovered ? "shadow-lg" : ""}`}
               >
                 {buttonText}
                 <ChevronRight
                   size={16}
-                  className={`ml-2 transition-transform duration-300 ${isHovered ? "translate-x-1" : ""
-                    }`}
+                  className={`ml-2 transition-transform duration-300 ${
+                    isHovered ? "translate-x-1" : ""
+                  }`}
                 />
-                {/* Ripple effect */}
                 <span
                   ref={rippleRef}
                   className="absolute rounded-full bg-white/20 pointer-events-none transition-all duration-700"
@@ -295,16 +299,18 @@ const CTACard: React.FC<CTACardProps> = ({
       </div>
       {/* Background glow effect */}
       <div
-        className={`absolute inset-0 transition-opacity duration-700 ${isHovered ? "opacity-100" : "opacity-0"
-          }`}
+        className={`absolute inset-0 transition-opacity duration-700 ${
+          isHovered ? "opacity-100" : "opacity-0"
+        }`}
       >
         <div
-          className={`absolute -inset-1 rounded-xl blur-xl ${buttonColor === "blue"
-            ? "bg-blue-600/20"
-            : buttonColor === "green"
+          className={`absolute -inset-1 rounded-xl blur-xl ${
+            buttonColor === "blue"
+              ? "bg-blue-600/20"
+              : buttonColor === "green"
               ? "bg-emerald-600/20"
               : "bg-purple-600/20"
-            }`}
+          }`}
         ></div>
       </div>
     </div>
@@ -322,13 +328,15 @@ const CallToAction: React.FC = () => {
   const [ref, isInView] = useInView({
     threshold: 0.2,
   });
+
   const handleSignIn = () => {
-    // If you have a login function, use it here, otherwise navigate to signin
     navigate("/signin");
   };
+
   // State for expandable cards
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastData | null>(null);
+
   // Form states
   const [partnerFormData, setPartnerFormData] = useState({
     name: "",
@@ -343,73 +351,186 @@ const CallToAction: React.FC = () => {
   });
   const [partnerFormSuccess, setPartnerFormSuccess] = useState(false);
   const [contactFormSuccess, setContactFormSuccess] = useState(false);
+
+  // Form submission states
+  const [isSubmittingPartner, setIsSubmittingPartner] = useState(false);
+  const [partnerSubmitError, setPartnerSubmitError] = useState<string | null>(
+    null
+  );
+  const [isSubmittingContact, setIsSubmittingContact] = useState(false);
+  const [contactSubmitError, setContactSubmitError] = useState<string | null>(
+    null
+  );
+
   // Service categories
   const serviceCategories = [
     {
-      value: "financial",
-      label: "Financial Services",
+      value: "Loans & Credit Facilities",
+      label: "Loans & Credit Facilities",
     },
     {
-      value: "advisory",
-      label: "Business Advisory",
+      value: "Guarantees & Risk Sharing",
+      label: "Guarantees & Risk Sharing",
     },
     {
-      value: "technology",
-      label: "Technology Solutions",
+      value: "Invoice & Receivables Financing",
+      label: "Invoice & Receivables Financing",
     },
     {
-      value: "marketing",
-      label: "Marketing Services",
+      value: "Government & Procurement Finance",
+      label: "Government & Procurement Finance",
     },
     {
-      value: "legal",
-      label: "Legal Services",
+      value: "Specialized Sector Funds",
+      label: "Specialized Sector Funds",
+    },
+    {
+      value: "Business Registration & Licensing",
+      label: "Business Registration & Licensing",
+    },
+    {
+      value: "Compliance, Legal & Regulatory Support",
+      label: "Compliance, Legal & Regulatory Support",
+    },
+    {
+      value: "Business Development, Incentives & Incubation",
+      label: "Business Development, Incentives & Incubation",
+    },
+    {
+      value: "Advisory & Transformation Services",
+      label: "Advisory & Transformation Services",
+    },
+    {
+      value: "Support Services",
+      label: "Support Services",
+    },
+    {
+      value: "Loan Management & Adjustment",
+      label: "Loan Management & Adjustment",
     },
   ];
+
   // Handle form submissions
-  const handlePartnerSubmit = (e: React.FormEvent) => {
+  const handlePartnerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate form submission
-    setTimeout(() => {
-      setPartnerFormSuccess(true);
-      setToast({
-        message: "Thanks! We'll be in touch about your services soon.",
-        type: "success",
-      });
-      // Reset form after 3 seconds
-      setTimeout(() => {
-        setExpandedCard(null);
-        setPartnerFormSuccess(false);
-        setPartnerFormData({
-          name: "",
-          email: "",
-          serviceCategory: "",
-          message: "",
+    setIsSubmittingPartner(true);
+    setPartnerSubmitError(null);
+
+    try {
+      const response = await fetch(
+        "https://kfrealexpressserver.vercel.app/api/v1/partner/create-partnership",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer enquiry1234",
+          },
+          body: JSON.stringify({
+            Name: partnerFormData.name,
+            Email: partnerFormData.email,
+            ServiceCategory: partnerFormData.serviceCategory,
+            Message: partnerFormData.message,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        setPartnerFormSuccess(true);
+        setToast({
+          message: "Thanks! We'll be in touch about your services soon.",
+          type: "success",
         });
-      }, 3000);
-    }, 1000);
+        // Reset form after 3 seconds
+        setTimeout(() => {
+          setExpandedCard(null);
+          setPartnerFormSuccess(false);
+          setPartnerFormData({
+            name: "",
+            email: "",
+            serviceCategory: "",
+            message: "",
+          });
+        }, 3000);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message || `Submission failed (${response.status})`
+        );
+      }
+    } catch (error) {
+      setPartnerSubmitError(
+        error instanceof Error
+          ? error.message
+          : "Network error. Please try again."
+      );
+      setToast({
+        message: "Failed to submit. Please try again.",
+        type: "error",
+      });
+    } finally {
+      setIsSubmittingPartner(false);
+    }
   };
-  const handleContactSubmit = (e: React.FormEvent) => {
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate form submission
-    setTimeout(() => {
-      setContactFormSuccess(true);
-      setToast({
-        message: "Message received! We'll respond shortly.",
-        type: "success",
-      });
-      // Reset form after 3 seconds
-      setTimeout(() => {
-        setExpandedCard(null);
-        setContactFormSuccess(false);
-        setContactFormData({
-          name: "",
-          email: "",
-          message: "",
+    setIsSubmittingContact(true);
+    setContactSubmitError(null);
+
+    try {
+      const response = await fetch(
+        "https://kfrealexpressserver.vercel.app/api/v1/contact/contact-us",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer enquiry1234",
+          },
+          body: JSON.stringify({
+            name: contactFormData.name,
+            email: contactFormData.email,
+            message: contactFormData.message,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        setContactFormSuccess(true);
+        setToast({
+          message: "Message received! We'll respond shortly.",
+          type: "success",
         });
-      }, 3000);
-    }, 1000);
+        // Reset form after 3 seconds
+        setTimeout(() => {
+          setExpandedCard(null);
+          setContactFormSuccess(false);
+          setContactFormData({
+            name: "",
+            email: "",
+            message: "",
+          });
+        }, 3000);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message || `Submission failed (${response.status})`
+        );
+      }
+    } catch (error) {
+      setContactSubmitError(
+        error instanceof Error
+          ? error.message
+          : "Network error. Please try again."
+      );
+      setToast({
+        message: "Failed to send message. Please try again.",
+        type: "error",
+      });
+    } finally {
+      setIsSubmittingContact(false);
+    }
   };
+
   // Handle card expansion
   const handleExpandCard = (cardId: string) => {
     if (expandedCard === cardId) {
@@ -438,6 +559,7 @@ const CallToAction: React.FC = () => {
       scrollTo("cta-register");
     }
   }, [location.hash]);
+
   return (
     <div
       ref={ref}
@@ -488,6 +610,7 @@ const CallToAction: React.FC = () => {
           className="bottom-[10%] right-[20%]"
         />
       </div>
+
       <div className="container mx-auto px-4 text-center relative z-10">
         <FadeInUpOnScroll>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
@@ -499,34 +622,13 @@ const CallToAction: React.FC = () => {
             One platform. Every resource you need to grow in Abu Dhabi.
           </p>
         </FadeInUpOnScroll>
+
         <div
           id="contact"
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto scroll-mt-20"
         >
           {/* Card 1: Register Your Enterprise */}
           <div id="cta-register" className="scroll-mt-20">
-            {/* <CTACard
-              icon={<Users size={28} className="text-blue-600" />}
-              title="Register Your Enterprise"
-              description="Get access to tailored services, funding opportunities, and resources to accelerate your business growth."
-              buttonText="Register Now"
-              buttonColor="blue"
-              onClick={() =>
-                navigate("/coming-soon", {
-                  state: {
-                    title: "Enterprise Registration",
-                    description:
-                      "We're crafting an effortless enterprise registration experience. Stay tuned while we put on the finishing touches.",
-                    bullets: [
-                      "Guided registration tailored to your business type",
-                      "Seamless document uploads and validation",
-                      "Real-time status updates and support",
-                    ],
-                  },
-                })
-              }
-              delay={0.3}
-            /> */}
             <CTACard
               icon={<Users size={28} className="text-blue-600" />}
               title="Register Your Enterprise"
@@ -534,8 +636,10 @@ const CallToAction: React.FC = () => {
               buttonText="Register Now"
               buttonColor="blue"
               onClick={handleSignIn}
+              delay={0.3}
             />
           </div>
+
           {/* Card 2: List Your Services */}
           <div id="cta-partner" className="scroll-mt-20">
             <CTACard
@@ -550,6 +654,11 @@ const CallToAction: React.FC = () => {
               isSuccess={partnerFormSuccess}
             >
               <form onSubmit={handlePartnerSubmit} className="mt-2">
+                {partnerSubmitError && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                    <p className="text-sm text-red-600">{partnerSubmitError}</p>
+                  </div>
+                )}
                 <FormInput
                   label="Name"
                   placeholder="Your full name"
@@ -601,14 +710,45 @@ const CallToAction: React.FC = () => {
                 />
                 <button
                   type="submit"
-                  className="w-full px-6 py-3 mt-2 font-medium rounded-lg shadow-md bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 flex items-center justify-center relative overflow-hidden"
+                  disabled={isSubmittingPartner}
+                  className={`w-full px-6 py-3 mt-2 font-medium rounded-lg shadow-md bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 flex items-center justify-center relative overflow-hidden ${
+                    isSubmittingPartner ? "opacity-70 cursor-not-allowed" : ""
+                  }`}
                 >
-                  Submit Application
-                  <ChevronRight size={16} className="ml-2" />
+                  {isSubmittingPartner ? (
+                    <>
+                      <svg
+                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      Submit Application
+                      <ChevronRight size={16} className="ml-2" />
+                    </>
+                  )}
                 </button>
               </form>
             </CTACard>
           </div>
+
           {/* Card 3: Contact Us */}
           <div id="cta-contact" className="scroll-mt-20">
             <CTACard
@@ -623,6 +763,11 @@ const CallToAction: React.FC = () => {
               isSuccess={contactFormSuccess}
             >
               <form onSubmit={handleContactSubmit} className="mt-2">
+                {contactSubmitError && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                    <p className="text-sm text-red-600">{contactSubmitError}</p>
+                  </div>
+                )}
                 <FormInput
                   label="Name"
                   placeholder="Your full name"
@@ -662,10 +807,40 @@ const CallToAction: React.FC = () => {
                 />
                 <button
                   type="submit"
-                  className="w-full px-6 py-3 mt-2 font-medium rounded-lg shadow-md bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 flex items-center justify-center"
+                  disabled={isSubmittingContact}
+                  className={`w-full px-6 py-3 mt-2 font-medium rounded-lg shadow-md bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 flex items-center justify-center ${
+                    isSubmittingContact ? "opacity-70 cursor-not-allowed" : ""
+                  }`}
                 >
-                  Send Message
-                  <ChevronRight size={16} className="ml-2" />
+                  {isSubmittingContact ? (
+                    <>
+                      <svg
+                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      Send Message
+                      <ChevronRight size={16} className="ml-2" />
+                    </>
+                  )}
                 </button>
               </form>
             </CTACard>
@@ -680,6 +855,7 @@ const CallToAction: React.FC = () => {
           onClose={() => setToast(null)}
         />
       )}
+
       {/* Add keyframes for animations */}
       <style jsx>{`
         @keyframes float {
@@ -720,4 +896,5 @@ const CallToAction: React.FC = () => {
     </div>
   );
 };
+
 export default CallToAction;

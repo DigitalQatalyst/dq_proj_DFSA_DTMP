@@ -8,8 +8,8 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-magic_patterns_media_marketplace
 api-knowledgehub-server
+magic_patterns_media_marketplace
 .env
 dist
 dist-ssr

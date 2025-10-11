@@ -32,7 +32,7 @@ export interface KnowledgeHubItemProps {
     id: string
     title: string
     description: string
-    mediaType: string
+    mediaType?: string
     provider: {
       name: string
       logoUrl: string
@@ -62,9 +62,43 @@ export interface KnowledgeHubItemProps {
   onQuickView?: () => void
 }
 // Utility function to get the details href for an item
-// Match the media routing used in magic_patterns_media_marketplace
+const slugify = (value: string) =>
+  value
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/--+/g, '-')
+    .replace(/^-+|-+$/g, '')
+
+// Try to infer a media type when it's missing
+const inferMediaType = (item: KnowledgeHubItemProps['item']): string => {
+  const direct = (item.mediaType ?? '').toString().trim()
+  if (direct) return direct
+  const fromFormat = (item.format ?? '').toString().toLowerCase()
+  if (fromFormat.includes('event')) return 'event'
+  if (fromFormat.includes('podcast')) return 'podcast'
+  if (fromFormat.includes('video') || fromFormat.includes('recorded')) return 'video'
+  if (fromFormat.includes('template') || fromFormat.includes('tool')) return 'toolkits & templates'
+  if (fromFormat.includes('report')) return 'report'
+  if (fromFormat.includes('guide')) return 'guide'
+  // Last resort: look at tags
+  const tagsJoined = Array.isArray(item.tags)
+    ? item.tags.map((t) => String(t).toLowerCase()).join(' ')
+    : ''
+  if (tagsJoined.includes('event')) return 'event'
+  if (tagsJoined.includes('podcast')) return 'podcast'
+  if (tagsJoined.includes('video')) return 'video'
+  if (tagsJoined.includes('report')) return 'report'
+  if (tagsJoined.includes('guide')) return 'guide'
+  return 'resource'
+}
+
 const getDetailsHref = (item: KnowledgeHubItemProps['item']): string => {
-  return `/media/${item.mediaType.toLowerCase().replace(/\s+/g, '-')}/${item.id}`
+  const type = inferMediaType(item)
+  const typeSlug = slugify(type)
+  return `/media/${typeSlug}/${item.id}`
 }
 export const KnowledgeHubCard: React.FC<KnowledgeHubItemProps> = ({
   item,
@@ -173,7 +207,8 @@ export const KnowledgeHubCard: React.FC<KnowledgeHubItemProps> = ({
   }
   // Determine the card type based on mediaType
   const getCardType = () => {
-    switch (item.mediaType.toLowerCase()) {
+    const mt = inferMediaType(item).toLowerCase()
+    switch (mt) {
       case 'news':
         return 'news'
       case 'blog':
@@ -197,7 +232,8 @@ export const KnowledgeHubCard: React.FC<KnowledgeHubItemProps> = ({
   }
   // Get primary CTA text based on mediaType
   const getPrimaryCTA = () => {
-    switch (item.mediaType.toLowerCase()) {
+    const mt = inferMediaType(item).toLowerCase()
+    switch (mt) {
       case 'news':
       case 'blog':
         return 'Read Article'
@@ -220,7 +256,8 @@ export const KnowledgeHubCard: React.FC<KnowledgeHubItemProps> = ({
   }
   // Get appropriate icon for the content type
   const getContentTypeIcon = () => {
-    switch (item.mediaType.toLowerCase()) {
+    const mt = inferMediaType(item).toLowerCase()
+    switch (mt) {
       case 'news':
       case 'blog':
         return <FileText size={16} className="mr-1 text-blue-600" />

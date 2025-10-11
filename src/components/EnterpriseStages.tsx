@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
+import { useQuery } from '@apollo/client/react'
 import {
   Lightbulb,
   Code,
@@ -11,9 +12,397 @@ import {
   ArrowRight,
   X,
   CheckCircle,
+  Grid,
+  List,
+  ExternalLink,
+  BookOpen,
+  Users,
+  Search,
+  RefreshCw,
+  Building,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { FadeInUpOnScroll, HorizontalScrollReveal } from './AnimationUtils'
+import { GET_ALL_COURSES, GET_PRODUCTS } from '../services/marketplaceQueries'
+
+// Minimal query result typings
+interface GetProductsData {
+  products: { items: any[] }
+}
+interface GetCoursesData {
+  courses: { items: any[] }
+}
+// Define service data types
+interface ServiceItem {
+  id: string
+  title: string
+  desc: string
+  type:
+    | 'financial'
+    | 'nonfinancial'
+    | 'courses'
+    | 'media'
+    | 'industry'
+    | 'sector'
+  cost?: string
+  level?: string
+  delivery?: string
+  provider?: string
+  providerLogo?: string
+  cta: string
+  tags?: string[]
+  url: string
+}
+// NOTE: Static sample data replaced by API-driven data within AvailableServices
+// Available Services component
+interface AvailableServicesProps {
+  stageId: string
+}
+const AvailableServices: React.FC<AvailableServicesProps> = ({ stageId }) => {
+  // State for filters, sort, and view
+  const [marketplaceFilters, setMarketplaceFilters] = useState<string[]>([
+    'all',
+  ])
+  const [viewMode, setViewMode] = useState('grid')
+  const [filteredServices, setFilteredServices] = useState<ServiceItem[]>([])
+  const [allServices, setAllServices] = useState<ServiceItem[]>([])
+  const [visibleCount, setVisibleCount] = useState(8)
+  // Load API data (products and courses) and map into unified items filtered by stage
+  const { data: productData } = useQuery<GetProductsData>(GET_PRODUCTS)
+  const { data: courseData } = useQuery<GetCoursesData>(GET_ALL_COURSES)
+
+  useEffect(() => {
+    const normalize = (value?: string | null) => (value || '').toLowerCase().trim()
+    const currentStage = normalize(stageId)
+
+    const mappedProducts: ServiceItem[] = (productData?.products?.items || [])
+      .map((p: any) => {
+        // Determine financial vs non-financial using facetValues ids (66 financial, 67 non-financial) like MarketplacePage
+        const has66 = p.facetValues?.some((fv: any) => String(fv?.id) === '66')
+        const has67 = p.facetValues?.some((fv: any) => String(fv?.id) === '67')
+        const type: ServiceItem['type'] = has67 ? 'nonfinancial' : has66 ? 'financial' : 'nonfinancial'
+
+        // Derive stage from facetValues (preferred) or customFields fallback
+        const stageFacet = p?.facetValues?.find((fv: any) => normalize(fv?.facet?.code) === 'business-stage')
+        const facetStageName = normalize(stageFacet?.name)
+        const facetStageCode = normalize(stageFacet?.code)
+        const productStage = normalize(p?.customFields?.BusinessStage)
+        const stageCandidates = [currentStage]
+        const matchesStage =
+          !currentStage ||
+          stageCandidates.includes(facetStageName) ||
+          stageCandidates.includes(facetStageCode) ||
+          stageCandidates.includes(productStage)
+        if (!matchesStage) return null
+
+        const formUrl = p?.customFields?.formUrl || 'https://www.tamm.abudhabi/en/login'
+        return {
+          id: String(p.id),
+          title: p.name,
+          desc: p.description || 'Service description not available',
+          type,
+          cost: p?.customFields?.Cost != null ? String(p.customFields.Cost) : undefined,
+          provider: p?.customFields?.Partner || 'Khalifa Fund',
+          providerLogo: p?.customFields?.logoUrl || '/mzn_logo.png',
+          cta: 'Apply',
+          tags: [p?.customFields?.Addtags].filter(Boolean),
+          url: formUrl,
+        } as ServiceItem
+      })
+      .filter(Boolean) as ServiceItem[]
+
+    const mappedCourses: ServiceItem[] = (courseData?.courses?.items || [])
+      .map((c: any) => {
+        const courseStage = normalize(c?.businessStage)
+        const matchesStage =
+          !currentStage ||
+          courseStage === currentStage ||
+          courseStage.includes(currentStage) ||
+          currentStage.includes(courseStage)
+        if (!matchesStage) return null
+        return {
+          id: String(c.id),
+          title: c.name,
+          desc: c.description || 'Course description not available',
+          type: 'courses',
+          cost: c?.cost != null ? String(c.cost) : undefined,
+          level: c?.duration,
+          provider: c?.partner || 'Khalifa Fund Academy',
+          providerLogo: c?.logoUrl || '/mzn_logo.png',
+          cta: 'Enroll',
+          tags: [c?.serviceCategory, c?.pricingModel].filter(Boolean),
+          url: `/courses/${c.id}`,
+        } as ServiceItem
+      })
+      .filter(Boolean) as ServiceItem[]
+
+    const combined = [...mappedProducts, ...mappedCourses]
+    setAllServices(combined)
+  }, [productData, courseData, stageId])
+  // Filter services based on selected filters
+  useEffect(() => {
+    if (allServices.length === 0) {
+      setFilteredServices([])
+      return
+    }
+    let filtered = [...allServices]
+    // Apply marketplace filters
+    if (!marketplaceFilters.includes('all')) {
+      filtered = filtered.filter((service) =>
+        marketplaceFilters.includes(service.type),
+      )
+    }
+    setFilteredServices(filtered)
+  }, [allServices, stageId, marketplaceFilters])
+  // Handle marketplace filter change
+  const handleMarketplaceFilterChange = (value: string) => {
+    if (value === 'all') {
+      setMarketplaceFilters(['all'])
+    } else {
+      const newFilters = marketplaceFilters.includes('all')
+        ? [value]
+        : marketplaceFilters.includes(value)
+          ? marketplaceFilters.filter((f) => f !== value)
+          : [...marketplaceFilters, value]
+      if (newFilters.length === 0) {
+        setMarketplaceFilters(['all'])
+      } else {
+        setMarketplaceFilters(newFilters)
+      }
+    }
+  }
+  // Reset all filters
+  const resetFilters = () => {
+    setMarketplaceFilters(['all'])
+  }
+  // Load more services
+  const loadMore = () => {
+    setVisibleCount((prev) => prev + 8)
+  }
+  // Create filter options for PillFilters (built from available data, keeping expected labels)
+  const marketplaceOptions = [
+    { value: 'all', label: 'All' },
+    { value: 'financial', label: 'Financial' },
+    { value: 'nonfinancial', label: 'Non-financial' },
+    { value: 'courses', label: 'Courses' },
+    { value: 'media', label: 'Media' },
+  ].filter((opt) => {
+    if (opt.value === 'all') return true
+    return allServices.some((s) => s.type === (opt.value as any))
+  })
+  return (
+    <div className="mt-6 bg-white p-6 rounded-xl border border-gray-200">
+      <div className="flex flex-col space-y-6">
+        {/* Header */}
+        <div>
+          <h3 className="text-xl font-semibold text-gray-800">
+            Available Services
+          </h3>
+          <p className="text-gray-600 mt-1">
+            Tools, programs, and content to help you validate your idea.
+          </p>
+        </div>
+        {/* Filters section */}
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="font-medium text-gray-700 min-w-[100px]">
+              Marketplace:
+            </div>
+            <div className="flex-1">
+              <div className="flex flex-wrap gap-2">
+                {marketplaceOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => handleMarketplaceFilterChange(option.value)}
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${marketplaceFilters.includes(option.value) ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          {/* Active filters and reset */}
+          {!marketplaceFilters.includes('all') && (
+            <div className="flex items-center justify-between pt-2">
+              <div className="text-sm text-gray-500">
+                <span className="font-medium">{filteredServices.length}</span>{' '}
+                services found
+              </div>
+              <button
+                onClick={resetFilters}
+                className="text-sm text-blue-600 hover:text-blue-800 flex items-center"
+              >
+                <RefreshCw size={14} className="mr-1" />
+                Reset filters
+              </button>
+            </div>
+          )}
+        </div>
+        {/* View mode controls */}
+        <div className="flex justify-end items-center">
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-1.5 rounded-md ${viewMode === 'grid' ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:bg-gray-100'}`}
+              aria-label="Grid view"
+            >
+              <Grid size={18} />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-1.5 rounded-md ${viewMode === 'list' ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:bg-gray-100'}`}
+              aria-label="List view"
+            >
+              <List size={18} />
+            </button>
+          </div>
+        </div>
+        {/* Service cards */}
+        {filteredServices.length > 0 ? (
+          <div>
+            <div
+              className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}
+            >
+              {filteredServices.slice(0, visibleCount).map((service) => (
+                <div
+                  key={service.id}
+                  className={`bg-white border border-gray-200 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-md hover:border-blue-300 focus-within:ring-2 focus-within:ring-blue-500 ${viewMode === 'list' ? 'flex' : ''}`}
+                >
+                  <a
+                    href={service.url}
+                    className="block p-5 h-full"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <div className="flex flex-col h-full">
+                      {/* Eyebrow */}
+                      <div className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-2">
+                        {service.type === 'financial'
+                          ? 'Financial'
+                          : service.type === 'nonfinancial'
+                            ? 'Non-financial'
+                            : service.type === 'courses'
+                              ? 'Course'
+                              : service.type === 'media'
+                                ? 'Media'
+                                : service.type === 'industry'
+                                  ? 'Industry'
+                                  : 'Sector'}
+                      </div>
+                      {/* Title */}
+                      <h4 className="text-lg font-semibold text-gray-900 mb-1">
+                        {service.title}
+                      </h4>
+                      {/* Description */}
+                      <p className="text-gray-600 text-sm mb-3">
+                        {service.desc}
+                      </p>
+                      {/* Meta information */}
+                      <div className="flex flex-wrap gap-x-4 gap-y-2 mb-4 text-xs">
+                        {service.delivery && (
+                          <div className="flex items-center text-gray-600">
+                            <Users size={14} className="mr-1" />
+                            {service.delivery}
+                          </div>
+                        )}
+                        {service.level && (
+                          <div className="flex items-center text-gray-600">
+                            <BookOpen size={14} className="mr-1" />
+                            {service.level}
+                          </div>
+                        )}
+                        {
+                        // Service Cost currently hidden from the UI
+                        /* {service.cost && (
+                          <div className="flex items-center text-gray-600">
+                            <DollarSign size={14} className="mr-1" />
+                            {service.cost}
+                          </div>
+                        )} */}
+                        {service.provider && (
+                          <div className="flex items-center text-gray-600">
+                            {service.providerLogo ? (
+                              <img 
+                                src={service.providerLogo} 
+                                alt={`${service.provider} logo`}
+                                className="w-4 h-4 mr-1 rounded-sm object-contain"
+                                onError={(e) => {
+                                  // Fallback to Building icon if logo fails to load
+                                  e.currentTarget.style.display = 'none'
+                                  e.currentTarget.nextElementSibling?.classList.remove('hidden')
+                                }}
+                              />
+                            ) : null}
+                            <Building size={14} className={`mr-1 ${service.providerLogo ? 'hidden' : ''}`} />
+                            {service.provider}
+                          </div>
+                        )}
+                      </div>
+                      {/* Tags */}
+                      {service.tags && service.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {service.tags.map((tag, index) => (
+                            <span
+                              key={index}
+                              className="inline-block px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {/* CTA */}
+                      <div className="mt-auto">
+                        <button className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                          {service.cta}
+                          <ExternalLink size={14} className="ml-1.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              ))}
+            </div>
+            {/* Load more button */}
+            {filteredServices.length > visibleCount && (
+              <div className="mt-6 text-center">
+                <button
+                  onClick={loadMore}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Load more
+                  <span className="ml-2 text-gray-500 text-xs">
+                    ({filteredServices.length - visibleCount} remaining)
+                  </span>
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="py-12 text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 text-gray-400 mb-4">
+              <Search size={24} />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No services match your filters
+            </h3>
+            <p className="text-gray-500 mb-6">
+              Try adjusting your filters to find services for {stageId}.
+            </p>
+            <button
+              onClick={resetFilters}
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <RefreshCw size={16} className="mr-2" />
+              Reset filters
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
 // Stage popup component
 interface StagePopupProps {
   stage: {
@@ -48,7 +437,7 @@ const StagePopup: React.FC<StagePopupProps> = ({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-scaleIn"
+        className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-scaleIn"
         onClick={handleContentClick}
       >
         <div className="relative">
@@ -98,36 +487,8 @@ const StagePopup: React.FC<StagePopupProps> = ({
                 ))}
               </ul>
             </div>
-            {/* Services */}
-            {stage.services && (
-              <div className="mb-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-2">
-                  Available Services
-                </h4>
-                <div className="space-y-3">
-                  {stage.services.map((service, index) => (
-                    <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                      <h5 className="font-medium text-gray-800">
-                        {service.title}
-                      </h5>
-                      <p className="text-gray-600 text-sm">
-                        {service.description}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            {/* CTA Button */}
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={onCTAClick}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium py-2 px-6 rounded-md transition-all duration-300 flex items-center"
-              >
-                {stage.ctaText}
-                <ArrowRight size={16} className="ml-2" />
-              </button>
-            </div>
+            {/* Available Services Section */}
+            <AvailableServices stageId={stage.id} />
           </div>
         </div>
       </div>
@@ -191,7 +552,8 @@ const StageCard: React.FC<StageCardProps> = ({
         </div>
         <button
           onClick={(e) => {
-            onShowDetails() // Button shows details popup
+            e.stopPropagation()
+            onShowDetails()
           }}
           className={`mt-auto text-white font-medium py-2 px-4 rounded-md transition-all duration-300 flex items-center justify-center overflow-hidden group ${isActive ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800' : 'bg-blue-600 hover:bg-blue-700'}`}
         >
@@ -500,7 +862,7 @@ const EnterpriseStages: React.FC = () => {
           ))}
         </div>
         {/* Scroll Controls - Desktop */}
-        {/* <div className="hidden md:flex justify-end mb-4 space-x-2">
+        <div className="hidden md:flex justify-end mb-4 space-x-2">
           <button
             onClick={scrollLeft}
             className="p-2 rounded-full bg-white shadow hover:bg-gray-100 transition-colors duration-300"
@@ -515,7 +877,7 @@ const EnterpriseStages: React.FC = () => {
           >
             <ChevronRight size={20} />
           </button>
-        </div> */}
+        </div>
         {/* Scrollable Container */}
         <div
           ref={scrollContainerRef}
@@ -538,8 +900,8 @@ const EnterpriseStages: React.FC = () => {
                 benefits={stage.benefits}
                 icon={stage.icon}
                 ctaText={stage.ctaText}
-                onClick={() => navigate(stage.path)} // This is still needed for the component props
-                onShowDetails={() => handleOpenPopup(stage.id)} // Button opens popup
+                onClick={() => navigate(stage.path)} // Clicking the card now navigates
+                onShowDetails={() => handleOpenPopup(stage.id)} // Button now opens popup
                 index={index}
                 activeIndex={activeIndex}
                 setActiveIndex={setActiveIndex}
