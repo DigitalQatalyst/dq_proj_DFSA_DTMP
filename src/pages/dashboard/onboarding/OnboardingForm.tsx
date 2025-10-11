@@ -59,7 +59,7 @@ export function OnboardingForm({ onComplete, isRevisit = false }) {
       onComplete();
     } else {
       await submitForm();
-      localStorage.setItem("onboardingComplete", "true");
+      // The mock API handles marking onboarding as complete
     }
   };
 
