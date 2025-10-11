@@ -58,7 +58,7 @@ export const businessStages = [
 export const providers = [
   {
     name: "Khalifa Fund Academy",
-    logoUrl: "/image.png",
+    logoUrl: "https://media.licdn.com/dms/image/v2/D4D0BAQEm7hh-vPHtNg/company-logo_200_200/company-logo_200_200/0/1730726304605/khalifa_fund_logo?e=2147483647&v=beta&t=AtpC5HexpPIneFytzHCc6-wjOCF9u0ShL3s5GXPW8K8",
     description:
       "Khalifa Fund for Enterprise Development is an independent, not-for-profit small and medium enterprises (SMEs) socio-economic development organization established in 2007.",
   },

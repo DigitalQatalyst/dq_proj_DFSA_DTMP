@@ -93,7 +93,11 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
           <img
             src={item.provider.logoUrl}
             alt={`${item.provider.name} logo`}
-            className="h-12 w-12 object-contain rounded-md flex-shrink-0 mr-3"
+            className="h-12 w-12 object-contain rounded-lg bg-gray-50 p-2 flex-shrink-0 mr-3"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = "/mzn_logo.png";
+            }}
           />
           <div className="flex-grow min-h-[72px] flex flex-col justify-center">
             <h3 className="font-bold text-gray-900 line-clamp-2 min-h-[48px] leading-snug">
