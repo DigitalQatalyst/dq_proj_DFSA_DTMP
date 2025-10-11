@@ -654,7 +654,7 @@ export const HomePage: React.FC = () => {
       learning: [
         {
           id: "courses",
-          title: "Learning & Developmenssss",
+          title: "Learning & Development",
           description:
             "Discover courses and training programs to enhance your business skills",
           icon: <BookOpen />,
