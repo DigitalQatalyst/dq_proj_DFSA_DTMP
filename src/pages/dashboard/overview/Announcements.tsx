@@ -1,7 +1,9 @@
 import React from "react";
 import { BellIcon, ExternalLinkIcon } from "lucide-react";
+
 interface AnnouncementsProps {
   isLoading: boolean;
+  onViewAllClick?: () => void;
 }
 // Mock announcements data
 const announcements = [
@@ -30,7 +32,15 @@ const announcements = [
     link: "#",
   },
 ];
-export const Announcements: React.FC<AnnouncementsProps> = ({ isLoading }) => {
+export const Announcements: React.FC<AnnouncementsProps> = ({
+  isLoading,
+  onViewAllClick,
+}) => {
+  const handleViewAllClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onViewAllClick?.();
+  };
+
   if (isLoading) {
     return (
       <div className="animate-pulse space-y-4">
@@ -71,12 +81,12 @@ export const Announcements: React.FC<AnnouncementsProps> = ({ isLoading }) => {
         </div>
       ))}
       <div className="pt-2 text-center">
-        <a
-          href="#"
-          className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+        <button
+          onClick={handleViewAllClick}
+          className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
         >
           View All Announcements
-        </a>
+        </button>
       </div>
     </div>
   );

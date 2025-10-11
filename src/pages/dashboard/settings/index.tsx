@@ -60,7 +60,11 @@ export default function SettingsPage() {
             <div className="flex flex-1">
                 <div className="flex-1">
 
-                    <PageLayout title="Settings">
+                        <PageLayout
+                            title="Settings"
+                            headerClassName="pb-4 pl-0.5"
+                            titleClassName="text-3xl font-bold text-gray-900"
+                        >
                         <PageSection>
                             <SectionHeader children={<></>} title="Settings" description="Configure your organization's settings, manage users, and control security preferences." />
                             <SectionContent className="p-0">

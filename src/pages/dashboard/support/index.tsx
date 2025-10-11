@@ -96,7 +96,11 @@ export default function SupportPage() {
                                 </div>
                             </div>
                         )}
-                        <PageLayout title="Support">
+                            <PageLayout
+                                title="Support"
+                                headerClassName="pb-4 pl-0.5"
+                                titleClassName="text-3xl font-bold text-gray-900"
+                            >
                             {/* Support Resources Section */}
                             <PageSection>
                                 <SectionHeader

@@ -5,8 +5,8 @@ import React, {
   useRef,
   cloneElement,
   Component,
-} from 'react'
-import { useNavigate } from 'react-router-dom'
+} from "react";
+import { useNavigate } from "react-router-dom";
 import {
   BookOpen,
   DollarSign,
@@ -70,17 +70,17 @@ import {
   BookCopy,
   Library,
   ChevronLeft,
-} from 'lucide-react'
+} from "lucide-react";
 import {
   FadeInUpOnScroll,
   StaggeredFadeIn,
   AnimatedCounter,
   useInView,
-} from './AnimationUtils'
+} from "./AnimationUtils";
 
 // AI Chatbot component
 const AIChatbot = () => {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
   return (
     <>
       {/* Floating button */}
@@ -122,19 +122,27 @@ const AIChatbot = () => {
         </div>
       )}
     </>
-  )
-}
+  );
+};
 
 // Service Category Card Component
-const ServiceCard = ({ service, onClick, isComingSoon = false }: {
+const ServiceCard = ({
+  service,
+  onClick,
+  isComingSoon = false,
+}: {
   service: any;
   onClick: () => void;
   isComingSoon?: boolean;
 }) => {
-  const [isHovered, setIsHovered] = useState(false)
+  const [isHovered, setIsHovered] = useState(false);
   return (
     <div
-      className={`rounded-xl shadow-md overflow-hidden transition-all duration-500 transform p-5 h-full min-h-[290px] flex flex-col ${isComingSoon ? 'bg-gradient-to-br from-gray-400 to-gray-500 opacity-75 hover:opacity-85' : `bg-gradient-to-br ${service.gradientFrom} ${service.gradientTo} hover:shadow-lg hover:-translate-y-1 hover:scale-102 cursor-pointer`}`}
+      className={`rounded-xl shadow-md overflow-hidden transition-all duration-500 transform p-5 h-full min-h-[290px] flex flex-col ${
+        isComingSoon
+          ? "bg-gradient-to-br from-gray-400 to-gray-500 opacity-75 hover:opacity-85"
+          : `bg-gradient-to-br ${service.gradientFrom} ${service.gradientTo} hover:shadow-lg hover:-translate-y-1 hover:scale-102 cursor-pointer`
+      }`}
       onClick={isComingSoon ? undefined : onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -147,15 +155,17 @@ const ServiceCard = ({ service, onClick, isComingSoon = false }: {
           </div>
         )}
         <div
-          className={`w-14 h-14 rounded-full flex items-center justify-center mb-4 shadow-sm transition-all duration-500 ${isHovered ? 'transform -translate-y-2 animate-pulse' : ''}`}
+          className={`w-14 h-14 rounded-full flex items-center justify-center mb-4 shadow-sm transition-all duration-500 ${
+            isHovered ? "transform -translate-y-2 animate-pulse" : ""
+          }`}
           style={{
-            background: 'white',
+            background: "white",
           }}
         >
-          <div className={isComingSoon ? 'text-gray-500' : 'text-blue-600'}>
+          <div className={isComingSoon ? "text-gray-500" : "text-blue-600"}>
             {cloneElement(service.icon, {
               size: 24,
-              className: isComingSoon ? 'text-gray-500' : 'text-blue-600',
+              className: isComingSoon ? "text-gray-500" : "text-blue-600",
             })}
           </div>
         </div>
@@ -166,20 +176,26 @@ const ServiceCard = ({ service, onClick, isComingSoon = false }: {
           {service.description}
         </p>
         <button
-          className={`mt-auto px-4 py-2 rounded-md font-medium w-full transition-all duration-500 flex items-center justify-center ${isComingSoon ? 'bg-white text-gray-500 cursor-not-allowed' : 'bg-white text-blue-700 hover:bg-blue-50 border border-white/20'} ${isHovered && !isComingSoon ? 'opacity-100' : 'opacity-80'}`}
+          className={`mt-auto px-4 py-2 rounded-md font-medium w-full transition-all duration-500 flex items-center justify-center ${
+            isComingSoon
+              ? "bg-white text-gray-500 cursor-not-allowed"
+              : "bg-white text-blue-700 hover:bg-blue-50 border border-white/20"
+          } ${isHovered && !isComingSoon ? "opacity-100" : "opacity-80"}`}
           disabled={isComingSoon}
           onClick={(e) => {
             if (!isComingSoon) {
-              e.stopPropagation()
-              onClick()
+              e.stopPropagation();
+              onClick();
             }
           }}
         >
-          {isComingSoon ? <Lock size={14} className="mr-2" /> : 'Explore Now'}
+          {isComingSoon ? <Lock size={14} className="mr-2" /> : "Explore Now"}
           {!isComingSoon && (
             <ChevronRight
               size={16}
-              className={`ml-2 transition-transform duration-300 ${isHovered ? 'translate-x-1' : ''}`}
+              className={`ml-2 transition-transform duration-300 ${
+                isHovered ? "translate-x-1" : ""
+              }`}
             />
           )}
         </button>
@@ -194,19 +210,23 @@ const ServiceCard = ({ service, onClick, isComingSoon = false }: {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
 // Category Header Component - Fixed TypeScript Error
-const CategoryHeader = ({ icon, title, count = null }: {
+const CategoryHeader = ({
+  icon,
+  title,
+  count = null,
+}: {
   icon: React.ReactNode;
   title: string;
   count?: number | null;
 }) => {
-  const [isHovered, setIsHovered] = useState(false)
+  const [isHovered, setIsHovered] = useState(false);
   const [ref, isInView] = useInView({
     threshold: 0.1,
-  })
+  });
 
   return (
     <div
@@ -224,7 +244,7 @@ const CategoryHeader = ({ icon, title, count = null }: {
           <span
             className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group"
             style={{
-              width: isHovered ? '100%' : '0%',
+              width: isHovered ? "100%" : "0%",
             }}
           ></span>
         </h2>
@@ -238,87 +258,90 @@ const CategoryHeader = ({ icon, title, count = null }: {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
 // Carousel Component
-const ServiceCarousel = ({ services, handleServiceClick }: {
+const ServiceCarousel = ({
+  services,
+  handleServiceClick,
+}: {
   services: any[];
   handleServiceClick: (path: string) => void;
 }) => {
-  const carouselRef = useRef<HTMLDivElement>(null)
-  const [activeIndex, setActiveIndex] = useState(0)
-  const [visibleCount, setVisibleCount] = useState(4)
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [visibleCount, setVisibleCount] = useState(4);
 
   // Update visible count based on screen size
   useEffect(() => {
     const updateVisibleCount = () => {
       if (window.innerWidth < 640) {
-        setVisibleCount(1)
+        setVisibleCount(1);
       } else if (window.innerWidth < 1024) {
-        setVisibleCount(2)
+        setVisibleCount(2);
       } else {
-        setVisibleCount(4)
+        setVisibleCount(4);
       }
-    }
-    updateVisibleCount()
-    window.addEventListener('resize', updateVisibleCount)
-    return () => window.removeEventListener('resize', updateVisibleCount)
-  }, [])
+    };
+    updateVisibleCount();
+    window.addEventListener("resize", updateVisibleCount);
+    return () => window.removeEventListener("resize", updateVisibleCount);
+  }, []);
 
-  const totalSlides = Math.ceil(services.length / visibleCount)
+  const totalSlides = Math.ceil(services.length / visibleCount);
 
   const scrollToIndex = (index: number) => {
     if (carouselRef.current) {
-      const scrollAmount = index * carouselRef.current.offsetWidth
+      const scrollAmount = index * carouselRef.current.offsetWidth;
       carouselRef.current.scrollTo({
         left: scrollAmount,
-        behavior: 'smooth',
-      })
+        behavior: "smooth",
+      });
     }
-  }
+  };
 
   const handleNext = () => {
-    const nextIndex = Math.min(activeIndex + 1, totalSlides - 1)
-    setActiveIndex(nextIndex)
-    scrollToIndex(nextIndex)
-  }
+    const nextIndex = Math.min(activeIndex + 1, totalSlides - 1);
+    setActiveIndex(nextIndex);
+    scrollToIndex(nextIndex);
+  };
 
   const handlePrev = () => {
-    const prevIndex = Math.max(activeIndex - 1, 0)
-    setActiveIndex(prevIndex)
-    scrollToIndex(prevIndex)
-  }
+    const prevIndex = Math.max(activeIndex - 1, 0);
+    setActiveIndex(prevIndex);
+    scrollToIndex(prevIndex);
+  };
 
   // Handle scroll event to update active index
   useEffect(() => {
     const handleScroll = () => {
       if (carouselRef.current) {
-        const scrollPosition = carouselRef.current.scrollLeft
-        const slideWidth = carouselRef.current.offsetWidth
-        const newIndex = Math.round(scrollPosition / slideWidth)
+        const scrollPosition = carouselRef.current.scrollLeft;
+        const slideWidth = carouselRef.current.offsetWidth;
+        const newIndex = Math.round(scrollPosition / slideWidth);
         if (newIndex !== activeIndex) {
-          setActiveIndex(newIndex)
+          setActiveIndex(newIndex);
         }
       }
-    }
-    const carousel = carouselRef.current
+    };
+    const carousel = carouselRef.current;
     if (carousel) {
-      carousel.addEventListener('scroll', handleScroll)
-      return () => carousel.removeEventListener('scroll', handleScroll)
+      carousel.addEventListener("scroll", handleScroll);
+      return () => carousel.removeEventListener("scroll", handleScroll);
     }
-  }, [activeIndex])
+  }, [activeIndex]);
 
   return (
     <div className="relative">
       {/* Carousel container */}
-            {/* Carousel container */}
-            <div
+      {/* Carousel container */}
+      <div
         ref={carouselRef}
         className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth pb-6 gap-6"
         style={{
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
         }}
       >
         {/* Create pages of cards */}
@@ -329,8 +352,8 @@ const ServiceCarousel = ({ services, handleServiceClick }: {
             key={`page-${pageIndex}`}
             className="flex-shrink-0 w-full flex gap-6 snap-center"
             style={{
-              paddingLeft: pageIndex === 0 ? '0' : '0',
-              paddingRight: pageIndex === totalSlides - 1 ? '0' : '0',
+              paddingLeft: pageIndex === 0 ? "0" : "0",
+              paddingRight: pageIndex === totalSlides - 1 ? "0" : "0",
             }}
           >
             {services
@@ -361,7 +384,11 @@ const ServiceCarousel = ({ services, handleServiceClick }: {
         <button
           onClick={handlePrev}
           disabled={activeIndex === 0}
-          className={`w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-800 pointer-events-auto transition-opacity ${activeIndex === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
+          className={`w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-800 pointer-events-auto transition-opacity ${
+            activeIndex === 0
+              ? "opacity-50 cursor-not-allowed"
+              : "hover:bg-gray-100"
+          }`}
           aria-label="Previous services"
         >
           <ChevronLeft size={20} />
@@ -369,7 +396,11 @@ const ServiceCarousel = ({ services, handleServiceClick }: {
         <button
           onClick={handleNext}
           disabled={activeIndex === totalSlides - 1}
-          className={`w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-800 pointer-events-auto transition-opacity ${activeIndex === totalSlides - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
+          className={`w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-800 pointer-events-auto transition-opacity ${
+            activeIndex === totalSlides - 1
+              ? "opacity-50 cursor-not-allowed"
+              : "hover:bg-gray-100"
+          }`}
           aria-label="Next services"
         >
           <ChevronRight size={20} />
@@ -382,335 +413,352 @@ const ServiceCarousel = ({ services, handleServiceClick }: {
         }).map((_, index) => (
           <button
             key={`indicator-${index}`}
-            className={`w-2 h-2 rounded-full transition-all ${activeIndex === index ? 'bg-blue-600 w-6' : 'bg-gray-300'}`}
+            className={`w-2 h-2 rounded-full transition-all ${
+              activeIndex === index ? "bg-blue-600 w-6" : "bg-gray-300"
+            }`}
             onClick={() => {
-              setActiveIndex(index)
-              scrollToIndex(index)
+              setActiveIndex(index);
+              scrollToIndex(index);
             }}
             aria-label={`Go to slide ${index + 1}`}
           />
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
 export const HomePage: React.FC = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
+  // Handle hash scrolling on component mount
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash === "#services-marketplaces") {
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        const element = document.getElementById("services-marketplaces");
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 300);
+    }
+  }, []);
 
   // Define all services with categories
   const allServices = useMemo(() => {
     return {
       finance: [
         {
-          id: 'funding',
-          title: 'Business Funding',
+          id: "funding",
+          title: "Business Funding",
           description:
-            'Access loans, grants, and investment opportunities tailored for Abu Dhabi businesses',
+            "Access loans, grants, and investment opportunities tailored for Abu Dhabi businesses",
           icon: <DollarSign />,
-          path: '/marketplace/financial',
-          gradientFrom: 'from-blue-600',
-          gradientTo: 'to-blue-400',
+          path: "/marketplace/financial",
+          gradientFrom: "from-blue-600",
+          gradientTo: "to-blue-400",
           isActive: true,
         },
         {
-          id: 'financial',
-          title: 'Financial Services',
+          id: "financial",
+          title: "Financial Services",
           description:
-            'Access financial products to fuel your business growth and sustainability',
+            "Access financial products to fuel your business growth and sustainability",
           icon: <Landmark />,
-          path: '/marketplace/financial',
-          gradientFrom: 'from-blue-600',
-          gradientTo: 'to-blue-400',
+          path: "/marketplace/financial",
+          gradientFrom: "from-blue-600",
+          gradientTo: "to-blue-400",
           isActive: true,
         },
         {
-          id: 'investments',
-          title: 'Investment Marketplace',
+          id: "investments",
+          title: "Investment Marketplace",
           description:
-            'Find investment opportunities and funding options for your business',
+            "Find investment opportunities and funding options for your business",
           icon: <TrendingUp />,
-          path: '/investments',
-          gradientFrom: 'from-blue-600',
-          gradientTo: 'to-blue-400',
+          path: "/investments",
+          gradientFrom: "from-blue-600",
+          gradientTo: "to-blue-400",
           isActive: false,
         },
         {
-          id: 'grants',
-          title: 'Grants Directory',
+          id: "grants",
+          title: "Grants Directory",
           description:
-            'Find grants and funding opportunities for your business',
+            "Find grants and funding opportunities for your business",
           icon: <Award />,
-          path: '/grants',
-          gradientFrom: 'from-blue-600',
-          gradientTo: 'to-blue-400',
+          path: "/grants",
+          gradientFrom: "from-blue-600",
+          gradientTo: "to-blue-400",
           isActive: false,
         },
         {
-          id: 'credit-cards',
-          title: 'Business Credit Cards',
+          id: "credit-cards",
+          title: "Business Credit Cards",
           description:
-            'Compare and apply for business credit cards with special benefits',
+            "Compare and apply for business credit cards with special benefits",
           icon: <CreditCard />,
-          path: '/credit-cards',
-          gradientFrom: 'from-blue-600',
-          gradientTo: 'to-blue-400',
+          path: "/credit-cards",
+          gradientFrom: "from-blue-600",
+          gradientTo: "to-blue-400",
           isActive: false,
         },
         {
-          id: 'savings',
-          title: 'Business Savings',
+          id: "savings",
+          title: "Business Savings",
           description:
-            'Explore savings accounts and investment vehicles for your enterprise',
+            "Explore savings accounts and investment vehicles for your enterprise",
           icon: <BadgeDollarSign />,
-          path: '/savings',
-          gradientFrom: 'from-blue-600',
-          gradientTo: 'to-blue-400',
+          path: "/savings",
+          gradientFrom: "from-blue-600",
+          gradientTo: "to-blue-400",
           isActive: false,
         },
       ],
       advisory: [
         {
-          id: 'mentorship',
-          title: 'Expert Mentorship',
+          id: "mentorship",
+          title: "Expert Mentorship",
           description:
-            'Connect with experienced business mentors who can guide your growth strategy',
+            "Connect with experienced business mentors who can guide your growth strategy",
           icon: <HeartHandshake />,
-          path: '/marketplace/mentorship',
-          gradientFrom: 'from-purple-600',
-          gradientTo: 'to-purple-400',
+          path: "/marketplace/mentorship",
+          gradientFrom: "from-purple-600",
+          gradientTo: "to-purple-400",
           isActive: false,
         },
         {
-          id: 'business-services',
-          title: 'Business Services',
+          id: "business-services",
+          title: "Business Services",
           description:
-            'Find professional services to support and grow your business',
+            "Find professional services to support and grow your business",
           icon: <Briefcase />,
-          path: '/marketplace/non-financial',
-          gradientFrom: 'from-purple-600',
-          gradientTo: 'to-purple-400',
+          path: "/marketplace/non-financial",
+          gradientFrom: "from-purple-600",
+          gradientTo: "to-purple-400",
           isActive: true,
         },
         {
-          id: 'opportunities',
-          title: 'Strategy Advisory',
+          id: "opportunities",
+          title: "Strategy Advisory",
           description:
-            'Discover new business opportunities and strategic partnerships',
+            "Discover new business opportunities and strategic partnerships",
           icon: <Lightbulb />,
-          path: '/opportunities',
-          gradientFrom: 'from-purple-600',
-          gradientTo: 'to-purple-400',
+          path: "/opportunities",
+          gradientFrom: "from-purple-600",
+          gradientTo: "to-purple-400",
           isActive: false,
         },
         {
-          id: 'performance',
-          title: 'Performance Analytics',
+          id: "performance",
+          title: "Performance Analytics",
           description:
-            'Data-driven insights to optimize your business performance',
+            "Data-driven insights to optimize your business performance",
           icon: <Target />,
-          path: '/performance',
-          gradientFrom: 'from-purple-600',
-          gradientTo: 'to-purple-400',
+          path: "/performance",
+          gradientFrom: "from-purple-600",
+          gradientTo: "to-purple-400",
           isActive: false,
         },
         {
-          id: 'market-research',
-          title: 'Market Research',
+          id: "market-research",
+          title: "Market Research",
           description:
-            'In-depth market analysis and consumer behavior insights',
+            "In-depth market analysis and consumer behavior insights",
           icon: <BarChart2 />,
-          path: '/market-research',
-          gradientFrom: 'from-purple-600',
-          gradientTo: 'to-purple-400',
+          path: "/market-research",
+          gradientFrom: "from-purple-600",
+          gradientTo: "to-purple-400",
           isActive: false,
         },
       ],
       growth: [
         {
-          id: 'expansion',
-          title: 'Global Expansion',
+          id: "expansion",
+          title: "Global Expansion",
           description:
             "Leverage Abu Dhabi's strategic location to expand your business internationally",
           icon: <Compass />,
-          path: '/marketplace/expansion',
-          gradientFrom: 'from-teal-600',
-          gradientTo: 'to-teal-400',
+          path: "/marketplace/expansion",
+          gradientFrom: "from-teal-600",
+          gradientTo: "to-teal-400",
           isActive: false,
         },
         {
-          id: 'communities',
-          title: 'Business Communities',
-          description: 'Connect with business networks and expand your professional connections',
+          id: "communities",
+          title: "Business Communities",
+          description:
+            "Connect with business networks and expand your professional connections",
           icon: <Users />,
-          path: 'https://ujs.qxk.mybluehost.me/website_e550b4e3/',
-          gradientFrom: 'from-teal-600',
-          gradientTo: 'to-teal-400',
+          path: "https://ujs.qxk.mybluehost.me/website_e550b4e3/",
+          gradientFrom: "from-teal-600",
+          gradientTo: "to-teal-400",
           isActive: true,
         },
         {
-          id: 'events',
-          title: 'Networking Events',
+          id: "events",
+          title: "Networking Events",
           description:
-            'Discover and join business events and networking opportunities',
+            "Discover and join business events and networking opportunities",
           icon: <Calendar />,
-          path: '/events',
-          gradientFrom: 'from-teal-600',
-          gradientTo: 'to-teal-400',
+          path: "/events",
+          gradientFrom: "from-teal-600",
+          gradientTo: "to-teal-400",
           isActive: false,
         },
         {
-          id: 'jobs',
-          title: 'Jobs Marketplace',
-          description: 'Find talent or explore career opportunities',
+          id: "jobs",
+          title: "Jobs Marketplace",
+          description: "Find talent or explore career opportunities",
           icon: <JobIcon />,
-          path: '/jobs',
-          gradientFrom: 'from-teal-600',
-          gradientTo: 'to-teal-400',
+          path: "/jobs",
+          gradientFrom: "from-teal-600",
+          gradientTo: "to-teal-400",
           isActive: false,
         },
         {
-          id: 'performance-metrics',
-          title: 'Performance Metrics',
+          id: "performance-metrics",
+          title: "Performance Metrics",
           description:
-            'Track and analyze key performance indicators for your business',
+            "Track and analyze key performance indicators for your business",
           icon: <BarChartHorizontal />,
-          path: '/performance-metrics',
-          gradientFrom: 'from-teal-600',
-          gradientTo: 'to-teal-400',
+          path: "/performance-metrics",
+          gradientFrom: "from-teal-600",
+          gradientTo: "to-teal-400",
           isActive: false,
         },
         {
-          id: 'franchising',
-          title: 'Franchising Opportunities',
+          id: "franchising",
+          title: "Franchising Opportunities",
           description:
-            'Explore franchising options to scale your business model',
+            "Explore franchising options to scale your business model",
           icon: <Building2 />,
-          path: '/franchising',
-          gradientFrom: 'from-teal-600',
-          gradientTo: 'to-teal-400',
+          path: "/franchising",
+          gradientFrom: "from-teal-600",
+          gradientTo: "to-teal-400",
           isActive: false,
         },
         {
-          id: 'corporate-venturing',
-          title: 'Corporate Venturing',
+          id: "corporate-venturing",
+          title: "Corporate Venturing",
           description:
-            'Collaborate with established corporations for innovation and growth',
+            "Collaborate with established corporations for innovation and growth",
           icon: <Share2 />,
-          path: '/corporate-venturing',
-          gradientFrom: 'from-teal-600',
-          gradientTo: 'to-teal-400',
+          path: "/corporate-venturing",
+          gradientFrom: "from-teal-600",
+          gradientTo: "to-teal-400",
           isActive: false,
         },
       ],
       learning: [
         {
-          id: 'courses',
-          title: 'Learning & Development',
+          id: "courses",
+          title: "Learning & Development",
           description:
-            'Discover courses and training programs to enhance your business skills',
+            "Discover courses and training programs to enhance your business skills",
           icon: <BookOpen />,
-          path: '/marketplace/courses',
-          gradientFrom: 'from-amber-600',
-          gradientTo: 'to-amber-400',
+          path: "/marketplace/courses",
+          gradientFrom: "from-amber-600",
+          gradientTo: "to-amber-400",
           isActive: true,
         },
         {
-          id: 'digital',
-          title: 'Digital Solutions',
-          description: 'Explore digital tools and solutions for your business',
+          id: "digital",
+          title: "Digital Solutions",
+          description: "Explore digital tools and solutions for your business",
           icon: <Globe />,
-          path: '/digital-services',
-          gradientFrom: 'from-amber-600',
-          gradientTo: 'to-amber-400',
+          path: "/digital-services",
+          gradientFrom: "from-amber-600",
+          gradientTo: "to-amber-400",
           isActive: false,
         },
         {
-          id: 'news',
-          title: 'Knowledge Hub',
+          id: "news",
+          title: "Knowledge Hub",
           description:
-            'Stay updated with the latest business news and industry insights',
+            "Stay updated with the latest business news and industry insights",
           icon: <Newspaper />,
-          path: '/markeplace/knowledge-hub',
-          gradientFrom: 'from-amber-600',
-          gradientTo: 'to-amber-400',
+          path: "/markeplace/knowledge-hub",
+          gradientFrom: "from-amber-600",
+          gradientTo: "to-amber-400",
           isActive: true,
         },
         {
-          id: 'law',
-          title: 'Legal & Compliance',
-          description: 'Access resources on UAE business laws and regulations',
+          id: "law",
+          title: "Legal & Compliance",
+          description: "Access resources on UAE business laws and regulations",
           icon: <BookIcon />,
-          path: '/law',
-          gradientFrom: 'from-amber-600',
-          gradientTo: 'to-amber-400',
+          path: "/law",
+          gradientFrom: "from-amber-600",
+          gradientTo: "to-amber-400",
           isActive: false,
         },
         {
-          id: 'marketing',
-          title: 'Marketing Academy',
+          id: "marketing",
+          title: "Marketing Academy",
           description:
-            'Learn effective marketing strategies for business growth',
+            "Learn effective marketing strategies for business growth",
           icon: <Megaphone />,
-          path: '/marketing-academy',
-          gradientFrom: 'from-amber-600',
-          gradientTo: 'to-amber-400',
+          path: "/marketing-academy",
+          gradientFrom: "from-amber-600",
+          gradientTo: "to-amber-400",
           isActive: false,
         },
         {
-          id: 'startup',
-          title: 'Startup Accelerator',
+          id: "startup",
+          title: "Startup Accelerator",
           description:
-            'Accelerate your startup growth with specialized programs',
+            "Accelerate your startup growth with specialized programs",
           icon: <Rocket />,
-          path: '/startup-accelerator',
-          gradientFrom: 'from-amber-600',
-          gradientTo: 'to-amber-400',
+          path: "/startup-accelerator",
+          gradientFrom: "from-amber-600",
+          gradientTo: "to-amber-400",
           isActive: false,
         },
         {
-          id: 'innovation',
-          title: 'Innovation Lab',
+          id: "innovation",
+          title: "Innovation Lab",
           description:
-            'Explore innovation methodologies and creative problem-solving',
+            "Explore innovation methodologies and creative problem-solving",
           icon: <PanelRight />,
-          path: '/innovation-lab',
-          gradientFrom: 'from-amber-600',
-          gradientTo: 'to-amber-400',
+          path: "/innovation-lab",
+          gradientFrom: "from-amber-600",
+          gradientTo: "to-amber-400",
           isActive: false,
         },
         {
-          id: 'tech-training',
-          title: 'Technology Training',
+          id: "tech-training",
+          title: "Technology Training",
           description:
-            'Develop technical skills essential for digital transformation',
+            "Develop technical skills essential for digital transformation",
           icon: <Laptop />,
-          path: '/tech-training',
-          gradientFrom: 'from-amber-600',
-          gradientTo: 'to-amber-400',
+          path: "/tech-training",
+          gradientFrom: "from-amber-600",
+          gradientTo: "to-amber-400",
           isActive: false,
         },
       ],
-    }
-  }, [])
+    };
+  }, []);
 
   // Function to handle service click
   // const handleServiceClick = (path: string) => {
   //   navigate(path)
   // }
   const handleServiceClick = (path: string) => {
-  if (path.startsWith('http')) {
-    window.open(path, '_blank', 'noopener,noreferrer');
-  } else {
-    navigate(path);
-  }
-}
+    if (path.startsWith("http")) {
+      window.open(path, "_blank", "noopener,noreferrer");
+    } else {
+      navigate(path);
+    }
+  };
 
   return (
     <div className="bg-white py-16">
       <div className="container mx-auto px-4">
         {/* Marketplaces by Category */}
-        <div className="mb-16">
+        <div id="services-marketplaces" className="mb-16">
           <FadeInUpOnScroll className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-3">
               Services & Marketplaces
@@ -847,7 +895,7 @@ export const HomePage: React.FC = () => {
         }
       `}</style>
     </div>
-  )
-}
+  );
+};
 
-export default HomePage
+export default HomePage;

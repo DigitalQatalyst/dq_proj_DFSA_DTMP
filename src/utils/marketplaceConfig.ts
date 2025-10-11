@@ -658,6 +658,9 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
         id: 'news',
         name: 'News'
       }, {
+        id: 'article',
+        name: 'Article'
+      }, {
         id: 'reports',
         name: 'Reports'
       }, {

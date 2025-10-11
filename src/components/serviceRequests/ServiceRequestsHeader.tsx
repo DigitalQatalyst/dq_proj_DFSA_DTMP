@@ -15,7 +15,7 @@ export function ServiceRequestsHeader({
   isLoggedIn,
 }: ServiceRequestsHeaderProps) {
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 md:p-6">
+    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 md:p-6 pb-3 pl-5">
       <div className="flex gap-4">
         <div className="lg:hidden">
           <BurgerMenuButton
@@ -23,9 +23,7 @@ export function ServiceRequestsHeader({
             isLoggedIn={isLoggedIn}
           />
         </div>
-        <h1 className="text-xl md:text-2xl font-semibold text-gray-800">
-          Service Requests
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900">Service Requests</h1>
       </div>
 
       {/* Mobile: Icon-only button, Desktop: Full button with text */}
