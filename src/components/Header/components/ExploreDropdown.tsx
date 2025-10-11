@@ -50,7 +50,7 @@ const marketplaces: Marketplace[] = [
   },
   {
     id: "community",
-    name: "Business Community",
+    name: "Business Communities",
     description:
       "Industry communities for networking, collaboration, and sharing best practices",
     icon: UsersIcon,
