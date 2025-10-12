@@ -110,7 +110,7 @@ return (
 
           <PageLayout
             title="Settings"
-            headerClassName="pb-4 pl-0.5"
+            headerClassName="pt-4 pb-4 pl-0.5"
             titleClassName="text-3xl font-bold text-gray-900"
           >
             <PageSection>
