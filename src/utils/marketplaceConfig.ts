@@ -606,7 +606,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
   },
   'knowledge-hub': {
     id: 'knowledge-hub',
-    title: 'Knowledge Hub Marketplace',
+    title: 'Knowledge Hub',
     description: 'Discover valuable resources, news, events, and tools to support your business journey in Abu Dhabi',
     route: '/marketplace/knowledge-hub',
     primaryCTA: 'Access Now',

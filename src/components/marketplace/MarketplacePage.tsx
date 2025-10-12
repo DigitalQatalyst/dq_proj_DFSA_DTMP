@@ -198,6 +198,8 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   // Loading and error states
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Track header height so sticky elements sit directly under it
+  const [headerHeight, setHeaderHeight] = useState<number>(46);
   
   // Apollo queries for products, facets, and courses
   // Skip GraphQL entirely for Knowledge Hub — it uses Supabase + local data
@@ -214,6 +216,17 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const { data: facetData, error: facetError } = useQuery<GetFacetsData>(GET_FACETS, {
     skip: skipGraph,
   });
+
+  // Measure header height for correct sticky offset on mobile
+  useEffect(() => {
+    const updateHeaderHeight = () => {
+      const header = document.querySelector('header') as HTMLElement | null;
+      setHeaderHeight(header?.offsetHeight || 46);
+    };
+    updateHeaderHeight();
+    window.addEventListener('resize', updateHeaderHeight);
+    return () => window.removeEventListener('resize', updateHeaderHeight);
+  }, []);
 
   // Load filter configurations based on marketplace type
   useEffect(() => {
@@ -968,7 +981,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
         
         <div className="flex flex-col xl:flex-row gap-6">
           {/* Mobile filter toggle */}
-          <div className="xl:hidden sticky top-16 z-20 bg-gray-50 py-2 shadow-sm">
+          <div className="xl:hidden sticky z-20 bg-gray-50 py-2 shadow-sm" style={{ top: "46px" }}>
             <div className="flex justify-between items-center">
               <button
                 onClick={toggleFilters}
@@ -993,21 +1006,23 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           
           {/* Filter sidebar - mobile/tablet */}
           <div
-            className={`fixed inset-0 bg-gray-800 bg-opacity-75 z-30 transition-opacity duration-300 xl:hidden ${
+            className={`fixed inset-x-0 bg-gray-800 bg-opacity-75 z-30 transition-opacity duration-300 xl:hidden ${
               showFilters ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
             onClick={toggleFilters}
             aria-hidden={!showFilters}
+            style={{ top: headerHeight, bottom: 0 }}
           >
             <div
               id="filter-sidebar"
-              className={`fixed inset-y-0 left-0 w-full max-w-sm bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
+              className={`fixed left-0 w-full max-w-sm bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
                 showFilters ? "translate-x-0" : "-translate-x-full"
               }`}
               onClick={(e) => e.stopPropagation()}
               role="dialog"
               aria-modal="true"
               aria-label="Filters"
+              style={{ top: headerHeight, bottom: 0 }}
             >
               <div className="h-full overflow-y-auto">
                 <div className="sticky top-0 bg-white z-10 p-4 border-b border-gray-200 flex justify-between items-center">
