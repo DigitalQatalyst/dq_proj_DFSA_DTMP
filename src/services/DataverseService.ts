@@ -496,7 +496,7 @@ function generateMockDataverseResponse() {
           businessType: "Limited Liability Company",
           industry: "Information Technology",
           businessSize: "Medium Enterprise",
-          annualRevenue: "$25M - $50M",
+          annualRevenue: "AED 25M - AED 50M",
           numberOfEmployees: "120",
           businessDescription:
             "Enterprise software solutions specializing in cloud-based enterprise management systems with AI-driven analytics capabilities. Our flagship products serve various industries including finance, healthcare, and manufacturing.",
@@ -516,7 +516,7 @@ function generateMockDataverseResponse() {
           chamberOfCommerceNumber: "ADCCI-12345",
           fiveYearVision:
             "To become the leading enterprise software provider in the MENA region, with a focus on AI-driven solutions that transform business operations across industries.",
-          investmentGoals: "$15M by Q2 2024 (Series B) - 60% complete",
+          investmentGoals: "AED 15M by Q2 2024 (Series B) - 60% complete",
           technologyRoadmap:
             "2023 Q4: Launch AI analytics platform\n2024 Q2: Expand IoT integration capabilities\n2024 Q4: Develop industry-specific solutions for healthcare\n2025: Blockchain integration for secure transactions",
         },

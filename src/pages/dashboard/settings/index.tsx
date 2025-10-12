@@ -66,12 +66,15 @@ export default function SettingsPage({
         <div className="min-h-screen flex flex-col bg-gray-50">
             <div className="flex flex-1">
                 <div className="flex-1">
-                        {/* Mobile Menu Button */}
-                        <div className="lg:hidden p-4">
-                            <BurgerMenuButton
-                                onClick={() => setIsOpen?.(true)}
-                                isLoggedIn={isLoggedIn ?? true}
-                            />
+                        <div className="lg:hidden p-4 bg-white border-b border-gray-200 sticky top-0 z-30">
+                            <div className="flex items-center">
+                                <BurgerMenuButton
+                                    onClick={() => setIsOpen?.(true)}
+                                    isLoggedIn={isLoggedIn ?? true}
+                                    className="mr-3"
+                                />
+                                <h2 className="text-lg font-semibold text-gray-900">Settings</h2>
+                            </div>
                         </div>
 
                         <PageLayout

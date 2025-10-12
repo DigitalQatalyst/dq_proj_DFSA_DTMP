@@ -57,7 +57,7 @@ export const getGitexEvents = () => {
       eventTime: '9:00 AM - 5:00 PM',
       eventLocation: 'Mövenpick Grand Al Bustan, Dubai, UAE',
       eventLocationDetails: 'Mövenpick Grand Al Bustan, Dubai, United Arab Emirates',
-      eventRegistrationInfo: 'Paid entry - From USD 49 / AED 179 onward (depending on ticket tier). Register at nextevent.ai',
+      eventRegistrationInfo: 'Paid entry - From AED 179 onward (depending on ticket tier). Register at nextevent.ai',
       eventAgenda: [
         {
           day: 'Day 1',
@@ -136,7 +136,7 @@ export const getGitexEvents = () => {
       eventTime: '9:00 AM - 5:00 PM',
       eventLocation: 'Novotel Abu Dhabi Al Bustan',
       eventLocationDetails: 'Novotel Abu Dhabi Al Bustan, Shk. Rashid Bin Saeed St – Rabdan, Abu Dhabi, United Arab Emirates',
-      eventRegistrationInfo: 'Paid entry - From USD 100 / AED 370 onward (depending on participant category). Includes conference materials, lunch, and participation certificate. Register at researchfoundation.org/iceird',
+      eventRegistrationInfo: 'Paid entry - From AED 370 onward (depending on participant category). Includes conference materials, lunch, and participation certificate. Register at researchfoundation.org/iceird',
       eventAgenda: [
         {
           day: 'Day 1',

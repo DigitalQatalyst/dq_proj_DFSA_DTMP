@@ -104,11 +104,15 @@ export default function SupportPage({
                             </div>
                         )}
                         
-                        <div className="lg:hidden p-4 bg-white border-b border-gray-200">
-                            <BurgerMenuButton
-                                onClick={() => setIsOpen?.(true)}
-                                isLoggedIn={isLoggedIn ?? true}
-                            />
+                        <div className="lg:hidden p-4 bg-white border-b border-gray-200 sticky top-0 z-30">
+                            <div className="flex items-center">
+                                <BurgerMenuButton
+                                    onClick={() => setIsOpen?.(true)}
+                                    isLoggedIn={isLoggedIn ?? true}
+                                    className="mr-3"
+                                />
+                                <h2 className="text-lg font-semibold text-gray-900">Support</h2>
+                            </div>
                         </div>
                         
                         <PageLayout
@@ -197,7 +201,7 @@ export default function SupportPage({
                                             <DocumentationTab />
                                         )}
                                     </div>
-                                    {/* Mobile: View All FAQs & Docs link */}
+                                  
                                     <div className="md:hidden sticky bottom-0 bg-white border-t border-gray-200 p-4">
                                         <a
                                             href="/documentation"

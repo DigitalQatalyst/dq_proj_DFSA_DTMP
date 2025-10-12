@@ -143,16 +143,7 @@ export default function FAQsTab() {
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
-      {/* View All Link - Desktop */}
-      <div className="hidden md:flex justify-end">
-        <a
-          href="/documentation"
-          className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm"
-        >
-          View all FAQs and documentation
-          <ExternalLinkIcon className="ml-1 h-4 w-4" />
-        </a>
-      </div>
+     
       {/* Loading State */}
       {loading && (
         <div className="flex justify-center py-8">
@@ -237,15 +228,7 @@ export default function FAQsTab() {
           If you couldn't find the answer you were looking for, please contact
           our support team.
         </p>
-        <div className="mt-3">
-          <a
-            href="#contact-support"
-            className="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 border border-transparent text-xs sm:text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            Contact Support
-          </a>
         </div>
-      </div>
     </div>
   );
 }
