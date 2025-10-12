@@ -7,8 +7,15 @@ import IntegrationsBillingTab from '../../../components/settings/IntegrationsBil
 import PreferencesNotificationsTab from '../../../components/settings/PreferencesNotificationsTab';
 import SecurityComplianceTab from '../../../components/settings/SecurityComplianceTab';
 import UserRolesTab from '../../../components/settings/UserRolesTab';
+import { BurgerMenuButton } from '../../../components/Sidebar';
 
-export default function SettingsPage() {
+export default function SettingsPage({ 
+    setIsOpen, 
+    isLoggedIn 
+}: { 
+    setIsOpen?: (isOpen: boolean) => void; 
+    isLoggedIn?: boolean; 
+} = {}) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeTabIndex, setActiveTabIndex] = useState(0);
     const tabs = [{
@@ -59,6 +66,13 @@ export default function SettingsPage() {
         <div className="min-h-screen flex flex-col bg-gray-50">
             <div className="flex flex-1">
                 <div className="flex-1">
+                        {/* Mobile Menu Button */}
+                        <div className="lg:hidden p-4">
+                            <BurgerMenuButton
+                                onClick={() => setIsOpen?.(true)}
+                                isLoggedIn={isLoggedIn ?? true}
+                            />
+                        </div>
 
                         <PageLayout
                             title="Settings"

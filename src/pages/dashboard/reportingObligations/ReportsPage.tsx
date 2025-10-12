@@ -7,7 +7,14 @@ import { DocumentWalletPanel } from './DocumentWalletPanel';
 import { mockReportData } from './mockReportsData';
 import { HomeIcon, ChevronRightIcon, FilterIcon } from 'lucide-react';
 import { ServiceRequestsFilters } from '../../../components/ServiceRequestsFilters';
-export function ReportsPage() {
+import { BurgerMenuButton } from '../../../components/Sidebar';
+export function ReportsPage({ 
+    setIsOpen, 
+    isLoggedIn 
+}: { 
+    setIsOpen?: (isOpen: boolean) => void; 
+    isLoggedIn?: boolean; 
+} = {}) {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [reportData, setReportData] = useState(null);
@@ -88,6 +95,13 @@ export function ReportsPage() {
     if (isLoading) {
         return (
             <div className="min-h-screen">
+                {/* Mobile Menu Button */}
+                <div className="lg:hidden p-4">
+                    <BurgerMenuButton
+                        onClick={() => setIsOpen?.(true)}
+                        isLoggedIn={isLoggedIn ?? true}
+                    />
+                </div>
 
                 <div className="flex flex-1 overflow-hidden">
                     <div className="bg-gray-50 min-h-screen w-full">
@@ -111,6 +125,13 @@ export function ReportsPage() {
     if (error) {
         return (
             <div className="min-h-screen">
+                {/* Mobile Menu Button */}
+                <div className="lg:hidden p-4">
+                    <BurgerMenuButton
+                        onClick={() => setIsOpen?.(true)}
+                        isLoggedIn={isLoggedIn ?? true}
+                    />
+                </div>
 
                 <div className="flex flex-1 overflow-hidden">
 
@@ -140,9 +161,16 @@ export function ReportsPage() {
     }
     return (
         <div className="min-h-screen">
-
             <div className="flex flex-1 overflow-hidden">
                 <div className="bg-gray-50 min-h-screen w-full">
+                    {/* Mobile Menu Button */}
+                    <div className="lg:hidden p-4 bg-white border-b border-gray-200 sticky top-0 z-20">
+                        <BurgerMenuButton
+                            onClick={() => setIsOpen?.(true)}
+                            isLoggedIn={isLoggedIn ?? true}
+                        />
+                    </div>
+                    
                     <div className=" mx-auto p-4 pt-2 md:p-6 md:pt-4 lg:p-8 lg:pt-5">
                         <h1 className="text-3xl font-bold text-gray-900 mb-4">
                             Reports & Reporting Obligations
