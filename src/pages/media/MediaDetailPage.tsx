@@ -22,8 +22,6 @@ import {
 import { Header } from '../../components/Header'
 import { Footer } from '../../components/Footer'
 import { MediaCard } from '../../components/Cards/MediaCard'
-import { getFallbackKnowledgeHubItems } from '../../utils/fallbackData'
-import { getGitexEvents } from '../../utils/gitexMockData'
 import { getSupabase } from '../../admin-ui/utils/supabaseClient'
 import {
   VideoDurationInfo,
@@ -163,28 +161,7 @@ const MediaDetailPage: React.FC = () => {
         return
       }
       try {
-        // Check mock data first (GITEX events and fallback data)
-        const fallbackItems = getFallbackKnowledgeHubItems()
-        const gitexItems = getGitexEvents()
-        const allMockItems = [...gitexItems, ...fallbackItems]
-        const mockItem = allMockItems.find((it) => it.id === id)
-
-        if (mockItem) {
-          // Found in mock data, use it directly
-          setItem(mockItem)
-          const related = allMockItems
-            .filter(
-              (it) =>
-                it.id !== id &&
-                it.mediaType.toLowerCase().replace(/\s+/g, '-') === type,
-            )
-            .slice(0, 3)
-          setRelatedItems(related)
-          setLoading(false)
-          return
-        }
-
-        // Not in mock data, try Supabase
+        // Fetch from Supabase only — mock data disabled
         try {
           const supabase = getSupabase()
           const { data, error } = await supabase
@@ -295,17 +272,38 @@ const MediaDetailPage: React.FC = () => {
   }, [item?.date, type])
   // Fetch provider posts when profile modal is opened
   useEffect(() => {
-    if (showProfileModal && item?.provider) {
-      const allItems = getFallbackKnowledgeHubItems()
-      const posts = allItems
-        .filter(
-          (post) =>
-            post.provider?.name === item.provider.name && post.id !== item.id,
-        )
-        .slice(0, 6) // Limit to 6 posts
-      setProviderPosts(posts)
+    const fetchProviderPosts = async () => {
+      if (!(showProfileModal && item?.provider?.name)) return
+      try {
+        const supabase = getSupabase()
+        const { data: rel, error } = await supabase
+          .from('media_items')
+          .select('*')
+          .neq('id', item.id)
+          .eq('provider_name', item.provider.name)
+          .eq('status', 'Published')
+          .lte('published_at', new Date().toISOString())
+          .order('published_at', { ascending: false })
+          .limit(6)
+        if (error) throw error
+        const posts = (rel || []).map((r) => ({
+          id: r.id,
+          title: r.title,
+          description: (r as any).body || r.summary,
+          mediaType: r.type || 'Resource',
+          provider: { name: (r as any).provider_name || 'Knowledge Hub', logoUrl: (r as any).provider_logo_url || null },
+          imageUrl: (r as any).thumbnail_url || (r as any).image_url || null,
+          tags: (r as any).tags || [],
+          date: (r as any).published_at,
+        }))
+        setProviderPosts(posts)
+      } catch (e) {
+        console.warn('Provider posts query failed:', e)
+        setProviderPosts([])
+      }
     }
-  }, [showProfileModal, item?.provider, item?.id])
+    fetchProviderPosts()
+  }, [showProfileModal, item?.provider?.name, item?.id])
   // Client-side only initialization of video player
   useEffect(() => {
     // Only run on the client side
@@ -1899,23 +1897,23 @@ const MediaDetailPage: React.FC = () => {
         <div className="bg-white border-b border-gray-200">
           <div className="container mx-auto px-4 py-8 max-w-7xl">
             {/* Breadcrumbs */}
-            <nav className="flex mb-6" aria-label="Breadcrumb">
+            <nav className="mb-6 overflow-x-auto whitespace-nowrap text-sm sm:text-base -mx-4 px-4" aria-label="Breadcrumb">
               <ol className="inline-flex items-center space-x-1 md:space-x-2">
                 <li className="inline-flex items-center">
                   <Link
                     to="/"
-                    className="text-gray-600 hover:text-gray-900 inline-flex items-center"
+                    className="text-gray-600 hover:text-gray-900 inline-flex items-center whitespace-nowrap flex-shrink-0"
                   >
                     <HomeIcon size={16} className="mr-1" />
                     <span>Home</span>
                   </Link>
                 </li>
                 <li>
-                  <div className="flex items-center">
+                  <div className="flex items-center flex-shrink-0">
                     <ChevronRightIcon size={16} className="text-gray-400" />
                     <Link
                       to="/marketplace/knowledge-hub"
-                      className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2"
+                      className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2 whitespace-nowrap"
                     >
                       Knowledge Hub
                     </Link>
@@ -1924,7 +1922,7 @@ const MediaDetailPage: React.FC = () => {
                 <li>
                   <div className="flex items-center">
                     <ChevronRightIcon size={16} className="text-gray-400" />
-                    <span className="ml-1 text-gray-500 md:ml-2">
+                    <span className="ml-1 text-gray-500 md:ml-2 max-w-[60vw] truncate">
                       {getMediaTypeLabel()}
                     </span>
                   </div>
