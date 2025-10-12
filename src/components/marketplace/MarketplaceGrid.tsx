@@ -45,9 +45,14 @@ export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
     null
   );
   const navigate = useNavigate();
-  // Use fallback items if no items are provided or if items array is empty
+  // Use fallback items only if explicitly enabled via env
+  const ENABLE_MOCKS = (import.meta as any).env?.VITE_ENABLE_MOCKS === 'true';
   const displayItems =
-    items && items.length > 0 ? items : getFallbackItems(marketplaceType);
+    items && items.length > 0
+      ? items
+      : ENABLE_MOCKS
+      ? getFallbackItems(marketplaceType)
+      : [];
   const totalItems = displayItems.length;
   if (totalItems === 0) {
     return (

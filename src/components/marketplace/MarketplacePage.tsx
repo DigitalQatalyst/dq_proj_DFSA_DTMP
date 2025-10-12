@@ -21,7 +21,6 @@ import { useQuery } from "@apollo/client/react";
 import { useLocation } from "react-router-dom";
 import { GET_PRODUCTS, GET_FACETS, GET_ALL_COURSES } from "../../services/marketplaceQueries.ts";
 import { fetchMarketplaceFilters } from "../../services/marketplace";
-import { getFallbackKnowledgeHubItems } from "../../utils/fallbackData";
 import { isSupabaseConfigured, getSupabase } from "../../admin-ui/utils/supabaseClient";
 
 
@@ -405,14 +404,11 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               });
             }
           } catch (e) {
-            console.warn('Supabase load failed; using mock only', e);
+            console.warn('Supabase load failed', e);
           }
 
-          // Mock fallback dataset
-          const mock = getFallbackKnowledgeHubItems();
-
-          // Merge + normalize
-          const merged = [...fromSupabase, ...mock];
+          // Use only Supabase data for Knowledge Hub (no mock merge)
+          const merged = [...fromSupabase];
 
           // Apply search + activeFilters
             const matchesActiveFilters = (item: any): boolean => {
