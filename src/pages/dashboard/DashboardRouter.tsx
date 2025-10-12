@@ -115,7 +115,7 @@ const DashboardRouter = () => {
             />
           }
         />
-        <Route path="overview" element={<Overview />} />
+        <Route path="overview" element={<Overview setIsOpen={setIsOpen} isLoggedIn={isLoggedIn} />} />
         <Route
           path="documents"
           element={
@@ -153,10 +153,10 @@ const DashboardRouter = () => {
           path="reporting-obligations/received"
           element={<AllReceivedReportsPage />}
         />
-        <Route path="profile" element={<BusinessProfilePage />} />
+        <Route path="profile" element={<BusinessProfilePage setIsOpen={setIsOpen} isLoggedIn={isLoggedIn} />} />
         <Route path="settings" element={<SettingsPage setIsOpen={setIsOpen} isLoggedIn={isLoggedIn} />} />
         <Route path="support" element={<SupportPage setIsOpen={setIsOpen} isLoggedIn={isLoggedIn} />} />
-        <Route path="chat-support" element={<ChatInterface />} />
+        <Route path="chat-support" element={<ChatInterface setIsOpen={setIsOpen} isLoggedIn={isLoggedIn} />} />
 
         {/* Forms Routes */}
         <Route
@@ -207,7 +207,7 @@ const DashboardRouter = () => {
           element={<TrainingInEntrepreneurship />}
         />
 
-        
+
 
         <Route path="*" element={<Navigate to="overview" replace />} />
       </Routes>

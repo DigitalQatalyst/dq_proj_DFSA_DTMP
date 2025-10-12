@@ -27,7 +27,16 @@ import {
   CheckCircleIcon,
 } from "lucide-react";
 import { ReportModal } from "../ReportModal";
-export function ChatInterface() {
+import { BurgerMenuButton } from '../Sidebar';
+export function ChatInterface(
+  {
+    setIsOpen,
+    isLoggedIn,
+  }: {
+    setIsOpen: (isOpen: boolean) => void;
+    isLoggedIn: boolean;
+  }
+) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>(
@@ -403,78 +412,89 @@ export function ChatInterface() {
   return (
     <div className="flex flex-col h-[91vh] bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       {/* Header with advisor info - Fixed at the top */}
-      <div className="bg-white px-4 py-3 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
-        <div className="flex items-center">
-          <div className="w-10 h-10 rounded-full overflow-hidden mr-3 relative">
-            <img
-              src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80"
-              alt="Manor Hassan"
-              className="w-full h-full object-cover"
-            />
-            {connectionStatus === ConnectionStatus.CONNECTED && (
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white transform translate-x-1/3 translate-y-1/3 z-10"></div>
-            )}
-            {connectionStatus === ConnectionStatus.ERROR && (
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-white transform translate-x-1/3 translate-y-1/3 z-10"></div>
-            )}
-          </div>
-          <div>
-            <h2 className="text-base font-medium text-gray-800">
-              Manor Hassan
-            </h2>
+      <div className=''>
+
+        <div className="bg-white px-4 py-3 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
+          <div className='flex gap-4'>
+            <div className='lg:hidden'>
+              <BurgerMenuButton
+                onClick={() => setIsOpen(true)}
+                isLoggedIn={isLoggedIn}
+              />
+            </div>
+
             <div className="flex items-center">
-              <span className="text-xs text-gray-500 mr-2">EJ Advisor</span>
-              {renderConnectionStatus()}
+              <div className="w-10 h-10 rounded-full overflow-hidden mr-3 relative">
+                <img
+                  src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80"
+                  alt="Manor Hassan"
+                  className="w-full h-full object-cover"
+                />
+                {connectionStatus === ConnectionStatus.CONNECTED && (
+                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white transform translate-x-1/3 translate-y-1/3 z-10"></div>
+                )}
+                {connectionStatus === ConnectionStatus.ERROR && (
+                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-white transform translate-x-1/3 translate-y-1/3 z-10"></div>
+                )}
+              </div>
+              <div>
+                <h2 className="text-base font-medium text-gray-800">
+                  Manor Hassan
+                </h2>
+                <div className="flex items-center">
+                  <span className="text-xs text-gray-500 mr-2">EJ Advisor</span>
+                  {renderConnectionStatus()}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="flex space-x-3">
-          {/* For demo purposes only - toggle role button */}
-          {/* <button
+          <div className="flex space-x-3">
+            {/* For demo purposes only - toggle role button */}
+            {/* <button
             className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-500 hover:bg-gray-200"
             onClick={toggleRole}
           >
             Role: {userRole}
           </button> */}
-          <button
-            className="text-gray-400 hover:text-gray-600"
-            onClick={handleSearchClick}
-          >
-            <SearchIcon size={20} />
-          </button>
-          <div className="relative">
             <button
               className="text-gray-400 hover:text-gray-600"
-              onClick={handleMenuClick}
+              onClick={handleSearchClick}
             >
-              <MoreVerticalIcon size={20} />
+              <SearchIcon size={20} />
             </button>
-            {/* Dropdown Menu */}
-            {isMenuOpen && (
-              <div
-                ref={menuRef}
-                className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200"
+            <div className="relative">
+              <button
+                className="text-gray-400 hover:text-gray-600"
+                onClick={handleMenuClick}
               >
-                {/* Mute Notifications */}
-                <button
-                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  onClick={toggleMuteNotifications}
+                <MoreVerticalIcon size={20} />
+              </button>
+              {/* Dropdown Menu */}
+              {isMenuOpen && (
+                <div
+                  ref={menuRef}
+                  className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200"
                 >
-                  {isMuted ? (
-                    <>
-                      <BellOffIcon size={16} className="mr-2 text-gray-500" />
-                      Unmute Notifications
-                    </>
-                  ) : (
-                    <>
-                      <VolumeXIcon size={16} className="mr-2 text-gray-500" />
-                      Mute Notifications
-                    </>
-                  )}
-                </button>
+                  {/* Mute Notifications */}
+                  <button
+                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={toggleMuteNotifications}
+                  >
+                    {isMuted ? (
+                      <>
+                        <BellOffIcon size={16} className="mr-2 text-gray-500" />
+                        Unmute Notifications
+                      </>
+                    ) : (
+                      <>
+                        <VolumeXIcon size={16} className="mr-2 text-gray-500" />
+                        Mute Notifications
+                      </>
+                    )}
+                  </button>
 
-                {/* Automatic Responses Toggle */}
-                {/* <button
+                  {/* Automatic Responses Toggle */}
+                  {/* <button
                   className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   onClick={toggleAutomaticResponses}
                 >
@@ -497,8 +517,8 @@ export function ChatInterface() {
                   )}
                 </button> */}
 
-                {/* Manual Response Trigger - only show when auto responses are disabled */}
-                {/* {!automaticResponsesEnabled &&
+                  {/* Manual Response Trigger - only show when auto responses are disabled */}
+                  {/* {!automaticResponsesEnabled &&
                   messages.some((msg) => msg.sender === "me") && (
                     <button
                       className="flex items-center w-full px-4 py-2 text-sm text-blue-600 hover:bg-gray-100"
@@ -509,48 +529,49 @@ export function ChatInterface() {
                     </button>
                   )} */}
 
-                {/* Report option */}
-                <button
-                  className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                  onClick={handleOpenReportModal}
-                >
-                  <FlagIcon size={16} className="mr-2" />
-                  Report
-                </button>
-                <div className="border-t border-gray-100 my-1"></div>
-                {/* Clear Chat - only visible for admin role */}
-                {userRole === "admin" &&
-                  (!showConfirmClear ? (
-                    <button
-                      className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                      onClick={handleClearChat}
-                    >
-                      <TrashIcon size={16} className="mr-2" />
-                      Clear Chat
-                    </button>
-                  ) : (
-                    <div className="px-4 py-2 text-sm">
-                      <p className="text-gray-700 mb-2">
-                        Clear this conversation?
-                      </p>
-                      <div className="flex space-x-2">
-                        <button
-                          className="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600"
-                          onClick={handleClearChat}
-                        >
-                          Clear
-                        </button>
-                        <button
-                          className="px-3 py-1 bg-gray-200 text-gray-700 text-xs rounded hover:bg-gray-300"
-                          onClick={() => setShowConfirmClear(false)}
-                        >
-                          Cancel
-                        </button>
+                  {/* Report option */}
+                  <button
+                    className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    onClick={handleOpenReportModal}
+                  >
+                    <FlagIcon size={16} className="mr-2" />
+                    Report
+                  </button>
+                  <div className="border-t border-gray-100 my-1"></div>
+                  {/* Clear Chat - only visible for admin role */}
+                  {userRole === "admin" &&
+                    (!showConfirmClear ? (
+                      <button
+                        className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                        onClick={handleClearChat}
+                      >
+                        <TrashIcon size={16} className="mr-2" />
+                        Clear Chat
+                      </button>
+                    ) : (
+                      <div className="px-4 py-2 text-sm">
+                        <p className="text-gray-700 mb-2">
+                          Clear this conversation?
+                        </p>
+                        <div className="flex space-x-2">
+                          <button
+                            className="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600"
+                            onClick={handleClearChat}
+                          >
+                            Clear
+                          </button>
+                          <button
+                            className="px-3 py-1 bg-gray-200 text-gray-700 text-xs rounded hover:bg-gray-300"
+                            onClick={() => setShowConfirmClear(false)}
+                          >
+                            Cancel
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-              </div>
-            )}
+                    ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -848,11 +869,10 @@ export function ChatInterface() {
               <button
                 onClick={handleSubmitCustomReport}
                 disabled={!customReportReason.trim()}
-                className={`px-4 py-2 text-sm font-medium text-white rounded-md shadow-sm flex items-center ${
-                  customReportReason.trim()
-                    ? "bg-red-600 hover:bg-red-700"
-                    : "bg-red-300 cursor-not-allowed"
-                }`}
+                className={`px-4 py-2 text-sm font-medium text-white rounded-md shadow-sm flex items-center ${customReportReason.trim()
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-red-300 cursor-not-allowed"
+                  }`}
               >
                 <FlagIcon size={16} className="mr-2" />
                 Submit Report

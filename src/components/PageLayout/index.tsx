@@ -1,10 +1,11 @@
 import React, { Fragment, ComponentType } from 'react';
 import { ChevronRight, Home } from 'lucide-react';
+import { BurgerMenuButton } from '../Sidebar';
 
 export interface BreadcrumbItem {
     label: string;
     href?: string;
-    icon?: ComponentType<{ className?: string }>;
+    icon?: ComponentType<{ className?: string; }>;
     current?: boolean;
 }
 
@@ -53,12 +54,12 @@ interface PageHeaderProps {
 }
 
 export function PageHeader({
-                               title,
-                               breadcrumbs,
-                               'data-id': dataId,
-                               headerClassName = 'pb-4',
-                               titleClassName = 'text-3xl font-bold text-gray-900 mb-2',
-                           }: PageHeaderProps) {
+    title,
+    breadcrumbs,
+    'data-id': dataId,
+    headerClassName = 'pb-4',
+    titleClassName = 'text-3xl font-bold text-gray-900 mb-2',
+}: PageHeaderProps) {
     return (
         <div className={headerClassName} data-id={dataId}>
             <h1 className={titleClassName}>{title}</h1>
@@ -76,29 +77,41 @@ interface PageLayoutProps {
     'data-id'?: string;
     headerClassName?: string;
     titleClassName?: string;
+    setIsOpen?: (isOpen: boolean) => void;
+    isLoggedIn?: boolean;
 }
 
 export function PageLayout({
-                               title,
-                               breadcrumbs,
-                               children,
-                               'data-id': dataId,
-                               headerClassName,
-                               titleClassName,
-                           }: PageLayoutProps) {
+    title,
+    breadcrumbs,
+    children,
+    'data-id': dataId,
+    headerClassName,
+    titleClassName,
+    setIsOpen,
+    isLoggedIn,
+}: PageLayoutProps) {
     return (
         <main
             className="flex-1 overflow-y-auto p-4 lg:p-6 bg-gray-50"
             data-id={dataId}
         >
-            {title && (
-                <PageHeader
-                    title={title}
-                    breadcrumbs={breadcrumbs}
-                    headerClassName={headerClassName}
-                    titleClassName={titleClassName}
-                />
-            )}
+            <div className="flex gap-2">
+                <div className='lg:hidden'>
+                    <BurgerMenuButton
+                        onClick={() => setIsOpen?.(true)}
+                        isLoggedIn={isLoggedIn}
+                    />
+                </div>
+
+                {title && (
+                    <PageHeader
+                        title={title}
+                        breadcrumbs={breadcrumbs}
+                        headerClassName={headerClassName}
+                        titleClassName={titleClassName}
+                    />
+                )}</div>
             <div className="space-y-6">{children}</div>
         </main>
     );
@@ -111,10 +124,10 @@ interface PageSectionProps {
 }
 
 export function PageSection({
-                                children,
-                                className = '',
-                                'data-id': dataId,
-                            }: PageSectionProps) {
+    children,
+    className = '',
+    'data-id': dataId,
+}: PageSectionProps) {
     return (
         <div
             className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}
@@ -134,12 +147,12 @@ interface SectionHeaderProps {
 }
 
 export function SectionHeader({
-                                  title,
-                                  description,
-                                  actions,
-                                  'data-id': dataId,
-                                  children,
-                              }: SectionHeaderProps) {
+    title,
+    description,
+    actions,
+    'data-id': dataId,
+    children,
+}: SectionHeaderProps) {
     return <>{children}</>;
 }
 
@@ -150,10 +163,10 @@ interface SectionContentProps {
 }
 
 export function SectionContent({
-                                   children,
-                                   className = '',
-                                   'data-id': dataId,
-                               }: SectionContentProps) {
+    children,
+    className = '',
+    'data-id': dataId,
+}: SectionContentProps) {
     return (
         <div className={`p-6 ${className}`} data-id={dataId}>
             {children}
@@ -171,13 +184,13 @@ interface PrimaryButtonProps {
 }
 
 export function PrimaryButton({
-                                  children,
-                                  onClick,
-                                  disabled = false,
-                                  type = 'button',
-                                  className = '',
-                                  'data-id': dataId,
-                              }: PrimaryButtonProps) {
+    children,
+    onClick,
+    disabled = false,
+    type = 'button',
+    className = '',
+    'data-id': dataId,
+}: PrimaryButtonProps) {
     return (
         <button
             type={type}
@@ -206,13 +219,13 @@ interface SecondaryButtonProps {
 }
 
 export function SecondaryButton({
-                                    children,
-                                    onClick,
-                                    disabled = false,
-                                    type = 'button',
-                                    className = '',
-                                    'data-id': dataId,
-                                }: SecondaryButtonProps) {
+    children,
+    onClick,
+    disabled = false,
+    type = 'button',
+    className = '',
+    'data-id': dataId,
+}: SecondaryButtonProps) {
     return (
         <button
             type={type}

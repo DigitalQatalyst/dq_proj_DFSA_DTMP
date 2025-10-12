@@ -9,12 +9,12 @@ import FAQsTab from '../../../components/support/FAQsTab';
 import TicketHistoryTab from '../../../components/support/TicketHistoryTab';
 import { BurgerMenuButton } from '../../../components/Sidebar';
 
-export default function SupportPage({ 
-    setIsOpen, 
-    isLoggedIn 
-}: { 
-    setIsOpen?: (isOpen: boolean) => void; 
-    isLoggedIn?: boolean; 
+export default function SupportPage({
+    setIsOpen,
+    isLoggedIn
+}: {
+    setIsOpen?: (isOpen: boolean) => void;
+    isLoggedIn?: boolean;
 }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeResourceTab, setActiveResourceTab] = useState('faqs');
@@ -103,22 +103,12 @@ export default function SupportPage({
                                 </div>
                             </div>
                         )}
-                        
-                        <div className="lg:hidden p-4 bg-white border-b border-gray-200 sticky top-0 z-30">
-                            <div className="flex items-center">
-                                <BurgerMenuButton
-                                    onClick={() => setIsOpen?.(true)}
-                                    isLoggedIn={isLoggedIn ?? true}
-                                    className="mr-3"
-                                />
-                                <h2 className="text-lg font-semibold text-gray-900">Support</h2>
-                            </div>
-                        </div>
-                        
                         <PageLayout
                             title="Support"
                             headerClassName="pb-4 pl-0.5"
                             titleClassName="text-3xl font-bold text-gray-900"
+                            setIsOpen={setIsOpen}
+                            isLoggedIn={isLoggedIn}
                         >
                             {/* Support Resources Section */}
                             <PageSection>
@@ -201,7 +191,7 @@ export default function SupportPage({
                                             <DocumentationTab />
                                         )}
                                     </div>
-                                  
+
                                     <div className="md:hidden sticky bottom-0 bg-white border-t border-gray-200 p-4">
                                         <a
                                             href="/documentation"
