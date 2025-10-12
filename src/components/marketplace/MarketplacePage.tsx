@@ -427,14 +427,36 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           }));
 
           // Apply search + activeFilters
-          const matchesActiveFilters = (item: any): boolean => {
-            if (!activeFilters.length) return true;
+            const matchesActiveFilters = (item: any): boolean => {
+              if (!activeFilters.length) return true;
 
-            // Normalize function to handle singular/plural matching
+              // Normalize function to handle singular/plural matching
             const normalize = (str: string): string => {
               const s = String(str).toLowerCase().trim();
-              // Remove trailing 's' for plural normalization
-              return s.endsWith('s') ? s.slice(0, -1) : s;
+              const base = s.endsWith('s') ? s.slice(0, -1) : s;
+              // Map legacy/new business stage synonyms to canonical set
+              switch (base) {
+                case 'idea stage':
+                case 'idea stag':
+                case 'ideation':
+                  return 'ideation';
+                case 'startup':
+                case 'launch':
+                  return 'launch';
+                case 'scale-up':
+                case 'scale up':
+                case 'expansion':
+                  return 'expansion';
+                case 'established':
+                case 'optimization':
+                  return 'optimization';
+                case 'growth':
+                  return 'growth';
+                case 'transformation':
+                  return 'transformation';
+                default:
+                  return base;
+              }
             };
 
             // Group active filters by category
@@ -466,22 +488,23 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             // Check filters: OR within category, AND across categories
             return Object.keys(filtersByCategory).every((categoryId) => {
               const categoryFilters = filtersByCategory[categoryId];
-              const itemValue = itemValues[categoryId];
+              let itemValue = itemValues[categoryId];
 
               if (!itemValue) {
                 // If item doesn't have this field, check tags as fallback
                 if (Array.isArray(item.tags)) {
-                  return categoryFilters.some((filterValue) =>
-                    item.tags.some((tag: string) => normalize(tag) === normalize(filterValue))
-                  );
+                  return categoryFilters.some((filterValue) => {
+                    const target = normalize(filterValue);
+                    return item.tags.some((tag: string) => normalize(tag) === target);
+                  });
                 }
                 return false;
               }
 
               // OR logic: at least one filter in this category must match
-              return categoryFilters.some((filterValue) =>
-                normalize(itemValue) === normalize(filterValue)
-              );
+              return categoryFilters.some((filterValue) => {
+                return normalize(itemValue) === normalize(filterValue);
+              });
             });
           };
 

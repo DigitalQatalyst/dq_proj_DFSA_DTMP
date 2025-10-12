@@ -128,10 +128,19 @@ const MediaDetailPage: React.FC = () => {
     setIsClientSide(true)
   }, [])
   useEffect(() => {
+    const stripHtml = (html: string): string => {
+      try {
+        const tmp = document.createElement('div')
+        tmp.innerHTML = String(html || '')
+        return (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim()
+      } catch {
+        return String(html || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+      }
+    }
     const mapRowToItem = (row: any) => ({
       id: row.id,
       title: row.title,
-      description: row.body || row.summary,
+      description: stripHtml(row.body || row.summary),
       content: row.body_html || row.body,
       mediaType: row.type || 'Resource',
       provider: { name: row.provider_name || 'Knowledge Hub', logoUrl: row.provider_logo_url || null },
@@ -836,12 +845,14 @@ const MediaDetailPage: React.FC = () => {
                             ? undefined
                             : videoUrlRef.current || undefined
                         }
-                        className="w-full h-full object-cover rounded-lg aspect-video"
+                        className="w-full h-full rounded-lg aspect-video"
                         controls
                         controlsList="nodownload"
                         preload="metadata"
                         poster={getPosterUrl(item)}
                         playsInline
+                        // Ensure full video is visible on small screens and in fullscreen
+                        style={{ objectFit: (typeof window !== 'undefined' && window.innerWidth < 640) ? 'contain' : 'cover' }}
                         onLoadedMetadata={() => {
                           // Update duration from video element when metadata is loaded
                           if (
@@ -1776,11 +1787,15 @@ const MediaDetailPage: React.FC = () => {
   }
   // Get card type for related items
   const getCardType = (mediaType: string): 'news' | 'blog' | 'video' | 'podcast' | 'event' | 'report' | 'toolkit' | 'infographic' | 'case-study' | 'tool' | 'announcement' => {
-    switch (mediaType.toLowerCase()) {
+    const mt = (mediaType || '').toLowerCase()
+    switch (mt) {
       case 'news':
         return 'news'
       case 'blog':
         return 'blog'
+      case 'article':
+        // Treat articles as news-style cards
+        return 'news'
       case 'event':
         return 'event'
       case 'video':
@@ -1797,7 +1812,8 @@ const MediaDetailPage: React.FC = () => {
       case 'announcement':
         return 'announcement'
       default:
-        return 'report'
+        // Default to article-style rather than report to avoid download CTAs
+        return 'news'
     }
   }
   // Get additional props for related items
