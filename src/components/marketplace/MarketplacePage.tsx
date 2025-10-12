@@ -348,18 +348,42 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 // Define valid filter values for matching
                 const validFormats = ['Quick Reads', 'In-Depth Reports', 'Interactive Tools', 'Downloadable Templates', 'Recorded Media', 'Live Events'];
                 const validPopularity = ['Latest', 'Trending', 'Most Downloaded', "Editor's Pick"];
-                const validBusinessStages = ['Idea Stage', 'Startup', 'Growth', 'Scale-up', 'Established', 'All Stages'];
+
+                // Support both legacy and new Business Stage labels
+                const legacyStages = ['Idea Stage', 'Startup', 'Growth', 'Scale-up', 'Established', 'All Stages'];
+                const newStages = ['Ideation', 'Launch', 'Growth', 'Expansion', 'Optimization', 'Transformation', 'All Stages'];
 
                 // Extract values from tags
                 const format = tags.find((tag: string) => validFormats.includes(tag));
                 const popularity = tags.find((tag: string) => validPopularity.includes(tag));
-                const businessStage = tags.find((tag: string) => validBusinessStages.includes(tag));
+
+                const rawBusinessStage = tags.find((tag: string) => legacyStages.includes(tag) || newStages.includes(tag));
+                const normalizeBusinessStage = (stage?: string): string | undefined => {
+                  if (!stage) return undefined;
+                  switch (stage) {
+                    case 'Idea Stage':
+                      return 'Ideation';
+                    case 'Startup':
+                      return 'Launch';
+                    case 'Scale-up':
+                      return 'Expansion';
+                    case 'Established':
+                      return 'Optimization';
+                    default:
+                      return stage; // 'Growth', 'Ideation', 'Launch', 'Expansion', 'Optimization', 'Transformation', 'All Stages'
+                  }
+                };
+                const businessStage = normalizeBusinessStage(rawBusinessStage);
 
                 // Strip HTML tags from description
                 const stripHtml = (html: string): string => {
-                  const tmp = document.createElement('div');
-                  tmp.innerHTML = html;
-                  return tmp.textContent || tmp.innerText || '';
+                  try {
+                    const tmp = document.createElement('div');
+                    tmp.innerHTML = String(html || '');
+                    return (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim();
+                  } catch {
+                    return String(html || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+                  }
                 };
 
                 fromSupabase.push({
@@ -388,7 +412,19 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
           // Merge Supabase data with GITEX events
           const gitexEvents = getGitexEvents();
-          const merged = [...gitexEvents, ...fromSupabase];
+          const stripHtml = (html: string): string => {
+            try {
+              const tmp = document.createElement('div');
+              tmp.innerHTML = String(html || '');
+              return (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim();
+            } catch {
+              return String(html || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+            }
+          };
+          const merged = [...gitexEvents, ...fromSupabase].map((it: any) => ({
+            ...it,
+            description: stripHtml(it.description || it.summary || ''),
+          }));
 
           // Apply search + activeFilters
           const matchesActiveFilters = (item: any): boolean => {

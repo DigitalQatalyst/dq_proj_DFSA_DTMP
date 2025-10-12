@@ -682,22 +682,14 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
     }, {
       id: 'businessStage',
       title: 'Business Stage',
-      options: [{
-        id: 'idea',
-        name: 'Idea Stage'
-      }, {
-        id: 'startup',
-        name: 'Startup'
-      }, {
-        id: 'growth',
-        name: 'Growth'
-      }, {
-        id: 'scaleup',
-        name: 'Scale-up'
-      }, {
-        id: 'established',
-        name: 'Established'
-      }]
+      options: [
+        { id: 'ideation', name: 'Ideation' },
+        { id: 'launch', name: 'Launch' },
+        { id: 'growth', name: 'Growth' },
+        { id: 'expansion', name: 'Expansion' },
+        { id: 'optimization', name: 'Optimization' },
+        { id: 'transformation', name: 'Transformation' }
+      ]
     }, {
       id: 'category',
       title: 'Category',
