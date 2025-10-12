@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   SearchIcon,
   BookOpenIcon,
@@ -19,7 +20,7 @@ const documentationCategories = [
         description:
           "Learn about the key features and capabilities of our platform.",
         type: "guide",
-        url: "#",
+        url: "/coming-soon/documentation",
       },
       {
         id: "r2",
@@ -27,14 +28,14 @@ const documentationCategories = [
         description:
           "Get up and running with our platform in less than 10 minutes.",
         type: "guide",
-        url: "#",
+        url: "/coming-soon/documentation",
       },
       {
         id: "r3",
         title: "Onboarding Video Tutorial",
         description: "Watch this comprehensive video guide to get started.",
         type: "video",
-        url: "#",
+        url: "/coming-soon/documentation",
         duration: "8:24",
       },
     ],
@@ -49,21 +50,21 @@ const documentationCategories = [
         title: "Dashboard Navigation",
         description: "Learn how to effectively navigate and use the dashboard.",
         type: "guide",
-        url: "#",
+        url: "/coming-soon/documentation",
       },
       {
         id: "r5",
         title: "User Management Guide",
         description: "Comprehensive guide to managing users and permissions.",
         type: "guide",
-        url: "#",
+        url: "/coming-soon/documentation",
       },
       {
         id: "r6",
         title: "Data Import and Export",
         description: "Learn how to import and export data in various formats.",
         type: "guide",
-        url: "#",
+        url: "/coming-soon/documentation",
       },
     ],
   },
@@ -77,7 +78,7 @@ const documentationCategories = [
         title: "Advanced Features Walkthrough",
         description: "Discover the advanced features of our platform.",
         type: "video",
-        url: "#",
+        url: "/coming-soon/documentation",
         duration: "15:30",
       },
       {
@@ -85,7 +86,7 @@ const documentationCategories = [
         title: "Reporting and Analytics Tutorial",
         description: "Learn how to generate and interpret reports.",
         type: "video",
-        url: "#",
+        url: "/coming-soon/documentation",
         duration: "12:45",
       },
       {
@@ -94,7 +95,7 @@ const documentationCategories = [
         description:
           "Set up automated workflows to save time and reduce errors.",
         type: "video",
-        url: "#",
+        url: "/coming-soon/documentation",
         duration: "10:15",
       },
     ],
@@ -150,9 +151,9 @@ export default function DocumentationTab() {
             <div className="p-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {category.resources.map((resource) => (
-                  <a
+                  <Link
                     key={resource.id}
-                    href="/documentation"
+                    to={resource.url}
                     className="block border border-gray-200 rounded-md p-4 hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex justify-between">
@@ -177,7 +178,7 @@ export default function DocumentationTab() {
                       <span className="capitalize">{resource.type}</span>
                       <ExternalLinkIcon className="h-4 w-4 ml-2" />
                     </div>
-                  </a>
+                  </Link>
                 ))}
               </div>
             </div>

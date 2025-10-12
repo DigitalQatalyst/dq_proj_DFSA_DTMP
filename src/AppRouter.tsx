@@ -91,6 +91,10 @@ export function AppRouter() {
           <Route path="/business-directory-marketplace" element={<BusinessDirectoryMarketplace />} />
           <Route path="/coming-soon" element={<ComingSoon />} />
           <Route path="/coming-soon/:feature" element={<ComingSoon />} />
+          
+          {/* Documentation routes - redirect to coming soon */}
+          <Route path="/documentation" element={<Navigate to="/coming-soon/documentation" replace />} />
+          <Route path="/documentation/*" element={<Navigate to="/coming-soon/documentation" replace />} />
           <Route path="/admin-ui/settings" element={<AdminSettings />} />
           {/** Forms routes */}
           <Route

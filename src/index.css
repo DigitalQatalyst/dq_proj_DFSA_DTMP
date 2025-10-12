@@ -17,6 +17,39 @@
   display: none;  /* Chrome, Safari and Opera */
 }
 
+/* Map styles for better responsiveness */
+.map-fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999 !important;
+  border-radius: 0 !important;
+}
+
+.fullscreen-map {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Ensure map is responsive on all devices */
+.leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Fix map popup responsiveness */
+.map-popup .leaflet-popup-content-wrapper {
+  max-width: 90vw !important;
+}
+
+@media (max-width: 640px) {
+  .map-popup .leaflet-popup-content-wrapper {
+    max-width: 280px !important;
+  }
+}
+
 /* TipTap content gets readable defaults similar to public page */
 .tiptap :where(p)       { @apply my-3; }
 .tiptap :where(h2)      { @apply text-2xl font-bold mt-6 mb-3; }
