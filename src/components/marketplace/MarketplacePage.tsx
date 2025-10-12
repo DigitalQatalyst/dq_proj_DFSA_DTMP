@@ -21,14 +21,13 @@ import { useQuery } from "@apollo/client/react";
 import { useLocation } from "react-router-dom";
 import { GET_PRODUCTS, GET_FACETS, GET_ALL_COURSES } from "../../services/marketplaceQueries.ts";
 import { fetchMarketplaceFilters } from "../../services/marketplace";
-import { getGitexEvents } from "../../utils/gitexMockData";
+import { getFallbackKnowledgeHubItems } from "../../utils/fallbackData";
 import { isSupabaseConfigured, getSupabase } from "../../admin-ui/utils/supabaseClient";
 
 
 // Mapping of Media Types to their relevant Format options (uses filter labels)
 const MEDIA_TYPE_FORMAT_MAPPING: Record<string, string[]> = {
   'News': ['Quick Reads'],
-  'Article': ['Quick Reads', 'In-Depth Reports'],
   'Reports': ['In-Depth Reports', 'Downloadable Templates'],
   'Toolkits & Templates': ['Interactive Tools', 'Downloadable Templates'],
   'Guides': ['Quick Reads', 'In-Depth Reports'],
@@ -166,7 +165,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   promoCards = [],
 }) => {
   const navigate = useNavigate();
-  // const { user, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
   const location = useLocation() as any;
   const config = getMarketplaceConfig(marketplaceType);
   
@@ -337,7 +336,6 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   if (v === 'event' || v === 'events') return 'Event';
                   if (v === 'tool' || v === 'toolkit' || v === 'toolkits') return 'Toolkits & Templates';
                   if (v === 'announcement' || v === 'news') return 'News';
-                  if (v === 'article') return 'Article';
                   // Fallback: capitalize the first letter instead of defaulting to 'News'
                   return t ? t.charAt(0).toUpperCase() + t.slice(1) : 'News';
                 };
@@ -407,24 +405,14 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               });
             }
           } catch (e) {
-            console.warn('Supabase load failed', e);
+            console.warn('Supabase load failed; using mock only', e);
           }
 
-          // Merge Supabase data with GITEX events
-          const gitexEvents = getGitexEvents();
-          const stripHtml = (html: string): string => {
-            try {
-              const tmp = document.createElement('div');
-              tmp.innerHTML = String(html || '');
-              return (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim();
-            } catch {
-              return String(html || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-            }
-          };
-          const merged = [...gitexEvents, ...fromSupabase].map((it: any) => ({
-            ...it,
-            description: stripHtml(it.description || it.summary || ''),
-          }));
+          // Mock fallback dataset
+          const mock = getFallbackKnowledgeHubItems();
+
+          // Merge + normalize
+          const merged = [...fromSupabase, ...mock];
 
           // Apply search + activeFilters
             const matchesActiveFilters = (item: any): boolean => {

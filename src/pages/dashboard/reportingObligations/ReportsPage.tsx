@@ -7,7 +7,14 @@ import { DocumentWalletPanel } from './DocumentWalletPanel';
 import { mockReportData } from './mockReportsData';
 import { HomeIcon, ChevronRightIcon, FilterIcon } from 'lucide-react';
 import { ServiceRequestsFilters } from '../../../components/ServiceRequestsFilters';
-export function ReportsPage() {
+import { BurgerMenuButton } from '../../../components/Sidebar';
+export function ReportsPage({ 
+    setIsOpen, 
+    isLoggedIn 
+}: { 
+    setIsOpen?: (isOpen: boolean) => void; 
+    isLoggedIn?: boolean; 
+} = {}) {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [reportData, setReportData] = useState(null);
@@ -88,11 +95,22 @@ export function ReportsPage() {
     if (isLoading) {
         return (
             <div className="min-h-screen">
-
                 <div className="flex flex-1 overflow-hidden">
                     <div className="bg-gray-50 min-h-screen w-full">
-                        <div className=" mx-auto p-4 md:p-6 lg:p-8">
-                            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                        {/* Mobile Menu Button */}
+                        <div className="lg:hidden p-4 bg-white border-b border-gray-200 sticky top-0 z-30">
+                            <div className="flex items-center">
+                                <BurgerMenuButton
+                                    onClick={() => setIsOpen?.(true)}
+                                    isLoggedIn={isLoggedIn ?? true}
+                                    className="mr-3"
+                                />
+                                <h2 className="text-lg font-semibold text-gray-900">Reports & Reporting Obligations</h2>
+                            </div>
+                        </div>
+                        
+                        <div className=" mx-auto p-4 pt-2 md:p-6 md:pt-4 lg:p-8 lg:pt-4 ">
+                            <h1 className="text-3xl font-bold text-gray-900 mb-4">
                                 Reports & Reporting Obligations
                             </h1>
                             <div className="bg-white rounded-2xl shadow-sm p-6 flex items-center justify-center h-screen">
@@ -111,12 +129,22 @@ export function ReportsPage() {
     if (error) {
         return (
             <div className="min-h-screen">
-
                 <div className="flex flex-1 overflow-hidden">
-
                     <div className="bg-gray-50 min-h-screen w-full">
+                        {/* Mobile Menu Button */}
+                        <div className="lg:hidden p-4 bg-white border-b border-gray-200 sticky top-0 z-30">
+                            <div className="flex items-center">
+                                <BurgerMenuButton
+                                    onClick={() => setIsOpen?.(true)}
+                                    isLoggedIn={isLoggedIn ?? true}
+                                    className="mr-3"
+                                />
+                                <h2 className="text-lg font-semibold text-gray-900">Reports & Reporting Obligations</h2>
+                            </div>
+                        </div>
+                        
                         <div className="  p-4 md:p-6 lg:p-8">
-                            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                            <h1 className="text-3xl font-bold text-gray-900 mb-4">
                                 Reports & Reporting Obligations
                             </h1>
 
@@ -140,11 +168,22 @@ export function ReportsPage() {
     }
     return (
         <div className="min-h-screen">
-
             <div className="flex flex-1 overflow-hidden">
                 <div className="bg-gray-50 min-h-screen w-full">
-                    <div className=" mx-auto p-4 md:p-6 lg:p-8">
-                        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                    {/* Mobile Menu Button */}
+                    <div className="lg:hidden p-4 bg-white border-b border-gray-200 sticky top-0 z-30">
+                        <div className="flex items-center">
+                            <BurgerMenuButton
+                                onClick={() => setIsOpen?.(true)}
+                                isLoggedIn={isLoggedIn ?? true}
+                                className="mr-3"
+                            />
+                            <h2 className="text-lg font-semibold text-gray-900">Reports & Reporting Obligations</h2>
+                        </div>
+                    </div>
+                    
+                    <div className=" mx-auto p-4 pt-2 md:p-6 md:pt-4 lg:p-8 lg:pt-5">
+                        <h1 className="text-3xl font-bold text-gray-900 mb-4">
                             Reports & Reporting Obligations
                         </h1>
 

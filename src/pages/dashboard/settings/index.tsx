@@ -7,8 +7,15 @@ import IntegrationsBillingTab from '../../../components/settings/IntegrationsBil
 import PreferencesNotificationsTab from '../../../components/settings/PreferencesNotificationsTab';
 import SecurityComplianceTab from '../../../components/settings/SecurityComplianceTab';
 import UserRolesTab from '../../../components/settings/UserRolesTab';
+import { BurgerMenuButton } from '../../../components/Sidebar';
 
-export default function SettingsPage() {
+export default function SettingsPage({ 
+    setIsOpen, 
+    isLoggedIn 
+}: { 
+    setIsOpen?: (isOpen: boolean) => void; 
+    isLoggedIn?: boolean; 
+} = {}) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeTabIndex, setActiveTabIndex] = useState(0);
     const tabs = [{
@@ -59,8 +66,22 @@ export default function SettingsPage() {
         <div className="min-h-screen flex flex-col bg-gray-50">
             <div className="flex flex-1">
                 <div className="flex-1">
+                        <div className="lg:hidden p-4 bg-white border-b border-gray-200 sticky top-0 z-30">
+                            <div className="flex items-center">
+                                <BurgerMenuButton
+                                    onClick={() => setIsOpen?.(true)}
+                                    isLoggedIn={isLoggedIn ?? true}
+                                    className="mr-3"
+                                />
+                                <h2 className="text-lg font-semibold text-gray-900">Settings</h2>
+                            </div>
+                        </div>
 
-                    <PageLayout title="Settings">
+                        <PageLayout
+                            title="Settings"
+                            headerClassName="pb-4 pl-0.5"
+                            titleClassName="text-3xl font-bold text-gray-900"
+                        >
                         <PageSection>
                             <SectionHeader children={<></>} title="Settings" description="Configure your organization's settings, manage users, and control security preferences." />
                             <SectionContent className="p-0">

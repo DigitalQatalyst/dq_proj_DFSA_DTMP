@@ -8,22 +8,22 @@ interface ServiceRequestsTableProps {
 // Mock service request data
 const serviceRequests = [
   {
-    id: "SR-2023-001",
+    id: "SR-2025-001",
     category: "Funding Application",
     status: "In Progress",
-    submittedDate: "2023-11-15",
+    submittedDate: "2025-11-15",
   },
   {
-    id: "SR-2023-002",
+    id: "SR-2025-002",
     category: "Business Registration",
     status: "Pending Review",
-    submittedDate: "2023-11-10",
+    submittedDate: "2025-11-10",
   },
   {
-    id: "SR-2023-003",
+    id: "SR-2025-003",
     category: "License Renewal",
     status: "Approved",
-    submittedDate: "2023-11-05",
+    submittedDate: "2025-11-05",
   },
 ];
 export const ServiceRequestsTable: React.FC<ServiceRequestsTableProps> = ({
@@ -118,9 +118,12 @@ export const ServiceRequestsTable: React.FC<ServiceRequestsTableProps> = ({
                   {request.submittedDate}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button className="px-3 py-1 border border-gray-300 rounded-md text-xs text-gray-600 hover:text-blue-600 hover:border-blue-300">
+                  <Link
+                    to="/dashboard/requests"
+                    className="px-3 py-1 border border-gray-300 rounded-md text-xs text-gray-600 hover:text-blue-600 hover:border-blue-300 inline-block"
+                  >
                     View
-                  </button>
+                  </Link>
                 </td>
               </tr>
             ))}

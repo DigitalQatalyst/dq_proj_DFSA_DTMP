@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FormLayout } from "../../components/layouts/FormLayout";
 // import { NeedsAssessmentFormSchema } from "../../components/Forms/form-schemas/NeedsAssessmentFormSchema";
 
 function NeedsAssessmentForm() {
@@ -15,7 +16,7 @@ function NeedsAssessmentForm() {
   };
 
   return (
-    <div>
+    <FormLayout data-id="needs-assessment-form-page">
       {/* Uncomment when schema is ready */}
       {/* <ServiceRequestForm
         schema={NeedsAssessmentFormSchema}
@@ -32,7 +33,7 @@ function NeedsAssessmentForm() {
           </p>
         </div>
       </div>
-    </div>
+    </FormLayout>
   );
 }
 

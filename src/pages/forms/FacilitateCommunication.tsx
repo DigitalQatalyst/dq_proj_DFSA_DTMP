@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { ServiceRequestForm } from "../../components/Forms/FormPreview";
 import { facilitateCommunicationSchema } from "../../components/Forms/form-schemas/FacilitateCommunicationSchema";
+import { FormLayout } from "../../components/layouts/FormLayout";
 
-function BookConsultationForEntrepreneurship() {
+function FacilitateCommunication() {
   const [formData, setFormData] = useState<any>({});
 
   const handleSubmit = async (data: any) => {
@@ -16,19 +17,18 @@ function BookConsultationForEntrepreneurship() {
   };
 
   return (
-    <div>
+    <FormLayout data-id="facilitate-communication-page">
       <ServiceRequestForm
         schema={facilitateCommunicationSchema}
         onSubmit={handleSubmit}
         onSave={handleSave}
         initialData={formData}
-        data-id="book-consultation-for-entrepreneurship"
+        data-id="facilitate-communication"
       />
-    </div>
+    </FormLayout>
   );
 }
 
 // Export the specific form name
-export const BookConsultationForEntrepreneurshipForm =
-  BookConsultationForEntrepreneurship;
-export default BookConsultationForEntrepreneurship;
+export const FacilitateCommunicationForm = FacilitateCommunication;
+export default FacilitateCommunication;

@@ -32,6 +32,10 @@ import ReallocationOfLoanDisbursement from "./pages/forms/ReallocationOfLoanDisb
 import RequestToAmendExistingLoanDetails from "./pages/forms/RequestToAmendExistingLoanDetails";
 import TrainingInEntrepreneurship from "./pages/forms/TrainingInEntrepreneurship";
 import IssueSupportLetter from "./pages/forms/IssueSupportLetter";
+import GrowthAreasMarketplace from "./pages/GrowthAreasMarketplace";
+import GrowthAreasPage from "./pages/GrowthAreasPage";
+import BusinessDirectoryMarketplace from "./pages/BusinessDirectoryMarketplace";
+import { ComingSoon } from "./pages/ComingSoon";
 
 export function AppRouter() {
   const [bookmarkedCourses, setBookmarkedCourses] = useState<string[]>([]);
@@ -82,6 +86,12 @@ export function AppRouter() {
             }
           />
           <Route path="/discover-abudhabi" element={<DiscoverAbuDhabi />} />
+          <Route path="/growth-areas-marketplace" element={<GrowthAreasMarketplace />} />
+          <Route path="/growth-areas" element={<GrowthAreasPage />} />
+          <Route path="/business-directory-marketplace" element={<BusinessDirectoryMarketplace />} />
+          <Route path="/coming-soon" element={<ComingSoon />} />
+          <Route path="/coming-soon/:feature" element={<ComingSoon />} />
+          <Route path="/admin-ui/settings" element={<AdminSettings />} />
           {/** Forms routes */}
           <Route
             path="/forms/needs-assessment"

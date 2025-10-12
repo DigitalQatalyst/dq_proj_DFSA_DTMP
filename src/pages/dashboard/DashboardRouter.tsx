@@ -140,7 +140,7 @@ const DashboardRouter = () => {
           path="reporting"
           element={<Navigate to="reporting-obligations" replace />}
         />
-        <Route path="reporting-obligations" element={<ReportsPage />} />
+        <Route path="reporting-obligations" element={<ReportsPage setIsOpen={setIsOpen} isLoggedIn={isLoggedIn} />} />
         <Route
           path="reporting-obligations/obligations"
           element={<AllUpcomingObligationsPage />}
@@ -154,8 +154,8 @@ const DashboardRouter = () => {
           element={<AllReceivedReportsPage />}
         />
         <Route path="profile" element={<BusinessProfilePage />} />
-        <Route path="settings" element={<SettingsPage />} />
-        <Route path="support" element={<SupportPage />} />
+        <Route path="settings" element={<SettingsPage setIsOpen={setIsOpen} isLoggedIn={isLoggedIn} />} />
+        <Route path="support" element={<SupportPage setIsOpen={setIsOpen} isLoggedIn={isLoggedIn} />} />
         <Route path="chat-support" element={<ChatInterface />} />
 
         {/* Forms Routes */}

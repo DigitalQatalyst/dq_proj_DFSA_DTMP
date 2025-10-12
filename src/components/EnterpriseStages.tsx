@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
+import { useQuery } from '@apollo/client/react'
 import {
   Lightbulb,
   Code,
@@ -13,21 +14,24 @@ import {
   CheckCircle,
   Grid,
   List,
-  ChevronDown,
   ExternalLink,
-  Clock,
   BookOpen,
-  DollarSign,
   Users,
-  Filter,
-  SlidersHorizontal,
   Search,
   RefreshCw,
   Building,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { FadeInUpOnScroll, HorizontalScrollReveal } from './AnimationUtils'
-import { PillFilters } from './components/PillFilters'
+import { GET_ALL_COURSES, GET_PRODUCTS } from '../services/marketplaceQueries'
+
+// Minimal query result typings
+interface GetProductsData {
+  products: { items: any[] }
+}
+interface GetCoursesData {
+  courses: { items: any[] }
+}
 // Define service data types
 interface ServiceItem {
   id: string
@@ -44,167 +48,12 @@ interface ServiceItem {
   level?: string
   delivery?: string
   provider?: string
+  providerLogo?: string
   cta: string
   tags?: string[]
   url: string
 }
-// Sample service data
-const sampleServiceData = {
-  ideation: {
-    marketplaces: {
-      financial: [
-        {
-          id: 'fin-001',
-          title: 'Microloan for Idea Validation',
-          desc: 'Small-ticket funding to test your concept.',
-          type: 'financial',
-          cost: 'Paid',
-          level: 'Intro',
-          provider: 'Khalifa Fund',
-          cta: 'Apply',
-          tags: ['Validation', 'MVP'],
-          url: '/financial/fin-001',
-        },
-        {
-          id: 'fin-002',
-          title: 'Seed Grant for Feasibility Studies',
-          desc: 'Non-repayable grant to conduct market research.',
-          type: 'financial',
-          cost: 'Free',
-          level: 'Intro',
-          provider: 'Abu Dhabi SME Hub',
-          cta: 'Apply',
-          tags: ['Market Research', 'Feasibility'],
-          url: '/financial/fin-002',
-        },
-      ],
-      nonfinancial: [
-        {
-          id: 'non-101',
-          title: 'Idea Validation Workshop',
-          desc: 'Expert-led session to test key assumptions.',
-          type: 'nonfinancial',
-          cost: 'Free',
-          delivery: 'Guided',
-          provider: 'Hub71',
-          cta: 'Book session',
-          tags: ['Assumptions', 'Customer Discovery'],
-          url: '/non-financial/non-101',
-        },
-        {
-          id: 'non-102',
-          title: 'Market Research Toolkit',
-          desc: 'Datasets and step-by-step guides.',
-          type: 'nonfinancial',
-          cost: 'Free',
-          delivery: 'Self-serve',
-          provider: 'ADGM Academy',
-          cta: 'Open toolkit',
-          tags: ['Market Sizing'],
-          url: '/non-financial/non-102',
-        },
-        {
-          id: 'non-103',
-          title: 'IP Basics Advisory Session',
-          desc: 'One-on-one guidance on protecting your idea.',
-          type: 'nonfinancial',
-          cost: 'Free',
-          delivery: 'Guided',
-          provider: 'ADGM Academy',
-          cta: 'Book session',
-          tags: ['Intellectual Property'],
-          url: '/non-financial/non-103',
-        },
-      ],
-      courses: [
-        {
-          id: 'crs-201',
-          title: 'Business Model Canvas Basics',
-          desc: 'Learn to map your idea and value proposition.',
-          type: 'courses',
-          cost: 'Free',
-          level: 'Intro',
-          provider: 'Khalifa Fund Academy',
-          cta: 'Enroll',
-          tags: ['BMC', 'Value Proposition'],
-          url: '/courses/crs-201',
-        },
-        {
-          id: 'crs-202',
-          title: 'Customer Discovery Techniques',
-          desc: 'Master the art of problem interviews.',
-          type: 'courses',
-          cost: 'Paid',
-          level: 'Intermediate',
-          provider: 'NYU Abu Dhabi',
-          cta: 'Enroll',
-          tags: ['Customer Discovery', 'Interviews'],
-          url: '/courses/crs-202',
-        },
-      ],
-      media: [
-        {
-          id: 'med-301',
-          title: 'How to Validate Demand in 7 Days',
-          desc: 'A practical guide and checklist.',
-          type: 'media',
-          provider: 'Abu Dhabi SME Hub',
-          cta: 'Read',
-          tags: ['Lean', 'Validation'],
-          url: '/media/med-301',
-        },
-        {
-          id: 'med-302',
-          title: 'Market Sizing Techniques for Beginners',
-          desc: 'Video tutorial on TAM, SAM, and SOM calculations.',
-          type: 'media',
-          provider: 'Hub71',
-          cta: 'Watch',
-          tags: ['Market Sizing', 'TAM SAM SOM'],
-          url: '/media/med-302',
-        },
-      ],
-    },
-    discover_abudhabi: {
-      industries: [
-        {
-          id: 'ind-abu-01',
-          title: 'Tourism',
-          desc: "Snapshot of Abu Dhabi's tourism ecosystem.",
-          type: 'industry',
-          cta: 'Explore industry',
-          url: '/discover?industry=ind-abu-01',
-        },
-        {
-          id: 'ind-abu-02',
-          title: 'Manufacturing',
-          desc: 'Overview of manufacturing opportunities in Abu Dhabi.',
-          type: 'industry',
-          cta: 'Explore industry',
-          url: '/discover?industry=ind-abu-02',
-        },
-      ],
-      sectors: [
-        {
-          id: 'sec-abu-22',
-          title: 'FinTech',
-          desc: 'FinTech sector overview, players, and programs.',
-          type: 'sector',
-          cta: 'Explore sector',
-          url: '/discover?sector=sec-abu-22',
-        },
-        {
-          id: 'sec-abu-23',
-          title: 'AgriTech',
-          desc: 'Agricultural technology innovation landscape in Abu Dhabi.',
-          type: 'sector',
-          cta: 'Explore sector',
-          url: '/discover?sector=sec-abu-23',
-        },
-      ],
-    },
-  },
-}
+// NOTE: Static sample data replaced by API-driven data within AvailableServices
 // Available Services component
 interface AvailableServicesProps {
   stageId: string
@@ -216,25 +65,82 @@ const AvailableServices: React.FC<AvailableServicesProps> = ({ stageId }) => {
   ])
   const [viewMode, setViewMode] = useState('grid')
   const [filteredServices, setFilteredServices] = useState<ServiceItem[]>([])
+  const [allServices, setAllServices] = useState<ServiceItem[]>([])
   const [visibleCount, setVisibleCount] = useState(8)
-  // Get all services for the current stage
-  const getAllServices = () => {
-    const stageData =
-      sampleServiceData[stageId as keyof typeof sampleServiceData]
-    if (!stageData) return []
-    const allServices: ServiceItem[] = [
-      ...(stageData.marketplaces.financial || []),
-      ...(stageData.marketplaces.nonfinancial || []),
-      ...(stageData.marketplaces.courses || []),
-      ...(stageData.marketplaces.media || []),
-      ...(stageData.discover_abudhabi.industries || []),
-      ...(stageData.discover_abudhabi.sectors || []),
-    ]
-    return allServices
-  }
+  // Load API data (products and courses) and map into unified items filtered by stage
+  const { data: productData } = useQuery<GetProductsData>(GET_PRODUCTS)
+  const { data: courseData } = useQuery<GetCoursesData>(GET_ALL_COURSES)
+
+  useEffect(() => {
+    const normalize = (value?: string | null) => (value || '').toLowerCase().trim()
+    const currentStage = normalize(stageId)
+
+    const mappedProducts: ServiceItem[] = (productData?.products?.items || [])
+      .map((p: any) => {
+        // Determine financial vs non-financial using facetValues ids (66 financial, 67 non-financial) like MarketplacePage
+        const has66 = p.facetValues?.some((fv: any) => String(fv?.id) === '66')
+        const has67 = p.facetValues?.some((fv: any) => String(fv?.id) === '67')
+        const type: ServiceItem['type'] = has67 ? 'nonfinancial' : has66 ? 'financial' : 'nonfinancial'
+
+        // Derive stage from facetValues (preferred) or customFields fallback
+        const stageFacet = p?.facetValues?.find((fv: any) => normalize(fv?.facet?.code) === 'business-stage')
+        const facetStageName = normalize(stageFacet?.name)
+        const facetStageCode = normalize(stageFacet?.code)
+        const productStage = normalize(p?.customFields?.BusinessStage)
+        const stageCandidates = [currentStage]
+        const matchesStage =
+          !currentStage ||
+          stageCandidates.includes(facetStageName) ||
+          stageCandidates.includes(facetStageCode) ||
+          stageCandidates.includes(productStage)
+        if (!matchesStage) return null
+
+        const routeType = type === 'nonfinancial' ? 'non-financial' : type
+        return {
+          id: String(p.id),
+          title: p.name,
+          desc: p.description || 'Service description not available',
+          type,
+          cost: p?.customFields?.Cost != null ? String(p.customFields.Cost) : undefined,
+          provider: p?.customFields?.Partner || 'Khalifa Fund',
+          providerLogo: p?.customFields?.logoUrl || '/mzn_logo.png',
+          cta: 'Apply',
+          tags: [p?.customFields?.Addtags].filter(Boolean),
+          url: `/marketplace/${routeType}/${p.id}`,
+        } as ServiceItem
+      })
+      .filter(Boolean) as ServiceItem[]
+
+    const mappedCourses: ServiceItem[] = (courseData?.courses?.items || [])
+      .map((c: any) => {
+        const courseStage = normalize(c?.businessStage)
+        const matchesStage =
+          !currentStage ||
+          courseStage === currentStage ||
+          courseStage.includes(currentStage) ||
+          currentStage.includes(courseStage)
+        if (!matchesStage) return null
+        return {
+          id: String(c.id),
+          title: c.name,
+          desc: c.description || 'Course description not available',
+          type: 'courses',
+          cost: c?.cost != null ? String(c.cost) : undefined,
+          level: c?.duration,
+          provider: c?.partner || 'Khalifa Fund Academy',
+          providerLogo: c?.logoUrl || '/mzn_logo.png',
+          cta: 'Enroll',
+          tags: [c?.serviceCategory, c?.pricingModel].filter(Boolean),
+          url: `/courses/${c.id}`,
+        } as ServiceItem
+      })
+      .filter(Boolean) as ServiceItem[]
+
+    const combined = [...mappedProducts, ...mappedCourses]
+    setAllServices(combined)
+  }, [productData, courseData, stageId])
   // Filter services based on selected filters
   useEffect(() => {
-    const allServices = getAllServices()
     if (allServices.length === 0) {
       setFilteredServices([])
       return
@@ -247,7 +153,7 @@ const AvailableServices: React.FC<AvailableServicesProps> = ({ stageId }) => {
       )
     }
     setFilteredServices(filtered)
-  }, [stageId, marketplaceFilters])
+  }, [allServices, stageId, marketplaceFilters])
   // Handle marketplace filter change
   const handleMarketplaceFilterChange = (value: string) => {
     if (value === 'all') {
@@ -273,29 +179,17 @@ const AvailableServices: React.FC<AvailableServicesProps> = ({ stageId }) => {
   const loadMore = () => {
     setVisibleCount((prev) => prev + 8)
   }
-  // Create filter options for PillFilters
+  // Create filter options for PillFilters (built from available data, keeping expected labels)
   const marketplaceOptions = [
-    {
-      value: 'all',
-      label: 'All',
-    },
-    {
-      value: 'financial',
-      label: 'Financial',
-    },
-    {
-      value: 'nonfinancial',
-      label: 'Non-financial',
-    },
-    {
-      value: 'courses',
-      label: 'Courses',
-    },
-    {
-      value: 'media',
-      label: 'Media',
-    },
-  ]
+    { value: 'all', label: 'All' },
+    { value: 'financial', label: 'Financial' },
+    { value: 'nonfinancial', label: 'Non-financial' },
+    { value: 'courses', label: 'Courses' },
+    { value: 'media', label: 'Media' },
+  ].filter((opt) => {
+    if (opt.value === 'all') return true
+    return allServices.some((s) => s.type === (opt.value as any))
+  })
   return (
     <div className="mt-6 bg-white p-6 rounded-xl border border-gray-200">
       <div className="flex flex-col space-y-6">
@@ -418,15 +312,29 @@ const AvailableServices: React.FC<AvailableServicesProps> = ({ stageId }) => {
                             {service.level}
                           </div>
                         )}
-                        {service.cost && (
+                        {
+                        // Service Cost currently hidden from the UI
+                        /* {service.cost && (
                           <div className="flex items-center text-gray-600">
                             <DollarSign size={14} className="mr-1" />
                             {service.cost}
                           </div>
-                        )}
+                        )} */}
                         {service.provider && (
                           <div className="flex items-center text-gray-600">
-                            <Building size={14} className="mr-1" />
+                            {service.providerLogo ? (
+                              <img 
+                                src={service.providerLogo} 
+                                alt={`${service.provider} logo`}
+                                className="w-4 h-4 mr-1 rounded-sm object-contain"
+                                onError={(e) => {
+                                  // Fallback to Building icon if logo fails to load
+                                  e.currentTarget.style.display = 'none'
+                                  e.currentTarget.nextElementSibling?.classList.remove('hidden')
+                                }}
+                              />
+                            ) : null}
+                            <Building size={14} className={`mr-1 ${service.providerLogo ? 'hidden' : ''}`} />
                             {service.provider}
                           </div>
                         )}

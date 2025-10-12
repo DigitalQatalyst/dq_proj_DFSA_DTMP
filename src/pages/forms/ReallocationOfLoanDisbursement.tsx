@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ServiceRequestForm } from "../../components/Forms/FormPreview";
 import { reallocationLoanSchema } from "../../components/Forms/form-schemas/LoanDisbursement";
+import { FormLayout } from "../../components/layouts/FormLayout";
 
 function ReallocationOfLoanDisbursement() {
   const [formData, setFormData] = useState<any>({});
@@ -16,7 +17,7 @@ function ReallocationOfLoanDisbursement() {
   };
 
   return (
-    <div>
+    <FormLayout data-id="reallocation-of-loan-disbursement-page">
       <ServiceRequestForm
         schema={reallocationLoanSchema}
         onSubmit={handleSubmit}
@@ -24,7 +25,7 @@ function ReallocationOfLoanDisbursement() {
         initialData={formData}
         data-id="reallocation-of-loan-disbursement"
       />
-    </div>
+    </FormLayout>
   );
 }
 

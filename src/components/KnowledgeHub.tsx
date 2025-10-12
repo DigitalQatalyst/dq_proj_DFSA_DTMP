@@ -494,11 +494,11 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
             Access the latest news, events, and resources to help your business
             thrive in Abu Dhabi
           </p>
-          <div className="mt-4">
+          {/* <div className="mt-4">
             <a href="/admin-ui/media/new" className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
               Add Content
             </a>
-          </div>
+          </div> */}
         </FadeInUpOnScroll>
         {/* Segmented Tabs */}
         <div className="flex justify-center mb-8">

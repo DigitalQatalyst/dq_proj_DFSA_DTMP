@@ -1,14 +1,16 @@
 import React from "react";
 import { BellIcon, ExternalLinkIcon } from "lucide-react";
+
 interface AnnouncementsProps {
   isLoading: boolean;
+  onViewAllClick?: () => void;
 }
 // Mock announcements data
 const announcements = [
   {
     id: 1,
     title: "New Funding Opportunities Available",
-    date: "2023-11-20",
+    date: "2025-11-20",
     description:
       "Check out the new funding programs for small businesses in the technology sector.",
     link: "#",
@@ -16,7 +18,7 @@ const announcements = [
   {
     id: 2,
     title: "System Maintenance Notice",
-    date: "2023-11-25",
+    date: "2025-11-25",
     description:
       "The portal will be unavailable on November 25th from 22:00-23:00 for scheduled maintenance.",
     link: "#",
@@ -24,13 +26,21 @@ const announcements = [
   {
     id: 3,
     title: "Updated Business Registration Process",
-    date: "2023-11-15",
+    date: "2025-11-15",
     description:
       "We have simplified the business registration process. Learn about the changes.",
     link: "#",
   },
 ];
-export const Announcements: React.FC<AnnouncementsProps> = ({ isLoading }) => {
+export const Announcements: React.FC<AnnouncementsProps> = ({
+  isLoading,
+  onViewAllClick,
+}) => {
+  const handleViewAllClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onViewAllClick?.();
+  };
+
   if (isLoading) {
     return (
       <div className="animate-pulse space-y-4">
@@ -71,12 +81,12 @@ export const Announcements: React.FC<AnnouncementsProps> = ({ isLoading }) => {
         </div>
       ))}
       <div className="pt-2 text-center">
-        <a
-          href="#"
-          className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+        <button
+          onClick={handleViewAllClick}
+          className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
         >
           View All Announcements
-        </a>
+        </button>
       </div>
     </div>
   );

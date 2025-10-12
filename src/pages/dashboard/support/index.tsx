@@ -7,8 +7,15 @@ import ContactSupportTab from '../../../components/support/ContactSupportTab';
 import DocumentationTab from '../../../components/support/DocumentationTab';
 import FAQsTab from '../../../components/support/FAQsTab';
 import TicketHistoryTab from '../../../components/support/TicketHistoryTab';
+import { BurgerMenuButton } from '../../../components/Sidebar';
 
-export default function SupportPage() {
+export default function SupportPage({ 
+    setIsOpen, 
+    isLoggedIn 
+}: { 
+    setIsOpen?: (isOpen: boolean) => void; 
+    isLoggedIn?: boolean; 
+}) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeResourceTab, setActiveResourceTab] = useState('faqs');
     const [activeContactTab, setActiveContactTab] = useState('contact');
@@ -96,7 +103,23 @@ export default function SupportPage() {
                                 </div>
                             </div>
                         )}
-                        <PageLayout title="Support">
+                        
+                        <div className="lg:hidden p-4 bg-white border-b border-gray-200 sticky top-0 z-30">
+                            <div className="flex items-center">
+                                <BurgerMenuButton
+                                    onClick={() => setIsOpen?.(true)}
+                                    isLoggedIn={isLoggedIn ?? true}
+                                    className="mr-3"
+                                />
+                                <h2 className="text-lg font-semibold text-gray-900">Support</h2>
+                            </div>
+                        </div>
+                        
+                        <PageLayout
+                            title="Support"
+                            headerClassName="pb-4 pl-0.5"
+                            titleClassName="text-3xl font-bold text-gray-900"
+                        >
                             {/* Support Resources Section */}
                             <PageSection>
                                 <SectionHeader
@@ -178,10 +201,10 @@ export default function SupportPage() {
                                             <DocumentationTab />
                                         )}
                                     </div>
-                                    {/* Mobile: View All FAQs & Docs link */}
+                                  
                                     <div className="md:hidden sticky bottom-0 bg-white border-t border-gray-200 p-4">
                                         <a
-                                            href="/help-center"
+                                            href="/documentation"
                                             className="flex items-center justify-center w-full py-2 px-4 border border-blue-600 rounded-md text-blue-600 font-medium hover:bg-blue-50"
                                         >
                                             View All FAQs & Documentation

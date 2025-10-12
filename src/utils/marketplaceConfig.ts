@@ -189,7 +189,7 @@ export const mockKnowledgeHubData = {
 export const marketplaceConfig: Record<string, MarketplaceConfig> = {
   courses: {
     id: 'courses',
-    title: 'Course Marketplace',
+    title: 'Learning & Development',
     description: 'Discover and enroll in courses tailored for SMEs to help grow your business',
     route: '/marketplace/courses',
     primaryCTA: 'Enroll Now',
@@ -350,7 +350,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
   },
   financial: {
     id: 'financial',
-    title: 'Financial Services Marketplace',
+    title: 'Financial Services ',
     description: 'Access financial products and services to support your business growth',
     route: '/marketplace/financial',
     primaryCTA: 'Apply Now',
@@ -468,7 +468,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
   },
   'non-financial': {
     id: 'non-financial',
-    title: 'Business Services Marketplace',
+    title: 'Business Services',
     description: 'Find professional services to support and grow your business',
     route: '/marketplace/non-financial',
     primaryCTA: 'Request Service',

@@ -58,7 +58,7 @@ export const businessStages = [
 export const providers = [
   {
     name: "Khalifa Fund Academy",
-    logoUrl: "/image.png",
+    logoUrl: "https://media.licdn.com/dms/image/v2/D4D0BAQEm7hh-vPHtNg/company-logo_200_200/company-logo_200_200/0/1730726304605/khalifa_fund_logo?e=2147483647&v=beta&t=AtpC5HexpPIneFytzHCc6-wjOCF9u0ShL3s5GXPW8K8",
     description:
       "Khalifa Fund for Enterprise Development is an independent, not-for-profit small and medium enterprises (SMEs) socio-economic development organization established in 2007.",
   },
@@ -396,7 +396,7 @@ export const mockProfileData = {
         { label: "Business Type", value: "Limited Liability Company" },
         { label: "Industry", value: "Information Technology" },
         { label: "Business Size", value: "Medium Enterprise" },
-        { label: "Annual Revenue", value: "$25M - $50M" },
+        { label: "Annual Revenue", value: "AED25M - AED50M" },
         { label: "Number of Employees", value: "120" },
         {
           label: "Business Description",
@@ -411,7 +411,7 @@ export const mockProfileData = {
         { label: "License Expiry", value: "31-Dec-2023" },
         { label: "Renewal Status", value: "Pending" },
         { label: "Compliance Status", value: "Compliant" },
-        { label: "Last Updated", value: "10-Jun-2023" },
+        { label: "Last Updated", value: "10-Jun-2025" },
       ]),
     },
     {
@@ -447,7 +447,7 @@ export const mockProfileData = {
         },
         {
           label: "Investment Goals",
-          value: "$15M by Q2 2024 (Series B) - 60% complete",
+          value: "AED15M by Q2 2024 (Series B) - 60% complete",
         },
         {
           label: "Technology Roadmap",
@@ -596,12 +596,12 @@ export const mockProfileData = {
     {
       groupName: "Financial Overview",
       fields: [
-        { label: "Annual Revenue", value: "$38.5 Million" },
-        { label: "Total Assets", value: "$42.7 Million" },
+        { label: "Annual Revenue", value: "AED38.5 Million" },
+        { label: "Total Assets", value: "AED42.7 Million" },
         { label: "Fiscal Year End", value: "31 December" },
         { label: "Revenue Growth YoY", value: "12.4%" },
         { label: "Profit Margin", value: "18.7%" },
-        { label: "EBITDA", value: "$7.2 Million" },
+        { label: "EBITDA", value: "AED7.2 Million" },
       ],
     },
     {
@@ -622,17 +622,17 @@ export const mockProfileData = {
         { label: "External Auditor", value: "KPMG" },
         { label: "Last Audit Date", value: "15-Feb-2023" },
         { label: "Audit Opinion", value: "Unqualified" },
-        { label: "Reporting Currency", value: "USD" },
+        { label: "Reporting Currency", value: "AED" },
         { label: "Consolidated Statements", value: "Yes" },
       ],
     },
     {
       groupName: "Capital Structure",
       fields: [
-        { label: "Authorized Capital", value: "$50 Million" },
-        { label: "Paid-up Capital", value: "$25 Million" },
+        { label: "Authorized Capital", value: "AED50 Million" },
+        { label: "Paid-up Capital", value: "AED25 Million" },
         { label: "Number of Shares", value: "2,500,000" },
-        { label: "Par Value per Share", value: "$10" },
+        { label: "Par Value per Share", value: "AED10" },
         { label: "Debt-to-Equity Ratio", value: "0.8" },
         { label: "Last Capital Increase", value: "10-Jun-2020" },
       ],
@@ -873,7 +873,7 @@ export const mockProfileData = {
           value: "Digital Document Management System",
         },
         { label: "Last Compliance Review", value: "05-May-2023" },
-        { label: "Licensing Budget", value: "$125,000 Annual" },
+        { label: "Licensing Budget", value: "AED125,000 Annual" },
       ],
     },
   ]),
@@ -1123,7 +1123,7 @@ export const mockProfileData = {
           label: "Compensation Structure",
           value: "Base + Variable + Benefits",
         },
-        { label: "Training Budget", value: "$2,500 per employee annually" },
+        { label: "Training Budget", value: "AED2,500 per employee annually" },
         { label: "Employee Turnover", value: "8.5% annual" },
         { label: "Succession Planning", value: "In place for key positions" },
       ],
