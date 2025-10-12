@@ -17,6 +17,12 @@
   display: none;  /* Chrome, Safari and Opera */
 }
 
+/* Prevent accidental horizontal overflow on tablets/phones */
+html, body, #root {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 /* Map styles for better responsiveness */
 .map-fullscreen {
   position: fixed !important;
@@ -60,3 +66,20 @@
 .tiptap :where(a)       { @apply text-blue-600 underline; }
 .tiptap :where(strong)  { @apply font-semibold; }
 .tiptap :where(hr)      { @apply my-6 border-slate-200; }
+/* App-wide layout clamp used by PageLayout to avoid horizontal overflow on small screens */
+.app-clamp {
+  inline-size: 100%;            /* logical width */
+  max-inline-size: 100dvw;      /* cap at dynamic viewport width to avoid 100vw scrollbar spill */
+  overflow-x: clip;             /* hard-stop horizontal overflow */
+  overscroll-behavior-x: contain;
+}
+/* Ensure children can shrink within flex/grid containers */
+.app-clamp, .app-clamp * {
+  min-inline-size: 0;
+}
+/* Defensive: elements trying to be viewport-wide inside the clamp should not exceed container */
+.app-clamp .w-screen { width: 100% !important; max-width: 100% !important; }
+/* Media should never overflow the section */
+.app-clamp img, .app-clamp video, .app-clamp svg { max-width: 100%; height: auto; }
+/* Tables stretch but stay contained */
+.app-clamp table { width: 100%; max-width: 100%; border-collapse: collapse; }

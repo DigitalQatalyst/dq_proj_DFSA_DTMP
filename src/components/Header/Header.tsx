@@ -7,6 +7,7 @@ import { NotificationCenter } from "./notifications/NotificationCenter";
 import { mockNotifications } from "./utils/mockNotifications";
 import { useAuth } from "./context/AuthContext";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu } from "lucide-react";
 import EnquiryModal from "../EnquiryModal";
 
 interface HeaderProps {
@@ -133,8 +134,19 @@ export function Header({
             isSticky ? "h-12" : "h-16"
           }`}
         >
-          {/* Left Navigation - Desktop and Tablet */}
-          <div className="hidden md:flex items-center space-x-8">
+          {/* Left side: tablet sidebar hamburger + nav */}
+          <div className="flex items-center">
+            {/* Tablet-only burger to open dashboard sidebar */}
+            <button
+              type="button"
+              onClick={toggleSidebar}
+              className="hidden md:flex xl:hidden items-center justify-center p-2 mr-2 rounded-md text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/20"
+              aria-label="Open sidebar"
+            >
+              <Menu size={20} />
+            </button>
+            {/* Left Navigation - Desktop and Tablet */}
+            <div className="hidden md:flex items-center space-x-8">
             <ExploreDropdown isCompact={isSticky} />
             <Link
               to={"/discover-abudhabi"}
@@ -144,6 +156,7 @@ export function Header({
             >
               Discover AbuDhabi
             </Link>
+            </div>
           </div>
           {/* Right Side - Conditional based on auth state and screen size */}
           <div className="flex items-center ml-auto relative">

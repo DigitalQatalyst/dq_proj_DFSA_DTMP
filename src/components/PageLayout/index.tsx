@@ -15,35 +15,36 @@ interface BreadcrumbsProps {
 }
 
 export function Breadcrumbs({ items, 'data-id': dataId }: BreadcrumbsProps) {
-    return (
-        <nav
-            className="flex items-center gap-2 text-sm"
-            style={{ whiteSpace: 'nowrap' }}
-            aria-label="Breadcrumb"
-            data-id={dataId}
-        >
-            {items.map((item, index) => (
-                <Fragment key={index}>
-                    {index > 0 && <ChevronRight className="w-3 h-3 text-gray-400" />}
-                    {item.current ? (
-                        <span className="text-gray-900 font-medium flex items-center">
-                            {index === 0 && <Home className="w-4 h-4 text-gray-400 mr-1" />}
-                            {item.label}
-                        </span>
-                    ) : (
-                        <a
-                            href={item.href || '#'}
-                            className="text-gray-600 hover:text-gray-800 flex items-center"
-                        >
-                            {index === 0 && <Home className="w-4 h-4 text-gray-400 mr-1" />}
-                            {item.label}
-                        </a>
-                    )}
-                </Fragment>
-            ))}
-        </nav>
-    );
+  return (
+    <nav
+      className="flex items-center gap-2 text-sm max-w-full overflow-hidden"
+      style={{ whiteSpace: 'nowrap' }}
+      aria-label="Breadcrumb"
+      data-id={dataId}
+    >
+      {items.map((item, index) => (
+        <Fragment key={index}>
+          {index > 0 && <ChevronRight className="w-3 h-3 shrink-0 text-gray-400" />}
+          {item.current ? (
+            <span className="text-gray-900 font-medium flex items-center min-w-0 truncate">
+              {index === 0 && <Home className="w-4 h-4 shrink-0 text-gray-400 mr-1" />}
+              <span className="truncate">{item.label}</span>
+            </span>
+          ) : (
+            <a
+              href={item.href || '#'}
+              className="text-gray-600 hover:text-gray-800 flex items-center min-w-0 truncate"
+            >
+              {index === 0 && <Home className="w-4 h-4 shrink-0 text-gray-400 mr-1" />}
+              <span className="truncate">{item.label}</span>
+            </a>
+          )}
+        </Fragment>
+      ))}
+    </nav>
+  );
 }
+
 
 interface PageHeaderProps {
     title: string;
@@ -82,40 +83,36 @@ interface PageLayoutProps {
 }
 
 export function PageLayout({
-    title,
-    breadcrumbs,
-    children,
-    'data-id': dataId,
-    headerClassName,
-    titleClassName,
-    setIsOpen,
-    isLoggedIn,
+  title,
+  breadcrumbs,
+  children,
+  'data-id': dataId,
+  headerClassName,
+  titleClassName,
 }: PageLayoutProps) {
-    return (
-        <main
-            className="flex-1 overflow-y-auto p-4 lg:p-6 bg-gray-50"
-            data-id={dataId}
-        >
-            <div className="flex gap-2">
-                <div className='lg:hidden'>
-                    <BurgerMenuButton
-                        onClick={() => setIsOpen?.(true)}
-                        isLoggedIn={isLoggedIn}
-                    />
-                </div>
-
-                {title && (
-                    <PageHeader
-                        title={title}
-                        breadcrumbs={breadcrumbs}
-                        headerClassName={headerClassName}
-                        titleClassName={titleClassName}
-                    />
-                )}</div>
-            <div className="space-y-6">{children}</div>
-        </main>
-    );
+  return (
+    <main
+      className="flex-1 overflow-y-auto overflow-x-hidden bg-gray-50"
+      style={{ width: '100%', maxWidth: '100dvw', overscrollBehaviorX: 'contain' }}
+      data-id={dataId}
+    >
+      {/* Hard containment + responsive padding */}
+      <div className="w-full max-w-screen-2xl mx-auto px-4 lg:px-6 app-clamp">
+        {title && (
+          <PageHeader
+            title={title}
+            breadcrumbs={breadcrumbs}
+            headerClassName={headerClassName}
+            titleClassName={titleClassName}
+          />
+        )}
+        {/* min-w-0 prevents flex children from forcing horizontal overflow */}
+        <div className="space-y-6 min-w-0">{children}</div>
+      </div>
+    </main>
+  );
 }
+
 
 interface PageSectionProps {
     children: React.ReactNode;
@@ -123,20 +120,17 @@ interface PageSectionProps {
     'data-id'?: string;
 }
 
-export function PageSection({
-    children,
-    className = '',
-    'data-id': dataId,
-}: PageSectionProps) {
-    return (
-        <div
-            className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}
-            data-id={dataId}
-        >
-            {children}
-        </div>
-    );
+export function PageSection({ children, className = '', 'data-id': dataId }: PageSectionProps) {
+  return (
+    <div
+      className={`bg-white rounded-lg shadow-sm border border-gray-200 w-full min-w-0 max-w-full overflow-x-hidden overscroll-x-contain ${className}`}
+      data-id={dataId}
+    >
+      {children}
+    </div>
+  );
 }
+
 
 interface SectionHeaderProps {
     title: string;
@@ -162,17 +156,14 @@ interface SectionContentProps {
     'data-id'?: string;
 }
 
-export function SectionContent({
-    children,
-    className = '',
-    'data-id': dataId,
-}: SectionContentProps) {
-    return (
-        <div className={`p-6 ${className}`} data-id={dataId}>
-            {children}
-        </div>
-    );
+export function SectionContent({ children, className = '', 'data-id': dataId }: SectionContentProps) {
+  return (
+    <div className={`p-4 sm:p-6 min-w-0 max-w-full overflow-x-hidden overscroll-x-contain ${className}`} data-id={dataId}>
+      {children}
+    </div>
+  );
 }
+
 
 interface PrimaryButtonProps {
     children: React.ReactNode;

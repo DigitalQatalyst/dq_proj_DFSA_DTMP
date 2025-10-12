@@ -38,7 +38,14 @@ import CollateralUserGuide from "../forms/CollateralUserGuide";
 // Main Dashboard Router Component
 const DashboardRouter = () => {
   const [onboardingComplete, setOnboardingComplete] = useState(false);
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState<boolean>(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        return window.innerWidth >= 1024; // lg and up open by default
+      }
+    } catch {}
+    return true;
+  });
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
@@ -61,6 +68,19 @@ const DashboardRouter = () => {
     };
     checkOnboarding();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Keep sidebar hidden on tablet/mobile by default; open on desktop
+  useEffect(() => {
+    const onResize = () => {
+      if (window.innerWidth >= 1024) {
+        setIsOpen(true);
+      } else {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, []);
 
   // If onboarding is complete and user is on onboarding route, send to overview
