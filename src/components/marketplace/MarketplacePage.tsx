@@ -167,50 +167,50 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const { user, isLoading } = useAuth();
   const location = useLocation() as any;
   const config = getMarketplaceConfig(marketplaceType);
-  
+
   // State for items and filtering
   const [items, setItems] = useState<any[]>([]);
   const [filteredItems, setFilteredItems] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<Record<string, string>>({});
-  
+
   // Filter sidebar visibility - should be visible on desktop, hidden on mobile by default
   const [showFilters, setShowFilters] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [bookmarkedItems, setBookmarkedItems] = useState<string[]>([]);
-  
+
   // Avoid clobbering localStorage with empty state before hydration
   const [hasHydratedCompare, setHasHydratedCompare] = useState(false);
   const [compareItems, setCompareItems] = useState<ComparisonItem[]>([]);
   const [showComparison, setShowComparison] = useState(false);
-  
+
   // State for filter options
   const [filterConfig, setFilterConfig] = useState<FilterConfig[]>([]);
-  
+
   // Knowledge Hub specific filters
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  
+
   // Collapsible filter categories state
   const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({});
-  
+
   // Loading and error states
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   // Track header height so sticky elements sit directly under it
   const [headerHeight, setHeaderHeight] = useState<number>(46);
-  
+
   // Apollo queries for products, facets, and courses
   // Skip GraphQL entirely for Knowledge Hub — it uses Supabase + local data
   const skipGraph = marketplaceType === 'knowledge-hub';
-  
+
   const { data: productData, error: productError } = useQuery<GetProductsData>(GET_PRODUCTS, {
     skip: skipGraph || marketplaceType === "courses",
   });
-  
+
   const { data: courseData, error: courseError } = useQuery<GetCoursesData>(GET_ALL_COURSES, {
     skip: marketplaceType !== "courses",
   });
-  
+
   const { data: facetData, error: facetError } = useQuery<GetFacetsData>(GET_FACETS, {
     skip: skipGraph,
   });
@@ -243,7 +243,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           setFilters(initialFilters);
           return;
         }
-        
+
         if (facetData) {
           // Choose facet codes based on marketplace type
           let facetCodes: string[] = [];
@@ -411,10 +411,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           const merged = [...fromSupabase];
 
           // Apply search + activeFilters
-            const matchesActiveFilters = (item: any): boolean => {
-              if (!activeFilters.length) return true;
+          const matchesActiveFilters = (item: any): boolean => {
+            if (!activeFilters.length) return true;
 
-              // Normalize function to handle singular/plural matching
+            // Normalize function to handle singular/plural matching
             const normalize = (str: string): string => {
               const s = String(str).toLowerCase().trim();
               const base = s.endsWith('s') ? s.slice(0, -1) : s;
@@ -515,14 +515,14 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             const parsedCost =
               typeof rawCost === "number" ? rawCost : parseFloat(String(rawCost ?? ""));
             const normalizedCost = !isNaN(parsedCost) && parsedCost >= 1 ? parsedCost : 3200;
-            
+
             const facetValues = [
               { code: "service-category", name: course.serviceCategory },
               { code: "business-stage", name: course.businessStage },
               { code: "provided-by", name: course.partner },
               { code: "pricing-model", name: course.pricingModel },
             ].filter((fv) => fv.name);
-            
+
             return {
               id: course.id,
               title: course.name,
@@ -966,20 +966,20 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             </li>
           </ol>
         </nav>
-        
+
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-3xl font-bold text-gray-800">
             {config.title}
           </h1>
         </div>
         <p className="text-gray-600 mb-6">{config.description}</p>
-        
+
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="w-full">
             <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
           </div>
         </div>
-        
+
         {/* Comparison bar */}
         {compareItems.length > 0 && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
@@ -1021,7 +1021,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             </div>
           </div>
         )}
-        
+
         <div className="flex flex-col xl:flex-row gap-6">
           {/* Mobile filter toggle */}
           <div className="xl:hidden sticky z-20 bg-gray-50 py-2 shadow-sm" style={{ top: "46px" }}>
@@ -1037,30 +1037,28 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               </button>
               {(Object.values(filters).some((f) => f !== "") ||
                 activeFilters.length > 0) && (
-                <button
-                  onClick={resetFilters}
-                  className="ml-2 text-blue-600 text-sm font-medium whitespace-nowrap px-3 py-2"
-                >
-                  Reset
-                </button>
-              )}
+                  <button
+                    onClick={resetFilters}
+                    className="ml-2 text-blue-600 text-sm font-medium whitespace-nowrap px-3 py-2"
+                  >
+                    Reset
+                  </button>
+                )}
             </div>
           </div>
-          
+
           {/* Filter sidebar - mobile/tablet */}
           <div
-            className={`fixed inset-x-0 bg-gray-800 bg-opacity-75 z-30 transition-opacity duration-300 xl:hidden ${
-              showFilters ? "opacity-100" : "opacity-0 pointer-events-none"
-            }`}
+            className={`fixed inset-x-0 bg-gray-800 bg-opacity-75 z-30 transition-opacity duration-300 xl:hidden ${showFilters ? "opacity-100" : "opacity-0 pointer-events-none"
+              }`}
             onClick={toggleFilters}
             aria-hidden={!showFilters}
             style={{ top: headerHeight, bottom: 0 }}
           >
             <div
               id="filter-sidebar"
-              className={`fixed left-0 w-full max-w-sm bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
-                showFilters ? "translate-x-0" : "-translate-x-full"
-              }`}
+              className={`fixed left-0 w-full max-w-sm bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${showFilters ? "translate-x-0" : "-translate-x-full"
+                }`}
               onClick={(e) => e.stopPropagation()}
               role="dialog"
               aria-modal="true"
@@ -1126,7 +1124,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               </div>
             </div>
           </div>
-          
+
           {/* Filter sidebar - desktop - always visible */}
           <div className="hidden xl:block xl:w-1/4">
             <div className="bg-white rounded-lg shadow sticky top-24 max-h-[calc(100vh-7rem)] flex flex-col">
@@ -1134,13 +1132,13 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 <h2 className="text-lg font-semibold">Filters</h2>
                 {(Object.values(filters).some((f) => f !== "") ||
                   activeFilters.length > 0) && (
-                  <button
-                    onClick={resetFilters}
-                    className="text-blue-600 text-sm font-medium"
-                  >
-                    Reset All
-                  </button>
-                )}
+                    <button
+                      onClick={resetFilters}
+                      className="text-blue-600 text-sm font-medium"
+                    >
+                      Reset All
+                    </button>
+                  )}
               </div>
               <div className="p-4 overflow-y-auto scrollbar-hide">
                 {marketplaceType === 'knowledge-hub' ? (
@@ -1150,9 +1148,9 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                       const hasActiveFilters = category.options.some(opt => activeFilters.includes(opt.name));
                       return (
                         <div key={category.id} className="border-b border-gray-100 pb-2">
-                          <button 
-                            onClick={() => toggleCategoryCollapse(category.id)} 
-                            className="w-full flex items-center justify-between py-2 hover:bg-gray-50 rounded transition-colors" 
+                          <button
+                            onClick={() => toggleCategoryCollapse(category.id)}
+                            className="w-full flex items-center justify-between py-2 hover:bg-gray-50 rounded transition-colors"
                             aria-expanded={!isCollapsed}
                           >
                             <h3 className="font-medium text-gray-900 flex items-center gap-2">
@@ -1173,15 +1171,15 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                             <div className="space-y-2 mt-2 ml-1">
                               {category.options.map(option => (
                                 <div key={option.id} className="flex items-center">
-                                  <input 
-                                    type="checkbox" 
-                                    id={`desktop-${category.id}-${option.id}`} 
-                                    checked={activeFilters.includes(option.name)} 
-                                    onChange={() => handleKnowledgeHubFilterChange(option.name)} 
-                                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" 
+                                  <input
+                                    type="checkbox"
+                                    id={`desktop-${category.id}-${option.id}`}
+                                    checked={activeFilters.includes(option.name)}
+                                    onChange={() => handleKnowledgeHubFilterChange(option.name)}
+                                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                   />
-                                  <label 
-                                    htmlFor={`desktop-${category.id}-${option.id}`} 
+                                  <label
+                                    htmlFor={`desktop-${category.id}-${option.id}`}
                                     className="ml-2 text-sm text-gray-700 cursor-pointer"
                                   >
                                     {option.name}
@@ -1195,18 +1193,18 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                     })}
                   </div>
                 ) : (
-                  <FilterSidebar 
-                    filters={filters} 
-                    filterConfig={filterConfig} 
-                    onFilterChange={handleFilterChange} 
-                    onResetFilters={resetFilters} 
-                    isResponsive={false} 
+                  <FilterSidebar
+                    filters={filters}
+                    filterConfig={filterConfig}
+                    onFilterChange={handleFilterChange}
+                    onResetFilters={resetFilters}
+                    isResponsive={false}
                   />
                 )}
               </div>
             </div>
           </div>
-          
+
           {/* Main content */}
           <div className="xl:w-3/4">
             {loading ? (
@@ -1241,7 +1239,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             )}
           </div>
         </div>
-        
+
         {/* Comparison modal */}
         {showComparison && (
           <MarketplaceComparison
@@ -1257,4 +1255,4 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   );
 };
 
-export default MarketplacePage;
+// no default export to avoid duplicate export (named export only)

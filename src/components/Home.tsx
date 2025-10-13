@@ -138,11 +138,10 @@ const ServiceCard = ({
   const [isHovered, setIsHovered] = useState(false);
   return (
     <div
-      className={`rounded-xl shadow-md overflow-hidden transition-all duration-500 transform p-5 h-full min-h-[290px] flex flex-col ${
-        isComingSoon
+      className={`rounded-xl shadow-md overflow-hidden transition-all duration-500 transform p-5 h-full min-h-[290px] flex flex-col ${isComingSoon
           ? "bg-gradient-to-br from-gray-400 to-gray-500 opacity-75 hover:opacity-85"
           : `bg-gradient-to-br ${service.gradientFrom} ${service.gradientTo} hover:shadow-lg hover:-translate-y-1 hover:scale-102 cursor-pointer`
-      }`}
+        }`}
       onClick={isComingSoon ? undefined : onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -155,9 +154,8 @@ const ServiceCard = ({
           </div>
         )}
         <div
-          className={`w-14 h-14 rounded-full flex items-center justify-center mb-4 shadow-sm transition-all duration-500 ${
-            isHovered ? "transform -translate-y-2 animate-pulse" : ""
-          }`}
+          className={`w-14 h-14 rounded-full flex items-center justify-center mb-4 shadow-sm transition-all duration-500 ${isHovered ? "transform -translate-y-2 animate-pulse" : ""
+            }`}
           style={{
             background: "white",
           }}
@@ -176,11 +174,10 @@ const ServiceCard = ({
           {service.description}
         </p>
         <button
-          className={`mt-auto px-4 py-2 rounded-md font-medium w-full transition-all duration-500 flex items-center justify-center ${
-            isComingSoon
+          className={`mt-auto px-4 py-2 rounded-md font-medium w-full transition-all duration-500 flex items-center justify-center ${isComingSoon
               ? "bg-white text-gray-500 cursor-not-allowed"
               : "bg-white text-blue-700 hover:bg-blue-50 border border-white/20"
-          } ${isHovered && !isComingSoon ? "opacity-100" : "opacity-80"}`}
+            } ${isHovered && !isComingSoon ? "opacity-100" : "opacity-80"}`}
           disabled={isComingSoon}
           onClick={(e) => {
             if (!isComingSoon) {
@@ -193,9 +190,8 @@ const ServiceCard = ({
           {!isComingSoon && (
             <ChevronRight
               size={16}
-              className={`ml-2 transition-transform duration-300 ${
-                isHovered ? "translate-x-1" : ""
-              }`}
+              className={`ml-2 transition-transform duration-300 ${isHovered ? "translate-x-1" : ""
+                }`}
             />
           )}
         </button>
@@ -384,11 +380,10 @@ const ServiceCarousel = ({
         <button
           onClick={handlePrev}
           disabled={activeIndex === 0}
-          className={`w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-800 pointer-events-auto transition-opacity ${
-            activeIndex === 0
+          className={`w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-800 pointer-events-auto transition-opacity ${activeIndex === 0
               ? "opacity-50 cursor-not-allowed"
               : "hover:bg-gray-100"
-          }`}
+            }`}
           aria-label="Previous services"
         >
           <ChevronLeft size={20} />
@@ -396,11 +391,10 @@ const ServiceCarousel = ({
         <button
           onClick={handleNext}
           disabled={activeIndex === totalSlides - 1}
-          className={`w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-800 pointer-events-auto transition-opacity ${
-            activeIndex === totalSlides - 1
+          className={`w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-800 pointer-events-auto transition-opacity ${activeIndex === totalSlides - 1
               ? "opacity-50 cursor-not-allowed"
               : "hover:bg-gray-100"
-          }`}
+            }`}
           aria-label="Next services"
         >
           <ChevronRight size={20} />
@@ -413,9 +407,8 @@ const ServiceCarousel = ({
         }).map((_, index) => (
           <button
             key={`indicator-${index}`}
-            className={`w-2 h-2 rounded-full transition-all ${
-              activeIndex === index ? "bg-blue-600 w-6" : "bg-gray-300"
-            }`}
+            className={`w-2 h-2 rounded-full transition-all ${activeIndex === index ? "bg-blue-600 w-6" : "bg-gray-300"
+              }`}
             onClick={() => {
               setActiveIndex(index);
               scrollToIndex(index);
@@ -428,7 +421,7 @@ const ServiceCarousel = ({
   );
 };
 
-export const HomePage: React.FC = () => {
+const HomePage: React.FC = () => {
   const navigate = useNavigate();
 
   // Handle hash scrolling on component mount

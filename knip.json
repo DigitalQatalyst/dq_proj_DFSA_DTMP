@@ -1,0 +1,26 @@
+{
+    "$schema": "https://unpkg.com/knip@latest/schema.json",
+    "workspaces": {
+        ".": {
+            "entry": [
+                "src/index.tsx"
+            ],
+            "project": [
+                "src/**/*.{ts,tsx}",
+                "api/**/*.{ts,js,mjs}",
+                "src/server/**/*.{ts,js}"
+            ],
+            "ignore": [
+                "dist/**",
+                "node_modules/**",
+                "public/**",
+                "docs/**",
+                "migrations/**",
+                "k8s/**",
+                "**/tmp_*",
+                "**/temp_*",
+                "**/*.d.ts"
+            ]
+        }
+    }
+}
