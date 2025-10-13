@@ -487,7 +487,7 @@ function generateMockDataverseResponse() {
     sections: {
       basic: {
         fields: {
-          tradeName: "FutureTech",
+          tradeName: "Future Tech",
           registrationNumber: "FT12345678",
           establishmentDate: "15-Mar-2010",
           entityType: "Limited Liability Company",
@@ -556,7 +556,7 @@ function generateMockDataverseResponse() {
         fields: {
           contactName: "John Smith",
           position: "Chief Executive Officer",
-          email: "test@digitalqatalyst.com",
+          email: "jsmith.futuretech@gmail.com",
           phone: "+971 50 123 4567",
           nationality: "British",
           languages: "English, Arabic",
