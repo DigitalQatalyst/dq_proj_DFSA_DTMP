@@ -172,24 +172,25 @@ export function BusinessProfile({
   return (
     <div className="flex-1 min-w-0 overflow-hidden">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-white border-b border-gray-200 py-3 px-3 sm:px-4 lg:px-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-
-          <div className='lg:hidden'>
-            <BurgerMenuButton
-              onClick={() => setIsOpen(true)}
-              isLoggedIn={isLoggedIn}
-            />
-          </div>
-          <div className="flex items-center min-w-0">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 truncate">
-              {activeSection === "overview"
-                ? "Business Overview"
-                : activeSection === "profile"
-                  ? "Company Profile"
-                  : activeSection.charAt(0).toUpperCase() +
-                  activeSection.slice(1)}
-            </h1>
+      <div className="sticky top-0 z-20  py-3 px-3 sm:px-4 lg:px-6">
+        <div className="lg:flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className='sm:flex gap-2'>
+            <div className='lg:hidden'>
+              <BurgerMenuButton
+                onClick={() => setIsOpen(true)}
+                isLoggedIn={isLoggedIn}
+              />
+            </div>
+            <div className="flex items-center min-w-0">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 truncate">
+                {activeSection === "overview"
+                  ? "Business Overview"
+                  : activeSection === "profile"
+                    ? "Company Profile"
+                    : activeSection.charAt(0).toUpperCase() +
+                    activeSection.slice(1)}
+              </h1>
+            </div>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">

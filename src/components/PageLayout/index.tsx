@@ -3,15 +3,15 @@ import { ChevronRight, Home } from 'lucide-react';
 import { BurgerMenuButton } from '../Sidebar';
 
 export interface BreadcrumbItem {
-    label: string;
-    href?: string;
-    icon?: ComponentType<{ className?: string; }>;
-    current?: boolean;
+  label: string;
+  href?: string;
+  icon?: ComponentType<{ className?: string; }>;
+  current?: boolean;
 }
 
 interface BreadcrumbsProps {
-    items: BreadcrumbItem[];
-    'data-id'?: string;
+  items: BreadcrumbItem[];
+  'data-id'?: string;
 }
 
 export function Breadcrumbs({ items, 'data-id': dataId }: BreadcrumbsProps) {
@@ -47,39 +47,39 @@ export function Breadcrumbs({ items, 'data-id': dataId }: BreadcrumbsProps) {
 
 
 interface PageHeaderProps {
-    title: string;
-    breadcrumbs?: BreadcrumbItem[];
-    'data-id'?: string;
-    headerClassName?: string;
-    titleClassName?: string;
+  title: string;
+  breadcrumbs?: BreadcrumbItem[];
+  'data-id'?: string;
+  headerClassName?: string;
+  titleClassName?: string;
 }
 
 export function PageHeader({
-    title,
-    breadcrumbs,
-    'data-id': dataId,
-    headerClassName = 'pb-4',
-    titleClassName = 'text-3xl font-bold text-gray-900 mb-2',
+  title,
+  breadcrumbs,
+  'data-id': dataId,
+  headerClassName = 'pb-4',
+  titleClassName = 'text-3xl font-bold text-gray-900 mb-2',
 }: PageHeaderProps) {
-    return (
-        <div className={headerClassName} data-id={dataId}>
-            <h1 className={titleClassName}>{title}</h1>
-            {breadcrumbs && breadcrumbs.length > 0 && (
-                <Breadcrumbs items={breadcrumbs} />
-            )}
-        </div>
-    );
+  return (
+    <div className={headerClassName} data-id={dataId}>
+      <h1 className={titleClassName}>{title}</h1>
+      {breadcrumbs && breadcrumbs.length > 0 && (
+        <Breadcrumbs items={breadcrumbs} />
+      )}
+    </div>
+  );
 }
 
 interface PageLayoutProps {
-    title?: string;
-    breadcrumbs?: BreadcrumbItem[];
-    children: React.ReactNode;
-    'data-id'?: string;
-    headerClassName?: string;
-    titleClassName?: string;
-    setIsOpen?: (isOpen: boolean) => void;
-    isLoggedIn?: boolean;
+  title?: string;
+  breadcrumbs?: BreadcrumbItem[];
+  children: React.ReactNode;
+  'data-id'?: string;
+  headerClassName?: string;
+  titleClassName?: string;
+  setIsOpen?: (isOpen: boolean) => void;
+  isLoggedIn?: boolean;
 }
 
 export function PageLayout({
@@ -89,6 +89,8 @@ export function PageLayout({
   'data-id': dataId,
   headerClassName,
   titleClassName,
+  isLoggedIn,
+  setIsOpen
 }: PageLayoutProps) {
   return (
     <main
@@ -96,28 +98,36 @@ export function PageLayout({
       style={{ width: '100%', maxWidth: '100dvw', overscrollBehaviorX: 'contain' }}
       data-id={dataId}
     >
-      {/* Hard containment + responsive padding */}
-      <div className="w-full max-w-screen-2xl mx-auto px-4 lg:px-6 app-clamp">
-        {title && (
-          <PageHeader
-            title={title}
-            breadcrumbs={breadcrumbs}
-            headerClassName={headerClassName}
-            titleClassName={titleClassName}
-          />
-        )}
-        {/* min-w-0 prevents flex children from forcing horizontal overflow */}
-        <div className="space-y-6 min-w-0">{children}</div>
+      <div className='flex  '>
+        <BurgerMenuButton
+          isLoggedIn={isLoggedIn}
+          onClick={() => setIsOpen?.(true)}
+          className='lg:hidden'
+        />
+        {/* Hard containment + responsive padding */}
+        <div className="w-full max-w-screen-2xl mx-auto px-4 lg:px-6 app-clamp ">
+          {title && (
+            <PageHeader
+              title={title}
+              breadcrumbs={breadcrumbs}
+              headerClassName={headerClassName}
+              titleClassName={titleClassName}
+            />
+          )}
+        </div>
       </div>
+      {/* min-w-0 prevents flex children from forcing horizontal overflow */}
+      <div className="space-y-6 min-w-0">{children}</div>
+
     </main>
   );
 }
 
 
 interface PageSectionProps {
-    children: React.ReactNode;
-    className?: string;
-    'data-id'?: string;
+  children: React.ReactNode;
+  className?: string;
+  'data-id'?: string;
 }
 
 export function PageSection({ children, className = '', 'data-id': dataId }: PageSectionProps) {
@@ -133,27 +143,27 @@ export function PageSection({ children, className = '', 'data-id': dataId }: Pag
 
 
 interface SectionHeaderProps {
-    title: string;
-    description?: string;
-    actions?: React.ReactNode;
-    'data-id'?: string;
-    children: React.ReactNode;
+  title: string;
+  description?: string;
+  actions?: React.ReactNode;
+  'data-id'?: string;
+  children: React.ReactNode;
 }
 
 export function SectionHeader({
-    title,
-    description,
-    actions,
-    'data-id': dataId,
-    children,
+  title,
+  description,
+  actions,
+  'data-id': dataId,
+  children,
 }: SectionHeaderProps) {
-    return <>{children}</>;
+  return <>{children}</>;
 }
 
 interface SectionContentProps {
-    children: React.ReactNode;
-    className?: string;
-    'data-id'?: string;
+  children: React.ReactNode;
+  className?: string;
+  'data-id'?: string;
 }
 
 export function SectionContent({ children, className = '', 'data-id': dataId }: SectionContentProps) {
@@ -166,71 +176,71 @@ export function SectionContent({ children, className = '', 'data-id': dataId }: 
 
 
 interface PrimaryButtonProps {
-    children: React.ReactNode;
-    onClick?: () => void;
-    disabled?: boolean;
-    type?: 'button' | 'submit' | 'reset';
-    className?: string;
-    'data-id'?: string;
+  children: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  type?: 'button' | 'submit' | 'reset';
+  className?: string;
+  'data-id'?: string;
 }
 
 export function PrimaryButton({
-    children,
-    onClick,
-    disabled = false,
-    type = 'button',
-    className = '',
-    'data-id': dataId,
+  children,
+  onClick,
+  disabled = false,
+  type = 'button',
+  className = '',
+  'data-id': dataId,
 }: PrimaryButtonProps) {
-    return (
-        <button
-            type={type}
-            onClick={onClick}
-            disabled={disabled}
-            className={`
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className={`
                 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md
                 text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 
                 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors
                 ${className}
             `}
-            data-id={dataId}
-        >
-            {children}
-        </button>
-    );
+      data-id={dataId}
+    >
+      {children}
+    </button>
+  );
 }
 
 interface SecondaryButtonProps {
-    children: React.ReactNode;
-    onClick?: () => void;
-    disabled?: boolean;
-    type?: 'button' | 'submit' | 'reset';
-    className?: string;
-    'data-id'?: string;
+  children: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  type?: 'button' | 'submit' | 'reset';
+  className?: string;
+  'data-id'?: string;
 }
 
 export function SecondaryButton({
-    children,
-    onClick,
-    disabled = false,
-    type = 'button',
-    className = '',
-    'data-id': dataId,
+  children,
+  onClick,
+  disabled = false,
+  type = 'button',
+  className = '',
+  'data-id': dataId,
 }: SecondaryButtonProps) {
-    return (
-        <button
-            type={type}
-            onClick={onClick}
-            disabled={disabled}
-            className={`
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className={`
                 inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md
                 text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 
                 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors
                 ${className}
             `}
-            data-id={dataId}
-        >
-            {children}
-        </button>
-    );
+      data-id={dataId}
+    >
+      {children}
+    </button>
+  );
 }

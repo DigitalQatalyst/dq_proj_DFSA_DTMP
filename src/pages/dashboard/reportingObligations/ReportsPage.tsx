@@ -97,7 +97,7 @@ export function ReportsPage({
         return (
             <PageLayout
                 title="Reporting & Reporting Obligations"
-                headerClassName="pb-4 pl-0.5"
+                headerClassName="pt-4 pb-4 pl-0.5"
                 titleClassName="text-3xl font-bold text-gray-900"
                 setIsOpen={setIsOpen}
                 isLoggedIn={isLoggedIn}
@@ -119,7 +119,7 @@ export function ReportsPage({
         return (
             <PageLayout
                 title="Reporting & Reporting Obligations"
-                headerClassName="pb-4 pl-0.5"
+                headerClassName="pt-4 pb-4 pl-0.5"
                 titleClassName="text-3xl font-bold text-gray-900"
                 setIsOpen={setIsOpen}
                 isLoggedIn={isLoggedIn}
@@ -149,7 +149,7 @@ export function ReportsPage({
                 <div className="bg-gray-50 min-h-screen w-full">
                     <PageLayout
                         title="Reporting & Reporting Obligations"
-                        headerClassName="pb-4 pl-0.5"
+                        headerClassName="pt-4 pt-4 pb-4 pl-0.5"
                         titleClassName="text-3xl font-bold text-gray-900"
                         setIsOpen={setIsOpen}
                         isLoggedIn={isLoggedIn}

@@ -78,14 +78,14 @@ export const Overview: React.FC<{
 
         <PageLayout
           title="Dashboard Overview"
-          headerClassName=""
+          headerClassName="pt-4 pb-4 pl-0.5"
           titleClassName="text-3xl font-bold text-gray-900"
           setIsOpen={setIsOpen}
           isLoggedIn={isLoggedIn}
         >
 
           <div className="mb-6 flex justify-between items-center">
-            <p className="text-gray-600">
+            <p className="text-gray-600 ml-4">
               Your central view of business status, requests, and upcoming
               obligations.
             </p>
