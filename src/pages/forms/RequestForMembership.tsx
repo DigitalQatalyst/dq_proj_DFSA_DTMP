@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ServiceRequestForm } from "../../components/Forms/FormPreview";
 import { RequestForMembershipSchema } from "../../components/Forms/form-schemas/RequestForMembershipSchema";
+import { FormLayout } from "../../components/layouts/FormLayout";
 
 function RequestForMembership() {
   const [formData, setFormData] = useState<any>({});
@@ -16,7 +17,7 @@ function RequestForMembership() {
   };
 
   return (
-    <div>
+    <FormLayout data-id="request-for-membership-page">
       <ServiceRequestForm
         schema={RequestForMembershipSchema}
         onSubmit={handleSubmit}
@@ -24,7 +25,7 @@ function RequestForMembership() {
         initialData={formData}
         data-id="request-for-membership"
       />
-    </div>
+    </FormLayout>
   );
 }
 

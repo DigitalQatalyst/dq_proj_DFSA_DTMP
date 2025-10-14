@@ -161,6 +161,11 @@ export const KnowledgeHubCard: React.FC<KnowledgeHubItemProps> = ({
       return ''
     }
   }
+  // Ensure description is plain text (strip any visible HTML)
+  const plainDescription = (item.description || '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
   // Render metadata row with date and author
   const renderMetadata = () => {
     const dateToUse = item.lastUpdated || item.date
@@ -387,11 +392,8 @@ export const KnowledgeHubCard: React.FC<KnowledgeHubItemProps> = ({
   }
   // Handle card click
   const handleCardClick = () => {
-    if (onQuickView) {
-      onQuickView()
-    } else {
-      navigate(detailsHref)
-    }
+    // Always navigate directly to the details page for knowledge-hub
+    navigate(detailsHref)
   }
   // Handle primary CTA click
   const handlePrimaryCTAClick = (e: React.MouseEvent) => {
@@ -458,7 +460,7 @@ export const KnowledgeHubCard: React.FC<KnowledgeHubItemProps> = ({
       <MediaCard
         type={getCardType()}
         title={item.title}
-        description={item.description}
+        description={plainDescription}
         image={getPosterUrl(item)}
         tags={getEnhancedTags()}
         {...getAdditionalProps()}

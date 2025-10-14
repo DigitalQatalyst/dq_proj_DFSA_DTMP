@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { ServiceRequestForm } from "../../components/Forms/FormPreview";
 import { collateralGuideSchema } from "../../components/Forms/form-schemas/CollateralUserGuide";
+import { FormLayout } from "../../components/layouts/FormLayout";
 
-
-function BookConsultationForEntrepreneurship() {
+function CollateralUserGuide() {
   const [formData, setFormData] = useState<any>({});
 
   const handleSubmit = async (data: any) => {
@@ -17,7 +17,7 @@ function BookConsultationForEntrepreneurship() {
   };
 
   return (
-    <div>
+    <FormLayout data-id="collateral-user-guide-page">
       <ServiceRequestForm
         schema={collateralGuideSchema}
         onSubmit={handleSubmit}
@@ -25,11 +25,10 @@ function BookConsultationForEntrepreneurship() {
         initialData={formData}
         data-id="collateral-user-guide"
       />
-    </div>
+    </FormLayout>
   );
 }
 
 // Export the specific form name
-export const BookConsultationForEntrepreneurshipForm =
-  BookConsultationForEntrepreneurship;
-export default BookConsultationForEntrepreneurship;
+export const CollateralUserGuideForm = CollateralUserGuide;
+export default CollateralUserGuide;

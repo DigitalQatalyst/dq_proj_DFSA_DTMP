@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import { BusinessProfile } from '../../../components/BusinessProfile/BusinessProfile';
 
-const BusinessProfilePage = () => {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+const BusinessProfilePage = ({
+    setIsOpen,
+    isLoggedIn,
+}: {
+    setIsOpen: (isOpen: boolean) => void;
+    isLoggedIn: boolean;
+}) => {
     return (
-        <BusinessProfile activeSection={'profile'} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
+        <BusinessProfile activeSection={'profile'} setIsOpen={setIsOpen} isLoggedIn={isLoggedIn} />
 
     );
 };

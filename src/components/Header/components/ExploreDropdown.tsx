@@ -26,7 +26,7 @@ interface Marketplace {
 const marketplaces: Marketplace[] = [
   {
     id: "non-financial",
-    name: "Non-Financial Marketplace",
+    name: "Business Services",
     description:
       "Business registration, legal advisory, tax, compliance, and SME support services",
     icon: BuildingIcon,
@@ -34,7 +34,7 @@ const marketplaces: Marketplace[] = [
   },
   {
     id: "finance",
-    name: "Finance Marketplace",
+    name: "Financial Services",
     description:
       "Funding options, grants, and financial services to help SMEs manage and grow",
     icon: CreditCardIcon,
@@ -42,7 +42,7 @@ const marketplaces: Marketplace[] = [
   },
   {
     id: "media",
-    name: "Media Marketplace",
+    name: "Knowledge Hub",
     description:
       "News, articles, and updates on Abu Dhabi's business landscape with industry insights",
     icon: NewspaperIcon,
@@ -50,7 +50,7 @@ const marketplaces: Marketplace[] = [
   },
   {
     id: "community",
-    name: "Community Marketplace",
+    name: "Business Communities",
     description:
       "Industry communities for networking, collaboration, and sharing best practices",
     icon: UsersIcon,
@@ -60,7 +60,7 @@ const marketplaces: Marketplace[] = [
   },
   {
     id: "course",
-    name: "Course Marketplace",
+    name: "Learning & Development",
     description:
       "Training and educational modules to build entrepreneurship skills and enhance businesses",
     icon: GraduationCapIcon,
@@ -72,7 +72,8 @@ const marketplaces: Marketplace[] = [
     description:
       "Access to venture capital, crowdfunding, and grants for SME growth",
     icon: TrendingUpIcon,
-    href: "/marketplace/investment",
+    // href: "/marketplace/investment",
+    href: "/coming-soon",
   },
   {
     id: "calendar", 
@@ -80,7 +81,8 @@ const marketplaces: Marketplace[] = [
     description:
       "Event management, matchmaking, and notifications for upcoming business events",
     icon: CalendarIcon,
-    href: "/marketplace/calendar",
+    // href: "/marketplace/calendar",
+    href: "/coming-soon",
   },
   {
     id: "opportunity",
@@ -88,7 +90,8 @@ const marketplaces: Marketplace[] = [
     description:
       "Business opportunities, partnerships, and growth prospects for SMEs",
     icon: SparklesIcon,
-    href: "/marketplace/opportunities",
+    // href: "/marketplace/opportunities",
+    href: "/coming-soon",
   },
 ];
 

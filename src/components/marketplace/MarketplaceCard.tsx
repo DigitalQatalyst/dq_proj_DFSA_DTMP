@@ -93,7 +93,11 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
           <img
             src={item.provider.logoUrl}
             alt={`${item.provider.name} logo`}
-            className="h-12 w-12 object-contain rounded-md flex-shrink-0 mr-3"
+            className="h-12 w-12 object-contain rounded-lg bg-gray-50 p-2 flex-shrink-0 mr-3"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = "/mzn_logo.png";
+            }}
           />
           <div className="flex-grow min-h-[72px] flex flex-col justify-center">
             <h3 className="font-bold text-gray-900 line-clamp-2 min-h-[48px] leading-snug">
@@ -118,7 +122,7 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
               </span>)}
           </div>
           <div className="flex space-x-2 flex-shrink-0">
-            <button
+            {/* <button
               onClick={(e) => {
                 e.stopPropagation();
                 console.log('Bookmark Clicked:', { itemId: item.id, isBookmarked });
@@ -133,7 +137,7 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
               title={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
             >
               <BookmarkIcon size={16} className={isBookmarked ? 'fill-yellow-600' : ''} />
-            </button>
+            </button> */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
