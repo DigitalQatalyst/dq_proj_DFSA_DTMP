@@ -47,8 +47,7 @@ const SUB = env.NEXT_PUBLIC_CIAM_SUBDOMAIN || env.VITE_AZURE_SUBDOMAIN;
 
 const LOGIN_HOST =
   env.NEXT_PUBLIC_IDENTITY_HOST ||
-  env.VITE_IDENTITY_HOST ||
-  (SUB ? `${SUB}.ciamlogin.com` : `${TENANT_NAME}.b2clogin.com`);
+  env.VITE_IDENTITY_HOST || `${SUB}.ciamlogin.com`;
 const AUTHORITY_SIGNUP_SIGNIN = `https://${LOGIN_HOST}/${TENANT_NAME}.onmicrosoft.com/`;
 const AUTHORITY_SIGNUP = POLICY_SIGNUP
   ? `https://${LOGIN_HOST}/${TENANT_NAME}.onmicrosoft.com/${POLICY_SIGNUP}`
