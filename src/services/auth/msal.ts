@@ -55,7 +55,7 @@ const SUB = env.NEXT_PUBLIC_CIAM_SUBDOMAIN || env.VITE_AZURE_SUBDOMAIN;
 
 const LOGIN_HOST =
   env.NEXT_PUBLIC_IDENTITY_HOST ||
-  env.VITE_IDENTITY_HOST || `${SUB}.ciamlogin.com`;
+  env.VITE_IDENTITY_HOST || `dqproj.ciamlogin.com`;
 const AUTHORITY_SIGNUP_SIGNIN = `https://${LOGIN_HOST}/${TENANT_NAME}.onmicrosoft.com/`;
 const AUTHORITY_SIGNUP = POLICY_SIGNUP
   ? `https://${LOGIN_HOST}/${TENANT_NAME}.onmicrosoft.com/${POLICY_SIGNUP}`
