@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect, useState, useRef, lazy } from 'react'
+import React, { useCallback, useEffect, useState, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
-  BookmarkIcon,
   Calendar,
   Clock,
   MapPin,
@@ -21,33 +20,24 @@ import {
   Loader,
 } from 'lucide-react'
 import { Header } from '../../components/Header'
-import DOMPurify from 'dompurify'
 import { Footer } from '../../components/Footer'
 import { MediaCard } from '../../components/Cards/MediaCard'
-import { getFallbackKnowledgeHubItems } from '../../utils/fallbackData'
 import { getSupabase } from '../../admin-ui/utils/supabaseClient'
 import {
-  getVideoDuration,
   VideoDurationInfo,
-  formatDuration,
-  getVideoPosterUrl,
 } from '../../utils/videoUtils'
 import {
   getAudioUrl,
   getVideoUrl,
   getPosterUrl,
   getDuration,
-  isAudioItem,
   isVideoItem,
 } from '../../utils/mediaSelectors'
-// Helper function to resolve the primary audio URL
-const resolveAudioUrl = (item: any): string | null => {
-  return getAudioUrl(item)
-}
-// Helper function to resolve the primary video URL
-const resolveVideoUrl = (item: any): string | null => {
-  return getVideoUrl(item)
-}
+import {
+  extractDocumentMetadata,
+  formatFileSize,
+} from '../../utils/documentMetadata'
+
 const MediaDetailPage: React.FC = () => {
   const { type, id } = useParams<{
     type: string
@@ -56,7 +46,6 @@ const MediaDetailPage: React.FC = () => {
   const navigate = useNavigate()
   const [item, setItem] = useState<any | null>(null)
   const [relatedItems, setRelatedItems] = useState<any[]>([])
-  const [isBookmarked, setIsBookmarked] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -103,6 +92,13 @@ const MediaDetailPage: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const videoUrlRef = useRef<string | null>(null)
   const videoInitializedRef = useRef(false)
+  // Document viewer state
+  const [documentLoading, setDocumentLoading] = useState(true)
+  const [documentError, setDocumentError] = useState<string | null>(null)
+  // Document metadata extraction state
+  const [extractedFileSize, setExtractedFileSize] = useState<string | null>(null)
+  const [extractedPageCount, setExtractedPageCount] = useState<number | null>(null)
+  const [metadataLoading, setMetadataLoading] = useState(false)
   // Minimal HTML sanitizer for rendering stored rich text safely on client
   const sanitizeHtml = useCallback((html: string): string => {
     try {
@@ -132,10 +128,19 @@ const MediaDetailPage: React.FC = () => {
     setIsClientSide(true)
   }, [])
   useEffect(() => {
+    const stripHtml = (html: string): string => {
+      try {
+        const tmp = document.createElement('div')
+        tmp.innerHTML = String(html || '')
+        return (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim()
+      } catch {
+        return String(html || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+      }
+    }
     const mapRowToItem = (row: any) => ({
       id: row.id,
       title: row.title,
-      description: row.body || row.summary,
+      description: stripHtml(row.body || row.summary),
       content: row.body_html || row.body,
       mediaType: row.type || 'Resource',
       provider: { name: row.provider_name || 'Knowledge Hub', logoUrl: row.provider_logo_url || null },
@@ -152,12 +157,20 @@ const MediaDetailPage: React.FC = () => {
       eventLocationDetails: row.event_location_details || null,
       eventRegistrationInfo: row.event_registration_info || null,
       eventAgenda: row.event_agenda || null,
+      fileSizeBytes: (row as any).file_size_bytes || null,
+      fileSize: formatFileSize((row as any).file_size_bytes) || null,
+      downloadCount: (row as any).download_count || null,
     })
     const fetchMediaDetails = async () => {
       setLoading(true)
       setError(null)
+      if (!id) {
+        setError('No media ID provided')
+        setLoading(false)
+        return
+      }
       try {
-        // Try Supabase first
+        // Fetch from Supabase only — mock data disabled
         try {
           const supabase = getSupabase()
           const { data, error } = await supabase
@@ -184,23 +197,11 @@ const MediaDetailPage: React.FC = () => {
             return
           }
         } catch (e) {
-          // fall through to fallback
+          console.warn('Supabase query failed:', e)
         }
-        const allItems = getFallbackKnowledgeHubItems()
-        const foundItem = allItems.find((it) => it.id === id)
-        if (foundItem) {
-          setItem(foundItem)
-          const related = allItems
-            .filter(
-              (it) =>
-                it.id !== id &&
-                it.mediaType.toLowerCase().replace(/\s+/g, '-') === type,
-            )
-            .slice(0, 3)
-          setRelatedItems(related)
-        } else {
-          setError('Media not found')
-        }
+
+        // Not found anywhere
+        setError('Media not found')
       } catch (err) {
         console.error('Error fetching media details:', err)
         setError('Failed to load media details')
@@ -280,17 +281,38 @@ const MediaDetailPage: React.FC = () => {
   }, [item?.date, type])
   // Fetch provider posts when profile modal is opened
   useEffect(() => {
-    if (showProfileModal && item?.provider) {
-      const allItems = getFallbackKnowledgeHubItems()
-      const posts = allItems
-        .filter(
-          (post) =>
-            post.provider?.name === item.provider.name && post.id !== item.id,
-        )
-        .slice(0, 6) // Limit to 6 posts
-      setProviderPosts(posts)
+    const fetchProviderPosts = async () => {
+      if (!(showProfileModal && item?.provider?.name)) return
+      try {
+        const supabase = getSupabase()
+        const { data: rel, error } = await supabase
+          .from('media_items')
+          .select('*')
+          .neq('id', item.id)
+          .eq('provider_name', item.provider.name)
+          .eq('status', 'Published')
+          .lte('published_at', new Date().toISOString())
+          .order('published_at', { ascending: false })
+          .limit(6)
+        if (error) throw error
+        const posts = (rel || []).map((r) => ({
+          id: r.id,
+          title: r.title,
+          description: (r as any).body || r.summary,
+          mediaType: r.type || 'Resource',
+          provider: { name: (r as any).provider_name || 'Knowledge Hub', logoUrl: (r as any).provider_logo_url || null },
+          imageUrl: (r as any).thumbnail_url || (r as any).image_url || null,
+          tags: (r as any).tags || [],
+          date: (r as any).published_at,
+        }))
+        setProviderPosts(posts)
+      } catch (e) {
+        console.warn('Provider posts query failed:', e)
+        setProviderPosts([])
+      }
     }
-  }, [showProfileModal, item?.provider, item?.id])
+    fetchProviderPosts()
+  }, [showProfileModal, item?.provider?.name, item?.id])
   // Client-side only initialization of video player
   useEffect(() => {
     // Only run on the client side
@@ -477,10 +499,6 @@ const MediaDetailPage: React.FC = () => {
       setVideoError('Failed to start video playback')
     }
   }, [videoAvailable])
-  const toggleBookmark = () => {
-    setIsBookmarked(!isBookmarked)
-    // In a real app, this would call an API to update the bookmark status
-  }
   // Audio player functions
   const togglePlayPause = useCallback(() => {
     if (!audioAvailable) return
@@ -560,6 +578,21 @@ const MediaDetailPage: React.FC = () => {
       setVolume(0.75)
     }
   }, [audioAvailable])
+  // Handle document download
+  const handleDownload = useCallback(() => {
+    if (!item?.downloadUrl) {
+      console.error('No download URL available')
+      return
+    }
+    // Open the document URL in a new tab to trigger browser download
+    const link = document.createElement('a')
+    link.href = item.downloadUrl
+    link.target = '_blank'
+    link.download = item.title || 'document'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }, [item])
   // Add keyboard accessibility
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -596,6 +629,38 @@ const MediaDetailPage: React.FC = () => {
     skipBackward,
     toggleMute,
   ])
+  // Extract document metadata (file size and page count)
+  useEffect(() => {
+    const extractMetadata = async () => {
+      if (!item?.downloadUrl) return
+
+      // Only extract for report/guide/toolkits types
+      const t = String(type).toLowerCase()
+      const isDocumentType = ['report', 'guide', 'toolkits-templates', 'infographic'].includes(t)
+
+      if (!isDocumentType || documentError) return
+
+      setMetadataLoading(true)
+
+      try {
+        const isPDF = item.downloadUrl && (
+          item.downloadUrl.toLowerCase().endsWith('.pdf') ||
+          item.downloadUrl.includes('/pdf/')
+        )
+
+        const metadata = await extractDocumentMetadata(item.downloadUrl, isPDF)
+
+        setExtractedFileSize(metadata.fileSize)
+        setExtractedPageCount(metadata.pageCount)
+      } catch (error) {
+        console.error('Error extracting document metadata:', error)
+      } finally {
+        setMetadataLoading(false)
+      }
+    }
+
+    extractMetadata()
+  }, [item?.downloadUrl, type, documentError])
   // Get the icon based on media type
   const getMediaTypeIcon = () => {
     if (!type) return null
@@ -618,30 +683,6 @@ const MediaDetailPage: React.FC = () => {
         return <MegaphoneIcon size={20} className="text-blue-600" />
       default:
         return <FileTextIcon size={20} className="text-blue-600" />
-    }
-  }
-  // Get the primary CTA text based on media type
-  const getPrimaryCTAText = () => {
-    if (!type) return 'View Details'
-    switch (type.toLowerCase()) {
-      case 'news':
-      case 'blog':
-        return 'Read Full Article'
-      case 'video':
-        return 'Watch Full Video'
-      case 'podcast':
-        return 'Listen to Full Episode'
-      case 'report':
-      case 'guide':
-      case 'toolkits-templates':
-      case 'infographic':
-        return 'Download Now'
-      case 'event':
-        return 'Register Now'
-      case 'announcement':
-        return 'View Full Announcement'
-      default:
-        return 'View Full Details'
     }
   }
   // Get the media type label
@@ -804,13 +845,14 @@ const MediaDetailPage: React.FC = () => {
                             ? undefined
                             : videoUrlRef.current || undefined
                         }
-                        className="w-full h-full object-cover rounded-lg aspect-video"
+                        className="w-full h-full rounded-lg aspect-video"
                         controls
                         controlsList="nodownload"
                         preload="metadata"
                         poster={getPosterUrl(item)}
                         playsInline
-                        loading="lazy"
+                        // Ensure full video is visible on small screens and in fullscreen
+                        style={{ objectFit: (typeof window !== 'undefined' && window.innerWidth < 640) ? 'contain' : 'cover' }}
                         onLoadedMetadata={() => {
                           // Update duration from video element when metadata is loaded
                           if (
@@ -934,74 +976,12 @@ const MediaDetailPage: React.FC = () => {
             </div>
             {videoAvailable && (
               <>
-                {/* Interactive transcript highlights */}
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
-                  <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-                    <FileTextIcon size={18} className="mr-2 text-blue-600" />
-                    Transcript Highlights
-                  </h3>
-                  <div className="space-y-3">
-                    {[
-                      {
-                        time: '00:45',
-                        title: "Introduction to Abu Dhabi's business ecosystem",
-                      },
-                      {
-                        time: '03:12',
-                        title: 'Key growth sectors and opportunities',
-                      },
-                      {
-                        time: '08:27',
-                        title: 'Government support initiatives for businesses',
-                      },
-                      {
-                        time: '15:33',
-                        title: 'Case studies of successful enterprises',
-                      },
-                      {
-                        time: '21:05',
-                        title: 'Practical steps for business development',
-                      },
-                    ].map((highlight, index) => (
-                      <button
-                        key={index}
-                        className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors flex items-start group"
-                        onClick={() => {
-                          if (videoRef.current) {
-                            // Parse time string to seconds
-                            const [min, sec] = highlight.time
-                              .split(':')
-                              .map(Number)
-                            const timeInSeconds = min * 60 + sec
-                            // Set current time and play
-                            videoRef.current.currentTime = timeInSeconds
-                            handlePlayVideo()
-                          }
-                        }}
-                      >
-                        <div className="flex-shrink-0 w-16 text-blue-600 font-medium">
-                          {highlight.time}
-                        </div>
-                        <div className="flex-grow">{highlight.title}</div>
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                          <PlayCircleIcon size={18} className="text-blue-600" />
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
                 {/* Video description */}
                 <div className="mb-8">
                   <h2 className="text-xl font-bold text-gray-900 mb-4">
                     Video Description
                   </h2>
                   <p className="text-gray-700 mb-4">{item.description}</p>
-                  <p className="text-gray-700">
-                    In this insightful video, experts discuss the latest trends
-                    and opportunities in Abu Dhabi's business landscape. Learn
-                    about key strategies for growth and how to leverage
-                    available resources.
-                  </p>
                 </div>
               </>
             )}
@@ -1309,21 +1289,127 @@ const MediaDetailPage: React.FC = () => {
       case 'guide':
       case 'toolkits-templates':
       case 'infographic':
+        const documentUrl = item.downloadUrl
+        const isDocumentAvailable = Boolean(documentUrl)
+        const isPDF = documentUrl && (documentUrl.toLowerCase().endsWith('.pdf') || documentUrl.includes('/pdf/'))
+        const isWordDoc = documentUrl && (documentUrl.toLowerCase().endsWith('.doc') || documentUrl.toLowerCase().endsWith('.docx'))
+
         return (
           <div>
+            {/* Document Viewer */}
+            {isDocumentAvailable && (
+              <div className="mb-8">
+                <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                  <div className="bg-gray-100 px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                    <h3 className="font-semibold text-gray-900 flex items-center">
+                      <FileTextIcon size={18} className="mr-2 text-blue-600" />
+                      Document Preview
+                    </h3>
+                    <button
+                      onClick={handleDownload}
+                      className="px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md flex items-center transition-colors"
+                    >
+                      <Download size={16} className="mr-1.5" />
+                      Download
+                    </button>
+                  </div>
+
+                  {isPDF ? (
+                    <div className="relative bg-gray-50" style={{ minHeight: '600px' }}>
+                      {documentLoading && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
+                          <div className="text-center">
+                            <Loader className="animate-spin h-8 w-8 text-blue-600 mx-auto mb-2" />
+                            <p className="text-gray-600">Loading document...</p>
+                          </div>
+                        </div>
+                      )}
+                      {documentError ? (
+                        <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
+                          <div className="text-center p-8">
+                            <AlertCircleIcon className="h-12 w-12 text-red-500 mx-auto mb-3" />
+                            <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                              Unable to Load Document
+                            </h4>
+                            <p className="text-gray-600 mb-4">
+                              {documentError}
+                            </p>
+                            <button
+                              onClick={handleDownload}
+                              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md inline-flex items-center"
+                            >
+                              <Download size={18} className="mr-2" />
+                              Download Document
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <iframe
+                          src={documentUrl}
+                          className="w-full border-0"
+                          style={{ height: '600px' }}
+                          title={item.title}
+                          onLoad={() => setDocumentLoading(false)}
+                          onError={() => {
+                            setDocumentLoading(false)
+                            setDocumentError('The document could not be displayed in the browser.')
+                          }}
+                        />
+                      )}
+                    </div>
+                  ) : isWordDoc ? (
+                    <div className="p-8 text-center bg-gray-50">
+                      <FileTextIcon className="h-16 w-16 text-blue-600 mx-auto mb-4" />
+                      <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                        Word Document
+                      </h4>
+                      <p className="text-gray-600 mb-4">
+                        This document is in Word format and cannot be previewed in the browser.
+                        Please download it to view the full content.
+                      </p>
+                      <button
+                        onClick={handleDownload}
+                        className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md inline-flex items-center"
+                      >
+                        <Download size={18} className="mr-2" />
+                        Download Document
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="p-8 text-center bg-gray-50">
+                      <FileTextIcon className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+                      <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                        Document Available
+                      </h4>
+                      <p className="text-gray-600 mb-4">
+                        Click the download button to access this document.
+                      </p>
+                      <button
+                        onClick={handleDownload}
+                        className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md inline-flex items-center"
+                      >
+                        <Download size={18} className="mr-2" />
+                        Download Document
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="flex flex-col md:flex-row gap-6 mb-8">
               <div className="md:w-2/3">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">
                   Overview
                 </h2>
                 <p className="text-gray-700 mb-4">{item.description}</p>
-                <p className="text-gray-700 mb-4">
+                {/* <p className="text-gray-700 mb-4">
                   This comprehensive resource provides valuable insights and
                   practical tools for businesses operating in Abu Dhabi. Whether
                   you're looking to establish, grow, or transform your
                   enterprise, this document offers actionable guidance tailored
                   to the local business environment.
-                </p>
+                </p> */}
                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-6">
                   <h3 className="font-semibold text-gray-900 mb-2">
                     Key Highlights
@@ -1332,25 +1418,37 @@ const MediaDetailPage: React.FC = () => {
                     <li className="flex items-start">
                       <div className="text-blue-600 mr-2">?</div>
                       <span className="text-gray-700">
-                        Market analysis and growth projections for key sectors
+                        <strong>Unified Ecosystem: </strong> Connects 10+ marketplaces for finance, services, learning, and growth.
                       </span>
                     </li>
                     <li className="flex items-start">
                       <div className="text-blue-600 mr-2">?</div>
                       <span className="text-gray-700">
-                        Regulatory framework and compliance guidelines
+                        <strong>Lifecycle Support: </strong> Guides enterprises through all six growth stages.
                       </span>
                     </li>
                     <li className="flex items-start">
                       <div className="text-blue-600 mr-2">?</div>
                       <span className="text-gray-700">
-                        Strategic planning templates and financial models
+                        <strong>Khalifa Fund Leadership: </strong> Anchored in Abu Dhabi&apos;s Vision 2030 for innovation and diversification.
                       </span>
                     </li>
                     <li className="flex items-start">
                       <div className="text-blue-600 mr-2">?</div>
                       <span className="text-gray-700">
-                        Case studies of successful business implementations
+                        <strong>Connected Architecture: </strong> Integrates marketplaces, CRM, analytics, and partner portals.
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="text-blue-600 mr-2">?</div>
+                      <span className="text-gray-700">
+                        <strong>Ecosystem Impact: </strong> Simplifies access, expands reach, and enables data-driven decisions.
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="text-blue-600 mr-2">?</div>
+                      <span className="text-gray-700">
+                        <strong>Built for Scale: </strong> Modular, adaptive, and designed for continuous enterprise growth.
                       </span>
                     </li>
                   </ul>
@@ -1363,34 +1461,58 @@ const MediaDetailPage: React.FC = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Format:</span>
-                    <span className="text-gray-900 font-medium">PDF</span>
+                    <span className="text-gray-900 font-medium">
+                      {isPDF ? 'PDF' : isWordDoc ? 'Word' : 'Document'}
+                    </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Pages:</span>
-                    <span className="text-gray-900 font-medium">42</span>
-                  </div>
+                  {(extractedPageCount || metadataLoading) && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Pages:</span>
+                      <span className="text-gray-900 font-medium">
+                        {metadataLoading ? (
+                          <span className="text-gray-400">Loading...</span>
+                        ) : (
+                          extractedPageCount
+                        )}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span className="text-gray-600">File Size:</span>
                     <span className="text-gray-900 font-medium">
-                      {item.fileSize || '4.2 MB'}
+                      {metadataLoading ? (
+                        <span className="text-gray-400">Loading...</span>
+                      ) : (
+                        extractedFileSize || item.fileSize || <span className="text-gray-400">Unknown</span>
+                      )}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Last Updated:</span>
                     <span className="text-gray-900 font-medium">
-                      {item.date || 'January 2024'}
+                      {item.date ? new Date(item.date).toLocaleDateString() : 'January 2024'}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Downloads:</span>
-                    <span className="text-gray-900 font-medium">
-                      {item.downloadCount || '1,247'}
-                    </span>
-                  </div>
+                  {item.downloadCount && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Downloads:</span>
+                      <span className="text-gray-900 font-medium">
+                        {item.downloadCount}
+                      </span>
+                    </div>
+                  )}
                   <div className="mt-4 pt-4 border-t border-gray-200">
-                    <button className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md flex items-center justify-center">
+                    <button
+                      onClick={handleDownload}
+                      disabled={!isDocumentAvailable}
+                      className={`w-full py-2 px-4 font-medium rounded-md flex items-center justify-center transition-colors ${
+                        isDocumentAvailable
+                          ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      }`}
+                    >
                       <Download size={18} className="mr-2" />
-                      Download Now
+                      {isDocumentAvailable ? 'Download Now' : 'No Document Available'}
                     </button>
                   </div>
                 </div>
@@ -1402,31 +1524,22 @@ const MediaDetailPage: React.FC = () => {
               </h3>
               <div className="space-y-2">
                 <p className="text-gray-700">
-                  <span className="font-medium">1.</span> Executive Summary
+                  <span className="font-medium">1.</span> Setting the Stage
                 </p>
                 <p className="text-gray-700">
-                  <span className="font-medium">2.</span> Market Overview and
-                  Opportunities
+                  <span className="font-medium">2.</span> The Enterprise Journey Product
                 </p>
                 <p className="text-gray-700">
-                  <span className="font-medium">3.</span> Regulatory Framework
-                  and Compliance
+                  <span className="font-medium">3.</span> The Journey in Motion
                 </p>
                 <p className="text-gray-700">
-                  <span className="font-medium">4.</span> Strategic Planning and
-                  Implementation
+                  <span className="font-medium">4.</span> Navigating Change
                 </p>
                 <p className="text-gray-700">
-                  <span className="font-medium">5.</span> Financial Models and
-                  Projections
+                  <span className="font-medium">5.</span> Realising and Measuring Value
                 </p>
                 <p className="text-gray-700">
-                  <span className="font-medium">6.</span> Case Studies and
-                  Success Stories
-                </p>
-                <p className="text-gray-700">
-                  <span className="font-medium">7.</span> Resources and Further
-                  Reading
+                  <span className="font-medium">6.</span> Annexes
                 </p>
               </div>
             </div>
@@ -1673,12 +1786,16 @@ const MediaDetailPage: React.FC = () => {
     }
   }
   // Get card type for related items
-  const getCardType = (mediaType: string) => {
-    switch (mediaType.toLowerCase()) {
+  const getCardType = (mediaType: string): 'news' | 'blog' | 'video' | 'podcast' | 'event' | 'report' | 'toolkit' | 'infographic' | 'case-study' | 'tool' | 'announcement' => {
+    const mt = (mediaType || '').toLowerCase()
+    switch (mt) {
       case 'news':
         return 'news'
       case 'blog':
         return 'blog'
+      case 'article':
+        // Treat articles as news-style cards
+        return 'news'
       case 'event':
         return 'event'
       case 'video':
@@ -1687,54 +1804,58 @@ const MediaDetailPage: React.FC = () => {
         return 'podcast'
       case 'report':
       case 'guide':
+        return 'report'
       case 'toolkits & templates':
+        return 'toolkit'
       case 'infographic':
-        return 'resource'
+        return 'infographic'
       case 'announcement':
         return 'announcement'
       default:
-        return 'resource'
+        // Default to article-style rather than report to avoid download CTAs
+        return 'news'
     }
   }
   // Get additional props for related items
   const getAdditionalProps = (item: any) => {
     const type = getCardType(item.mediaType)
+    const metadata: Record<string, string> = {}
+
     switch (type) {
       case 'news':
       case 'blog':
-        return {
-          source: item.provider.name,
-          date: item.date,
-        }
+        if (item.provider?.name) metadata.source = String(item.provider.name)
+        if (item.date) metadata.date = String(item.date)
+        break
       case 'event':
-        return {
-          location: item.location,
-          date: item.date,
-          organizer: item.provider.name,
-          isUpcoming: new Date(item.date) > new Date(),
-        }
+        if (item.location) metadata.location = String(item.location)
+        if (item.date) metadata.date = String(item.date)
+        if (item.provider?.name) metadata.organizer = String(item.provider.name)
+        if (item.date) metadata.isUpcoming = new Date(item.date) > new Date() ? 'Yes' : 'No'
+        break
       case 'video':
       case 'podcast':
-        return {
-          source: item.provider.name,
-          date: item.date,
-          duration: item.duration,
-        }
-      case 'resource':
-        return {
-          resourceType: item.mediaType,
-          downloadCount: item.downloadCount,
-          fileSize: item.fileSize,
-          lastUpdated: item.date,
-        }
+        if (item.provider?.name) metadata.source = String(item.provider.name)
+        if (item.date) metadata.date = String(item.date)
+        if (item.duration) metadata.duration = String(item.duration)
+        break
+      case 'report':
+      case 'toolkit':
+      case 'infographic':
+      case 'case-study':
+      case 'tool':
+        if (item.mediaType) metadata.resourceType = String(item.mediaType)
+        if (item.downloadCount !== undefined) metadata.downloadCount = String(item.downloadCount)
+        if (item.fileSize) metadata.fileSize = String(item.fileSize)
+        if (item.date) metadata.lastUpdated = String(item.date)
+        break
       case 'announcement':
-        return {
-          source: item.provider.name,
-          date: item.date,
-        }
-      default:
-        return {}
+        if (item.provider?.name) metadata.source = String(item.provider.name)
+        if (item.date) metadata.date = String(item.date)
+        break
     }
+
+    return { metadata }
   }
   if (loading) {
     return (
@@ -1792,23 +1913,23 @@ const MediaDetailPage: React.FC = () => {
         <div className="bg-white border-b border-gray-200">
           <div className="container mx-auto px-4 py-8 max-w-7xl">
             {/* Breadcrumbs */}
-            <nav className="flex mb-6" aria-label="Breadcrumb">
+            <nav className="mb-6 overflow-x-auto whitespace-nowrap text-sm sm:text-base -mx-4 px-4" aria-label="Breadcrumb">
               <ol className="inline-flex items-center space-x-1 md:space-x-2">
                 <li className="inline-flex items-center">
                   <Link
                     to="/"
-                    className="text-gray-600 hover:text-gray-900 inline-flex items-center"
+                    className="text-gray-600 hover:text-gray-900 inline-flex items-center whitespace-nowrap flex-shrink-0"
                   >
                     <HomeIcon size={16} className="mr-1" />
                     <span>Home</span>
                   </Link>
                 </li>
                 <li>
-                  <div className="flex items-center">
+                  <div className="flex items-center flex-shrink-0">
                     <ChevronRightIcon size={16} className="text-gray-400" />
                     <Link
                       to="/marketplace/knowledge-hub"
-                      className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2"
+                      className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2 whitespace-nowrap"
                     >
                       Knowledge Hub
                     </Link>
@@ -1817,7 +1938,7 @@ const MediaDetailPage: React.FC = () => {
                 <li>
                   <div className="flex items-center">
                     <ChevronRightIcon size={16} className="text-gray-400" />
-                    <span className="ml-1 text-gray-500 md:ml-2">
+                    <span className="ml-1 text-gray-500 md:ml-2 max-w-[60vw] truncate">
                       {getMediaTypeLabel()}
                     </span>
                   </div>
@@ -1872,7 +1993,7 @@ const MediaDetailPage: React.FC = () => {
                   {item.date && (
                     <div className="flex items-center">
                       <Calendar size={16} className="mr-1 text-gray-500" />
-                      <span>{item.date}</span>
+                      <span>{new Date(item.date).toLocaleDateString()}</span>
                     </div>
                   )}
                   {item.duration && (
@@ -1968,7 +2089,6 @@ const MediaDetailPage: React.FC = () => {
                             preload="metadata"
                             poster={getPosterUrl(item)}
                             playsInline
-                            loading="lazy"
                             onLoadedMetadata={() => {
                               // Update duration from video element when metadata is loaded
                               if (
@@ -2102,82 +2222,12 @@ const MediaDetailPage: React.FC = () => {
               <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
                 {type === 'video' ? (
                   <>
-                    {/* Transcript highlights for video type */}
-                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
-                      <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-                        <FileTextIcon
-                          size={18}
-                          className="mr-2 text-blue-600"
-                        />
-                        Transcript Highlights
-                      </h3>
-                      <div className="space-y-3">
-                        {[
-                          {
-                            time: '00:45',
-                            title:
-                              "Introduction to Abu Dhabi's business ecosystem",
-                          },
-                          {
-                            time: '03:12',
-                            title: 'Key growth sectors and opportunities',
-                          },
-                          {
-                            time: '08:27',
-                            title:
-                              'Government support initiatives for businesses',
-                          },
-                          {
-                            time: '15:33',
-                            title: 'Case studies of successful enterprises',
-                          },
-                          {
-                            time: '21:05',
-                            title: 'Practical steps for business development',
-                          },
-                        ].map((highlight, index) => (
-                          <button
-                            key={index}
-                            className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors flex items-start group"
-                            onClick={() => {
-                              if (videoRef.current) {
-                                // Parse time string to seconds
-                                const [min, sec] = highlight.time
-                                  .split(':')
-                                  .map(Number)
-                                const timeInSeconds = min * 60 + sec
-                                // Set current time and play
-                                videoRef.current.currentTime = timeInSeconds
-                                handlePlayVideo()
-                              }
-                            }}
-                          >
-                            <div className="flex-shrink-0 w-16 text-blue-600 font-medium">
-                              {highlight.time}
-                            </div>
-                            <div className="flex-grow">{highlight.title}</div>
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                              <PlayCircleIcon
-                                size={18}
-                                className="text-blue-600"
-                              />
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
                     {/* Video description */}
                     <div className="mb-8">
                       <h2 className="text-xl font-bold text-gray-900 mb-4">
                         Video Description
                       </h2>
                       <p className="text-gray-700 mb-4">{item.description}</p>
-                      <p className="text-gray-700">
-                        In this insightful video, experts discuss the latest
-                        trends and opportunities in Abu Dhabi's business
-                        landscape. Learn about key strategies for growth and how
-                        to leverage available resources.
-                      </p>
                     </div>
                   </>
                 ) : type === 'event' ? (
@@ -2286,48 +2336,48 @@ const MediaDetailPage: React.FC = () => {
                                 </p>
                               </div>
                             ) : (
-                              <div className="flex justify-center space-x-2">
+                              <div className="flex justify-center gap-1 sm:gap-2">
                                 {/* Days */}
-                                <div className="flex flex-col items-center">
-                                  <div className="bg-white w-14 h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
-                                    <span className="text-xl font-bold text-gray-800">
+                                <div className="flex flex-col items-center flex-1 min-w-0">
+                                  <div className="bg-white w-full max-w-[56px] h-12 sm:h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
+                                    <span className="text-lg sm:text-xl font-bold text-gray-800">
                                       {String(countdown.days).padStart(2, '0')}
                                     </span>
                                   </div>
-                                  <span className="text-xs text-gray-600 mt-1">
+                                  <span className="text-[10px] sm:text-xs text-gray-600 mt-1">
                                     Days
                                   </span>
                                 </div>
                                 {/* Hours */}
-                                <div className="flex flex-col items-center">
-                                  <div className="bg-white w-14 h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
-                                    <span className="text-xl font-bold text-gray-800">
+                                <div className="flex flex-col items-center flex-1 min-w-0">
+                                  <div className="bg-white w-full max-w-[56px] h-12 sm:h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
+                                    <span className="text-lg sm:text-xl font-bold text-gray-800">
                                       {String(countdown.hours).padStart(2, '0')}
                                     </span>
                                   </div>
-                                  <span className="text-xs text-gray-600 mt-1">
+                                  <span className="text-[10px] sm:text-xs text-gray-600 mt-1">
                                     Hours
                                   </span>
                                 </div>
                                 {/* Minutes */}
-                                <div className="flex flex-col items-center">
-                                  <div className="bg-white w-14 h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
-                                    <span className="text-xl font-bold text-gray-800">
+                                <div className="flex flex-col items-center flex-1 min-w-0">
+                                  <div className="bg-white w-full max-w-[56px] h-12 sm:h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
+                                    <span className="text-lg sm:text-xl font-bold text-gray-800">
                                       {String(countdown.minutes).padStart(2, '0')}
                                     </span>
                                   </div>
-                                  <span className="text-xs text-gray-600 mt-1">
+                                  <span className="text-[10px] sm:text-xs text-gray-600 mt-1">
                                     Minutes
                                   </span>
                                 </div>
                                 {/* Seconds */}
-                                <div className="flex flex-col items-center">
-                                  <div className="bg-white w-14 h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
-                                    <span className="text-xl font-bold text-gray-800">
+                                <div className="flex flex-col items-center flex-1 min-w-0">
+                                  <div className="bg-white w-full max-w-[56px] h-12 sm:h-14 rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
+                                    <span className="text-lg sm:text-xl font-bold text-gray-800">
                                       {String(countdown.seconds).padStart(2, '0')}
                                     </span>
                                   </div>
-                                  <span className="text-xs text-gray-600 mt-1">
+                                  <span className="text-[10px] sm:text-xs text-gray-600 mt-1">
                                     Seconds
                                   </span>
                                 </div>
@@ -2345,13 +2395,6 @@ const MediaDetailPage: React.FC = () => {
                           </h3>
                           <p className="text-gray-700 mb-4">
                             {item.description}
-                          </p>
-                          <p className="text-gray-700">
-                            Join industry leaders and experts for this exclusive
-                            event focused on business growth opportunities in
-                            Abu Dhabi. Network with peers, gain valuable
-                            insights, and discover resources to accelerate your
-                            business journey.
                           </p>
                         </div>
                         {/* Enhanced Registration Button */}
@@ -2458,16 +2501,39 @@ const MediaDetailPage: React.FC = () => {
                           {/* Registration Info Card */}
                           {((item as any).eventRegistrationInfo || true) && (
                             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex">
-                              <div className="mr-4 text-blue-600">
+                              <div className="mr-4 text-blue-600 flex-shrink-0">
                                 <FileTextIcon size={24} />
                               </div>
-                              <div>
+                              <div className="flex-1 min-w-0">
                                 <h4 className="font-semibold text-gray-900">
                                   Registration
                                 </h4>
                                 {(item as any).eventRegistrationInfo ? (
-                                  <p className="text-gray-700 whitespace-pre-line">
-                                    {(item as any).eventRegistrationInfo}
+                                  <p className="text-gray-700 whitespace-pre-line break-words">
+                                    {(item as any).eventRegistrationInfo.split(' ').map((word: string, index: number, array: string[]) => {
+                                      // Check if word looks like a URL
+                                      const urlPattern = /^(https?:\/\/[^\s]+|www\.[^\s]+|[a-zA-Z0-9][a-zA-Z0-9-]+\.[a-zA-Z]{2,}[^\s]*)$/
+                                      const isUrl = urlPattern.test(word)
+
+                                      if (isUrl) {
+                                        // Add protocol if missing
+                                        const href = word.startsWith('http') ? word : `https://${word}`
+                                        return (
+                                          <span key={index}>
+                                            <a
+                                              href={href}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              className="text-blue-600 hover:text-blue-800 underline break-all"
+                                            >
+                                              {word}
+                                            </a>
+                                            {index < array.length - 1 ? ' ' : ''}
+                                          </span>
+                                        )
+                                      }
+                                      return word + (index < array.length - 1 ? ' ' : '')
+                                    })}
                                   </p>
                                 ) : (
                                   <>
@@ -2644,16 +2710,10 @@ const MediaDetailPage: React.FC = () => {
                     title={relatedItem.title}
                     description={relatedItem.description}
                     image={relatedItem.imageUrl}
-                    tags={relatedItem.tags || []}
                     {...getAdditionalProps(relatedItem)}
                     cta={{
                       label: 'View Details',
-                      onClick: (e) => {
-                        e.stopPropagation()
-                        navigate(
-                          `/media/${relatedItem.mediaType.toLowerCase().replace(/\s+/g, '-')}/${relatedItem.id}`,
-                        )
-                      },
+                      href: `/media/${relatedItem.mediaType.toLowerCase().replace(/\s+/g, '-')}/${relatedItem.id}`,
                     }}
                   />
                 </div>

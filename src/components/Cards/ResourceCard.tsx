@@ -100,9 +100,9 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({
       text: 'Download',
       onClick: handleDownload
     } : undefined} actions={onDownload && !item.isExternal ? <div className="flex justify-end">
-              <button onClick={handleDownload} className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors" aria-label="Download resource">
+              {/* <button onClick={handleDownload} className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors" aria-label="Download resource">
                 <Download size={16} />
-              </button>
+              </button> */}
             </div> : undefined} />
     </BaseCard>;
 };

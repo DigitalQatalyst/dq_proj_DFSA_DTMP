@@ -1,6 +1,7 @@
-// hooks/useOnboardingForm.js
+// hooks/useOnboardingForm.ts
 import { useState, useEffect, useRef } from "react";
 import { validateFormField } from "../utils/validation";
+import { loadOnboardingData, loadOnboardingProgress, saveOnboardingData } from "../services/onboardingService";
 
 export function useOnboardingForm(steps, onComplete, isRevisit) {
   const [currentStep, setCurrentStep] = useState(0);
@@ -31,19 +32,43 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
   // Load initial data
   useEffect(() => {
     const loadData = async () => {
-      // Azure B2C claims (in real app, this would come from auth context)
-      const azureB2CClaims = {
-        CompanyName: "Future Tech",
-        Industry: "Technology",
-        CompanyStage: "Startup",
-        ContactName: "John Smith",
-        Phone: "+971501234567",
-        Email: "test@digitalqatalyst.com",
-      };
-
-      // In real implementation, load from persistent storage
-      // For now, just use claims
-      setFormData(azureB2CClaims);
+      try {
+        // Try to load existing onboarding data first
+        let existingData = await loadOnboardingData();
+        
+        // If no complete data, try to load progress
+        if (!existingData) {
+          existingData = await loadOnboardingProgress();
+        }
+        
+        // If we have existing data, use it
+        if (existingData) {
+          setFormData(existingData);
+        } else {
+          // Use mock initial data for demo purposes
+          const mockData = {
+            tradeName: "Future Tech Solutions",
+            industry: "Technology",
+            companyStage: "Startup",
+            contactName: "John Smith",
+            email: "jsmith.futuretech@gmail.com",
+            phone: "+971501234567",
+          };
+          setFormData(mockData);
+        }
+      } catch (error) {
+        console.error("Error loading onboarding data:", error);
+        // Fallback to mock data
+        const mockData = {
+          tradeName: "Future Tech Solutions",
+          industry: "Technology",
+          companyStage: "Startup",
+          contactName: "John Smith",
+          email: "jsmith.futuretech@gmail.com",
+          phone: "+971501234567",
+        };
+        setFormData(mockData);
+      }
     };
 
     loadData();
@@ -199,18 +224,13 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
     if (isValid) {
       setLoading(true);
       try {
-        // Save to backend (commented out for this example)
-        // await saveOnboardingData(formData);
+        // Save to backend using mock API
+        const result = await saveOnboardingData(formData);
 
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        if (result.success) {
+        if (result) {
           onComplete();
         } else {
-          setSubmitError(
-            result.error?.message || "Failed to save onboarding data"
-          );
+          console.error("Failed to save onboarding data");
         }
       } catch (error) {
         console.error("Error saving onboarding data:", error);

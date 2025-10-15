@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { ServiceRequestForm } from "../../components/Forms/FormPreview";
 import { loanCancellationSchema } from "../../components/Forms/form-schemas/CancelLoans";
+import { FormLayout } from "../../components/layouts/FormLayout";
 
-function BookConsultationForEntrepreneurship() {
+function CancelLoan() {
   const [formData, setFormData] = useState<any>({});
 
   const handleSubmit = async (data: any) => {
@@ -17,19 +18,18 @@ function BookConsultationForEntrepreneurship() {
   };
 
   return (
-    <div>
+    <FormLayout data-id="cancel-loan-page">
       <ServiceRequestForm
         schema={loanCancellationSchema}
         onSubmit={handleSubmit}
         onSave={handleSave}
         initialData={formData}
-        data-id="book-consultation-for-entrepreneurship"
+        data-id="cancel-loan"
       />
-    </div>
+    </FormLayout>
   );
 }
 
 // Export the specific form name
-export const BookConsultationForEntrepreneurshipForm =
-  BookConsultationForEntrepreneurship;
-export default BookConsultationForEntrepreneurship;
+export const CancelLoanForm = CancelLoan;
+export default CancelLoan;

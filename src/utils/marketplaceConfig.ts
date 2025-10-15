@@ -189,7 +189,7 @@ export const mockKnowledgeHubData = {
 export const marketplaceConfig: Record<string, MarketplaceConfig> = {
   courses: {
     id: 'courses',
-    title: 'Course Marketplace',
+    title: 'Learning & Development',
     description: 'Discover and enroll in courses tailored for SMEs to help grow your business',
     route: '/marketplace/courses',
     primaryCTA: 'Enroll Now',
@@ -350,7 +350,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
   },
   financial: {
     id: 'financial',
-    title: 'Financial Services Marketplace',
+    title: 'Financial Services ',
     description: 'Access financial products and services to support your business growth',
     route: '/marketplace/financial',
     primaryCTA: 'Apply Now',
@@ -468,7 +468,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
   },
   'non-financial': {
     id: 'non-financial',
-    title: 'Business Services Marketplace',
+    title: 'Business Services',
     description: 'Find professional services to support and grow your business',
     route: '/marketplace/non-financial',
     primaryCTA: 'Request Service',
@@ -606,7 +606,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
   },
   'knowledge-hub': {
     id: 'knowledge-hub',
-    title: 'Knowledge Hub Marketplace',
+    title: 'Knowledge Hub',
     description: 'Discover valuable resources, news, events, and tools to support your business journey in Abu Dhabi',
     route: '/marketplace/knowledge-hub',
     primaryCTA: 'Access Now',
@@ -658,6 +658,9 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
         id: 'news',
         name: 'News'
       }, {
+        id: 'article',
+        name: 'Article'
+      }, {
         id: 'reports',
         name: 'Reports'
       }, {
@@ -679,22 +682,14 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
     }, {
       id: 'businessStage',
       title: 'Business Stage',
-      options: [{
-        id: 'idea',
-        name: 'Idea Stage'
-      }, {
-        id: 'startup',
-        name: 'Startup'
-      }, {
-        id: 'growth',
-        name: 'Growth'
-      }, {
-        id: 'scaleup',
-        name: 'Scale-up'
-      }, {
-        id: 'established',
-        name: 'Established'
-      }]
+      options: [
+        { id: 'ideation', name: 'Ideation' },
+        { id: 'launch', name: 'Launch' },
+        { id: 'growth', name: 'Growth' },
+        { id: 'expansion', name: 'Expansion' },
+        { id: 'optimization', name: 'Optimization' },
+        { id: 'transformation', name: 'Transformation' }
+      ]
     }, {
       id: 'category',
       title: 'Category',

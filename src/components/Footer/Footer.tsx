@@ -105,17 +105,17 @@ export function Footer({
                 </li>
                 <li>
                   <a href="/marketplace/non-financial" className="text-blue-100 hover:text-white transition-colors text-sm block">
-                    Non-Financial Services
+                    Business Services
                   </a>
                 </li>
                 <li>
                   <a href="https://ujs.qxk.mybluehost.me/website_e550b4e3/" className="text-blue-100 hover:text-white transition-colors text-sm block">
-                    Communities
+                    Business Business Communities
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-blue-100 hover:text-white transition-colors text-sm block">
-                    Media Centre
+                  <a href="/marketplace/knowledge-hub" className="text-blue-100 hover:text-white transition-colors text-sm block">
+                    Knowledge Hub
                   </a>
                 </li>
               </ul>
@@ -221,17 +221,17 @@ export function Footer({
                 </li>
                 <li>
                   <a href="/marketplace/non-financial" className="text-blue-100 hover:text-white transition-colors text-sm">
-                    Non-Financial Services
+                    Business Services
                   </a>
                 </li>
                 <li>
                   <a href="https://ujs.qxk.mybluehost.me/website_e550b4e3/" className="text-blue-100 hover:text-white transition-colors text-sm">
-                    Communities
+                    Business Communities
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-blue-100 hover:text-white transition-colors text-sm">
-                    Media Centre
+                  <a href="/marketplace/knowledge-hub" className="text-blue-100 hover:text-white transition-colors text-sm">
+                    Knowledge Hub
                   </a>
                 </li>
               </ul>

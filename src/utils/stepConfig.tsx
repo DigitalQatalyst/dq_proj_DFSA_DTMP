@@ -277,7 +277,7 @@ export const getSteps = (): Step[] => [
         fields: [
           {
             id: "initialCapital",
-            label: "Initial Capital (USD)",
+            label: "Initial Capital (AED)",
             fieldName: "initialCapital",
             required: true,
             type: "number",
@@ -286,7 +286,7 @@ export const getSteps = (): Step[] => [
           },
           {
             id: "fundingNeeds",
-            label: "Funding Needs (USD)",
+            label: "Funding Needs (AED)",
             fieldName: "fundingNeeds",
             required: false,
             type: "number",

@@ -1,5 +1,6 @@
-// hooks/useAutoSave.js
+// hooks/useAutoSave.ts
 import { useState, useEffect, useRef } from "react";
+import { saveOnboardingProgress } from "../services/onboardingService";
 
 export function useAutoSave(formData, currentStep, isEditingWelcome) {
   const [autoSaving, setAutoSaving] = useState(false);
@@ -27,13 +28,14 @@ export function useAutoSave(formData, currentStep, isEditingWelcome) {
 
     setAutoSaving(true);
     try {
-      // In real app: await saveOnboardingProgress(formData);
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      lastSavedDataRef.current = { ...formData };
-      setProgressSaved(true);
-
-      setTimeout(() => setProgressSaved(false), 3000);
+      // Use the mock API to save progress
+      const result = await saveOnboardingProgress(formData);
+      
+      if (result) {
+        lastSavedDataRef.current = { ...formData };
+        setProgressSaved(true);
+        setTimeout(() => setProgressSaved(false), 3000);
+      }
     } catch (error) {
       console.error("Error auto-saving progress:", error);
     } finally {

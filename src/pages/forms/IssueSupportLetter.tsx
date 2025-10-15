@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ServiceRequestForm } from "../../components/Forms/FormPreview";
 import { IssueSupportLetterSchema } from "../../components/Forms/form-schemas/IssueSupportLetterSchema";
+import { FormLayout } from "../../components/layouts/FormLayout";
 
 function IssueSupportLetter() {
   const [formData, setFormData] = useState<any>({});
@@ -16,7 +17,7 @@ function IssueSupportLetter() {
   };
 
   return (
-    <div>
+    <FormLayout data-id="issue-support-letter-page">
       <ServiceRequestForm
         schema={IssueSupportLetterSchema}
         onSubmit={handleSubmit}
@@ -24,7 +25,7 @@ function IssueSupportLetter() {
         initialData={formData}
         data-id="issue-support-letter"
       />
-    </div>
+    </FormLayout>
   );
 }
 

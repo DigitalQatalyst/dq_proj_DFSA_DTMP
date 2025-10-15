@@ -211,7 +211,7 @@ export function DocumentWallet() {
         );
     }
     return (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mx-6">
             {/* Dashboard Summary - 2x2 grid on mobile */}
             <div className="px-4 md:px-6 pt-4 md:pt-6">
                 <DocumentDashboard
