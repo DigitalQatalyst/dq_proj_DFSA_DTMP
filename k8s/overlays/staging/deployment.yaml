@@ -20,7 +20,7 @@ spec:
         ports:
         - containerPort: 3000
       imagePullSecrets:
-      - name: registrycred  # Make sure the secret is created as mentioned before
+      - name: registrycred  # Make sure the secret is created as mentioned before ##############yes
 
 ---
 
