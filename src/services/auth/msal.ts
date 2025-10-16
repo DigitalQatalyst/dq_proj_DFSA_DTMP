@@ -99,6 +99,7 @@ computedAuthority = `https://${SUB}.ciamlogin.com/`;
 //   }
 // })();
 
+/*
 export const msalConfig: Configuration = {
   auth: {
     clientId: CLIENT_ID,
@@ -123,6 +124,7 @@ export const msalConfig: Configuration = {
     },
   },
 };
+*/
 
 export const msalInstance = new PublicClientApplication(msalConfig);
 

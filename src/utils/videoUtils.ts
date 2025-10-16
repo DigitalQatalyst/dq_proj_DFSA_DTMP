@@ -19,7 +19,7 @@ export const formatDuration = (seconds: number): string => {
 /**
  * Interface for video duration information
  */
-export interface VideoDurationInfo {
+interface VideoDurationInfo {
   seconds: number
   formatted: string
   available: boolean
@@ -34,7 +34,7 @@ export interface VideoDurationInfo {
  * @param item - The media item
  * @returns The resolved poster URL
  */
-export const getVideoPosterUrl = (item: any): string => {
+const getVideoPosterUrl = (item: any): string => {
   // Fallback placeholder to use if no poster is found
   const fallbackPosterUrl =
     'https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
@@ -72,7 +72,7 @@ export const getVideoPosterUrl = (item: any): string => {
  * @param videoElement - Optional video element reference to read duration from
  * @returns Object containing seconds, formatted duration and availability flag
  */
-export const getVideoDuration = (
+const getVideoDuration = (
   item: any,
   videoElement?: HTMLVideoElement | null,
 ): VideoDurationInfo => {
@@ -157,7 +157,7 @@ export const getVideoDuration = (
  * @param initialDuration - Initial duration info
  * @returns Updated duration info
  */
-export const useVideoDuration = (
+const useVideoDuration = (
   videoElement: HTMLVideoElement | null,
   initialDuration: VideoDurationInfo,
 ): VideoDurationInfo => {

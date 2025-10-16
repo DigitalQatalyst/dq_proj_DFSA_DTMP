@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState, Suspense } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import AppLayout from '../components/AppLayout'
 import { mediaService, MediaItem } from '../utils/supabase'
-import { Toast, ToastType } from '../components/Toast'
+type ToastType = 'success' | 'error'
 import { ArrowLeft as ArrowLeftIcon, Save as SaveIcon, Tag as TagIcon, X as XIcon, PlusCircle as PlusCircleIcon } from 'lucide-react'
 import DOMPurify from 'dompurify'
 
@@ -127,7 +127,14 @@ const MediaDetail2: React.FC = () => {
           </div>
         </div>
 
-        {toast && (<div className="mb-3"><Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} /></div>)}
+        {toast && (
+          <div className="mb-3">
+            <div className={`flex items-center p-4 rounded-lg shadow ${toast.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`} role="alert">
+              <div className="text-sm font-medium flex-1">{toast.message}</div>
+              <button type="button" className={`ml-3 text-sm ${toast.type === 'success' ? 'text-green-700' : 'text-red-700'}`} onClick={() => setToast(null)} aria-label="Close">✕</button>
+            </div>
+          </div>
+        )}
 
         {loading ? (
           <div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div></div>

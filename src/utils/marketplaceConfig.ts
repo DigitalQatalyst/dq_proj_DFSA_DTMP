@@ -4,7 +4,7 @@ import { DollarSign, Calendar, Clock, Users, MapPin, CheckCircle, BarChart, Awar
 import { mockCourses, providers } from './mockData';
 import { mockFinancialServices, mockNonFinancialServices, mockKnowledgeHubItems, mockKnowledgeHubFilterOptions } from './mockMarketplaceData';
 // Define a Tab type for consistency across marketplace pages
-export interface MarketplaceTab {
+interface MarketplaceTab {
   id: string;
   label: string;
   icon?: any;
@@ -13,13 +13,13 @@ export interface MarketplaceTab {
   renderContent?: (item: any, marketplaceType: string) => React.ReactNode;
 }
 // Configuration type definitions
-export interface AttributeConfig {
+interface AttributeConfig {
   key: string;
   label: string;
   icon: ReactNode;
   formatter?: (value: any) => string;
 }
-export interface TabConfig {
+interface TabConfig {
   id: string;
   label: string;
   icon?: any;
@@ -27,7 +27,7 @@ export interface TabConfig {
   iconColor?: string;
   renderContent?: (item: any, marketplaceType: string) => React.ReactNode;
 }
-export interface FilterCategoryConfig {
+interface FilterCategoryConfig {
   id: string;
   title: string;
   options: {
@@ -35,7 +35,7 @@ export interface FilterCategoryConfig {
     name: string;
   }[];
 }
-export interface MarketplaceConfig {
+interface MarketplaceConfig {
   id: string;
   title: string;
   description: string;
@@ -61,7 +61,7 @@ export interface MarketplaceConfig {
   };
 }
 // Mock data for financial services
-export const mockFinancialServicesData = {
+const mockFinancialServicesData = {
   items: mockFinancialServices,
   filterOptions: {
     categories: [{
@@ -91,7 +91,7 @@ export const mockFinancialServicesData = {
   providers: providers
 };
 // Mock data for non-financial services
-export const mockNonFinancialServicesData = {
+const mockNonFinancialServicesData = {
   items: mockNonFinancialServices,
   filterOptions: {
     categories: [{
@@ -134,7 +134,7 @@ export const mockNonFinancialServicesData = {
   providers: providers
 };
 // Mock data for courses
-export const mockCoursesData = {
+const mockCoursesData = {
   items: mockCourses,
   filterOptions: {
     categories: [{
@@ -180,13 +180,13 @@ export const mockCoursesData = {
   providers: providers
 };
 // Mock data for Knowledge Hub
-export const mockKnowledgeHubData = {
+const mockKnowledgeHubData = {
   items: mockKnowledgeHubItems,
   filterOptions: mockKnowledgeHubFilterOptions,
   providers: providers
 };
 // Define marketplace configurations
-export const marketplaceConfig: Record<string, MarketplaceConfig> = {
+const marketplaceConfig: Record<string, MarketplaceConfig> = {
   courses: {
     id: 'courses',
     title: 'Learning & Development',
@@ -794,7 +794,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
   }
 };
 // Helper to get config by marketplace type
-export const getMarketplaceConfig = (type: string): MarketplaceConfig => {
+export const getMarketplaceConfig = (type: string) => {
   const config = marketplaceConfig[type];
   if (!config) {
     throw new Error(`No configuration found for marketplace type: ${type}`);

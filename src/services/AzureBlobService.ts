@@ -17,6 +17,7 @@ const CONTAINER_NAME = "documents";
  * @param expiryMinutes How long the SAS URL should be valid for (in minutes)
  * @returns The SAS URL for uploading
  */
+/*
 export const generateUploadSasUrl = async (
   blobName: string,
   contentType: string,
@@ -28,6 +29,7 @@ export const generateUploadSasUrl = async (
   await new Promise((resolve) => setTimeout(resolve, 500));
   return `https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net/${CONTAINER_NAME}/${blobName}?sv=demo&sig=demo`;
 };
+*/
 
 /**
  * Generates a SAS URL for downloading a blob (Demo implementation)
@@ -35,6 +37,7 @@ export const generateUploadSasUrl = async (
  * @param expiryMinutes How long the SAS URL should be valid for (in minutes)
  * @returns The SAS URL for downloading
  */
+/*
 export const generateDownloadSasUrl = async (
   blobName: string,
   expiryMinutes: number = 60
@@ -45,6 +48,7 @@ export const generateDownloadSasUrl = async (
   await new Promise((resolve) => setTimeout(resolve, 500));
   return `https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net/${CONTAINER_NAME}/${blobName}?sv=demo&sig=demo`;
 };
+*/
 
 /**
  * Uploads a file directly to Azure Blob Storage (Demo implementation)
@@ -53,6 +57,7 @@ export const generateDownloadSasUrl = async (
  * @param blobName The name to give the blob (if not provided, will use the file name)
  * @returns The URL of the uploaded blob
  */
+/*
 export const uploadFileToBlobStorage = async (
   file: File,
   blobName?: string
@@ -73,24 +78,28 @@ export const uploadFileToBlobStorage = async (
   console.log("File uploaded successfully to:", demoUrl);
   return demoUrl;
 };
+*/
 
 /**
  * Deletes a blob from Azure Blob Storage (Demo implementation)
  * @param blobName The name of the blob to delete
  * @returns A promise that resolves when the blob is deleted
  */
+/*
 export const deleteBlob = async (blobName: string): Promise<void> => {
   console.log("Deleting blob from storage:", blobName);
   // Simulate API delay
   await new Promise((resolve) => setTimeout(resolve, 500));
   console.log("Blob deleted successfully:", blobName);
 };
+*/
 
 /**
  * Checks if a blob exists (Demo implementation)
  * @param blobName The name of the blob to check
  * @returns A promise that resolves to true if the blob exists, false otherwise
  */
+/*
 export const blobExists = async (blobName: string): Promise<boolean> => {
   console.log("Checking if blob exists:", blobName);
   // Simulate API delay
@@ -98,12 +107,14 @@ export const blobExists = async (blobName: string): Promise<boolean> => {
   // For demo purposes, return true for any blob name
   return true;
 };
+*/
 
 /**
  * Gets the properties of a blob (Demo implementation)
  * @param blobName The name of the blob
  * @returns The blob properties
  */
+/*
 export const getBlobProperties = async (blobName: string) => {
   console.log("Getting blob properties:", blobName);
   // Simulate API delay
@@ -116,12 +127,14 @@ export const getBlobProperties = async (blobName: string) => {
     etag: '"demo-etag"',
   };
 };
+*/
 
 /**
  * Extracts the blob name from a blob URL
  * @param blobUrl The full URL of the blob
  * @returns The blob name
  */
+/*
 export const getBlobNameFromUrl = (blobUrl: string): string => {
   // Remove any SAS token
   const urlWithoutSas = blobUrl.split("?")[0];
@@ -129,3 +142,4 @@ export const getBlobNameFromUrl = (blobUrl: string): string => {
   const parts = urlWithoutSas.split("/");
   return parts[parts.length - 1];
 };
+*/

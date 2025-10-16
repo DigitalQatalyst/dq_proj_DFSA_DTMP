@@ -1,5 +1,5 @@
 // Mock data for the Course Marketplace
-export interface ProviderType {
+interface ProviderType {
   name: string;
   logoUrl: string;
   description: string;
@@ -20,7 +20,7 @@ export interface CourseType {
   location?: string;
 }
 // Categories
-export const categories = [
+const categories = [
   "Entrepreneurship",
   "Compliance",
   "Finance",
@@ -31,9 +31,9 @@ export const categories = [
   "Leadership",
 ];
 // Delivery Modes
-export const deliveryModes = ["Online", "In-person", "Hybrid"];
+const deliveryModes = ["Online", "In-person", "Hybrid"];
 // Durations
-export const durations = [
+const durations = [
   {
     value: "Short",
     label: "Short (<1 week)",
@@ -48,7 +48,7 @@ export const durations = [
   },
 ];
 // Business Stages
-export const businessStages = [
+const businessStages = [
   "Conception",
   "Growth",
   "Maturity",
@@ -374,6 +374,7 @@ const addEmptyFields = (groups: any) => {
 };
 
 // Apply status to all fields in all groups
+/*
 export const mockProfileData = {
   basic: addEmptyFields([
     {
@@ -1426,6 +1427,7 @@ export const mockProfileData = {
     },
   ]),
 };
+*/
 
 // Multi-entry data for tables
 export const mockMultiEntryData = {

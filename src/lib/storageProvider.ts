@@ -1,5 +1,5 @@
-export type UploadArgs = { file: File; dir: 'thumbnails' | 'video' | 'podcast' | 'report'; mediaId?: string }
-export type UploadResult = { publicUrl: string; blobPath: string }
+type UploadArgs = { file: File; dir: 'thumbnails' | 'video' | 'podcast' | 'report'; mediaId?: string }
+type UploadResult = { publicUrl: string; blobPath: string }
 
 const json = async (res: Response) => { try { return await res.json() } catch { return null } }
 
@@ -26,6 +26,7 @@ export async function uploadFile({ file, dir, mediaId }: UploadArgs): Promise<Up
   return { publicUrl, blobPath: new URL(putUrl).pathname.replace(/^\//,'').split('?')[0] }
 }
 
+/*
 export async function deleteFile(blobPath: string): Promise<{ ok: true }> {
   const res = await fetch('/api/uploads/delete', {
     method: 'POST',
@@ -38,3 +39,4 @@ export async function deleteFile(blobPath: string): Promise<{ ok: true }> {
   }
   return { ok: true }
 }
+*/

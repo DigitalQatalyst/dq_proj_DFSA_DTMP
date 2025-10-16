@@ -8,7 +8,7 @@ const imageCache: Record<string, string> = {};
  * Fetches an image from a URL and converts it to a data URL
  * This allows us to cache the image and avoid repeated network requests
  */
-export const fetchAndCacheImage = async (url: string): Promise<string> => {
+const fetchAndCacheImage = async (url: string): Promise<string> => {
   // Return cached image if available
   if (imageCache[url]) {
     return imageCache[url];

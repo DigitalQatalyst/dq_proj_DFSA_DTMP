@@ -51,7 +51,7 @@ export function useInView<T extends HTMLElement = HTMLDivElement>(
   return [ref, isInView];
 }
 // Hook for counting up animation
-export function useCountUp(
+function useCountUp(
   end: number,
   duration = 2000,
   startOnView = true
@@ -302,7 +302,7 @@ export const AnimatedCounter: React.FC<{
   );
 };
 // Typing animation effect
-export const TypingAnimation = ({
+const TypingAnimation = ({
   text,
   speed = 50,
   className = "",

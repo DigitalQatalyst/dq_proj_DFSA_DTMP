@@ -8,7 +8,7 @@ import {
   Tag as TagIcon,
   PlusCircle as PlusCircleIcon,
 } from 'lucide-react';
-import { Toast, ToastType } from '../components/Toast';
+type ToastType = 'success' | 'error'
 import DOMPurify from 'dompurify';
 import RichTextEditor from '../components/RichTextEditor';
 
@@ -465,7 +465,10 @@ const MediaCreate: React.FC<MediaCreateProps> = ({ existingItem }) => {
         </div>
 
         {toast && (
-          <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
+          <div className={`flex items-center p-4 mb-4 rounded-lg shadow ${toast.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`} role="alert">
+            <div className="text-sm font-medium flex-1">{toast.message}</div>
+            <button type="button" className={`ml-3 text-sm ${toast.type === 'success' ? 'text-green-700' : 'text-red-700'}`} onClick={() => setToast(null)} aria-label="Close">✕</button>
+          </div>
         )}
 
         {/* Tab Bar */}

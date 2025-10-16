@@ -2,7 +2,7 @@ import React, { Fragment, ComponentType } from 'react';
 import { ChevronRight, Home } from 'lucide-react';
 import { BurgerMenuButton } from '../Sidebar';
 
-export interface BreadcrumbItem {
+interface BreadcrumbItem {
   label: string;
   href?: string;
   icon?: ComponentType<{ className?: string; }>;
@@ -14,7 +14,7 @@ interface BreadcrumbsProps {
   'data-id'?: string;
 }
 
-export function Breadcrumbs({ items, 'data-id': dataId }: BreadcrumbsProps) {
+function Breadcrumbs({ items, 'data-id': dataId }: BreadcrumbsProps) {
   return (
     <nav
       className="flex items-center gap-2 text-sm max-w-full overflow-hidden"
@@ -54,7 +54,7 @@ interface PageHeaderProps {
   titleClassName?: string;
 }
 
-export function PageHeader({
+function PageHeader({
   title,
   breadcrumbs,
   'data-id': dataId,
@@ -82,7 +82,7 @@ interface PageLayoutProps {
   isLoggedIn?: boolean;
 }
 
-export function PageLayout({
+function PageLayout({
   title,
   breadcrumbs,
   children,
@@ -130,7 +130,7 @@ interface PageSectionProps {
   'data-id'?: string;
 }
 
-export function PageSection({ children, className = '', 'data-id': dataId }: PageSectionProps) {
+function PageSection({ children, className = '', 'data-id': dataId }: PageSectionProps) {
   return (
     <div
       className={`bg-white rounded-lg shadow-sm border border-gray-200 w-full min-w-0 max-w-full overflow-x-hidden overscroll-x-contain ${className}`}
@@ -150,7 +150,7 @@ interface SectionHeaderProps {
   children: React.ReactNode;
 }
 
-export function SectionHeader({
+function SectionHeader({
   title,
   description,
   actions,
@@ -166,7 +166,7 @@ interface SectionContentProps {
   'data-id'?: string;
 }
 
-export function SectionContent({ children, className = '', 'data-id': dataId }: SectionContentProps) {
+function SectionContent({ children, className = '', 'data-id': dataId }: SectionContentProps) {
   return (
     <div className={`p-4 sm:p-6 min-w-0 max-w-full overflow-x-hidden overscroll-x-contain ${className}`} data-id={dataId}>
       {children}
@@ -184,7 +184,7 @@ interface PrimaryButtonProps {
   'data-id'?: string;
 }
 
-export function PrimaryButton({
+function PrimaryButton({
   children,
   onClick,
   disabled = false,
@@ -219,7 +219,7 @@ interface SecondaryButtonProps {
   'data-id'?: string;
 }
 
-export function SecondaryButton({
+function SecondaryButton({
   children,
   onClick,
   disabled = false,

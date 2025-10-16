@@ -6,6 +6,7 @@
  * Get file size from a URL using HTTP HEAD request
  * Returns formatted string (e.g., "4.2 MB") or null if unable to retrieve
  */
+/*
 export async function getFileSizeFromUrl(url: string): Promise<string | null> {
   try {
     const response = await fetch(url, { method: 'HEAD' })
@@ -20,11 +21,13 @@ export async function getFileSizeFromUrl(url: string): Promise<string | null> {
     return null
   }
 }
+*/
 
 /**
  * Get PDF page count using pdf.js
  * Returns number of pages or null if unable to retrieve
  */
+/*
 export async function getPdfPageCount(url: string): Promise<number | null> {
   try {
     // Dynamically import pdf.js to avoid loading it unless needed
@@ -44,6 +47,7 @@ export async function getPdfPageCount(url: string): Promise<number | null> {
     return null
   }
 }
+*/
 
 /**
  * Format file size in bytes to human-readable string

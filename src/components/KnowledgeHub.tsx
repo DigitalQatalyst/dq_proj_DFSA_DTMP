@@ -22,7 +22,60 @@ import {
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { FadeInUpOnScroll, StaggeredFadeIn, useInView } from './AnimationUtils'
-import { EventCard, NewsCard, ResourceCard } from './CardComponents'
+// Inline minimal cards to avoid dependency on removed CardComponents/Cards
+const NewsCard: React.FC<{ content: { title: string; description: string; imageUrl?: string; tags?: string[]; date?: string; source?: string }; onQuickView?: () => void }>
+  = ({ content, onQuickView }) => (
+  <div className="bg-white rounded-lg shadow p-4 h-full flex flex-col">
+    {content.imageUrl && (
+      <img src={content.imageUrl} alt={content.title} className="w-full h-32 object-cover rounded mb-3" />
+    )}
+    <h3 className="font-semibold text-gray-900 mb-2">{content.title}</h3>
+    <p className="text-sm text-gray-600 flex-1">{content.description}</p>
+    <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
+      <div className="flex gap-1 flex-wrap">
+        {(content.tags || []).slice(0, 2).map((t, i) => (
+          <span key={i} className="px-2 py-0.5 bg-gray-100 rounded-full">{t}</span>
+        ))}
+      </div>
+      {content.date && <span>{content.date}</span>}
+    </div>
+    {onQuickView && (
+      <button onClick={onQuickView} className="mt-3 text-blue-600 hover:text-blue-800 text-sm self-start">Read more</button>
+    )}
+  </div>
+)
+
+const EventCard: React.FC<{ content: { title: string; description?: string; dateTime?: string; location?: string; imageUrl?: string; tags?: string[]; organizer?: string }; onQuickView?: () => void; onRegister?: () => void; isUpcoming?: boolean }>
+  = ({ content, onQuickView, onRegister }) => (
+  <div className="bg-white rounded-lg shadow p-4 h-full flex flex-col">
+    {content.imageUrl && (
+      <img src={content.imageUrl} alt={content.title} className="w-full h-32 object-cover rounded mb-3" />
+    )}
+    <h3 className="font-semibold text-gray-900 mb-1">{content.title}</h3>
+    <p className="text-xs text-gray-500 mb-2">{content.dateTime} · {content.location}</p>
+    <p className="text-sm text-gray-600 flex-1">{content.description}</p>
+    <div className="mt-3 flex items-center gap-3">
+      {onQuickView && <button onClick={onQuickView} className="text-blue-600 hover:text-blue-800 text-sm">View</button>}
+      {onRegister && <button onClick={onRegister} className="text-green-600 hover:text-green-800 text-sm">Register</button>}
+    </div>
+  </div>
+)
+
+const ResourceCard: React.FC<{ content: { title: string; description?: string; type?: string; icon?: React.ReactNode; tags?: string[]; downloadUrl?: string; fileSize?: string; downloadCount?: number; lastUpdated?: string; isExternal?: boolean }; onQuickView?: () => void; onAccessResource?: () => void; onDownload?: () => void }>
+  = ({ content, onQuickView, onAccessResource, onDownload }) => (
+  <div className="bg-white rounded-lg shadow p-4 h-full flex flex-col">
+    <div className="flex items-center gap-2 mb-2">
+      <div>{content.icon}</div>
+      <h3 className="font-semibold text-gray-900">{content.title}</h3>
+    </div>
+    <p className="text-sm text-gray-600 flex-1">{content.description}</p>
+    <div className="mt-3 flex items-center gap-3 text-sm">
+      {onAccessResource && <button onClick={onAccessResource} className="text-blue-600 hover:text-blue-800">Open</button>}
+      {onDownload && <button onClick={onDownload} className="text-gray-700 hover:text-gray-900">Download</button>}
+      {onQuickView && <button onClick={onQuickView} className="text-gray-500 hover:text-gray-700">Details</button>}
+    </div>
+  </div>
+)
 import EventRegistrationForm from './EventRegistrationForm'
 interface NewsItem {
   id: string
